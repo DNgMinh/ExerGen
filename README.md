@@ -9,5 +9,5 @@ Minh Do - 8005342
 
 [Team agreement](Docs/work-agreement-template.docx)
    
-[Vision statement](Docs/vision-statement.docs)
+[Vision statement](Docs/vision-statement.docx)
 
