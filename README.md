@@ -7,7 +7,7 @@ Kalp Joshi - 7963748
 Grover Rocha - 7925214  
 Minh Do - 8005342  
 
-[Team agreement](Docs/work-agreement-template.docx)
+[Team agreement](Docs/work-agreement-template.md)
    
-[Vision statement](Docs/vision-statement.docx)
+[Vision statement](Docs/vision-statement.md)
 
