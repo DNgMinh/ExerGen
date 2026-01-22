@@ -1,0 +1,1 @@
+To transform messy course documents into a clear, intelligent, and organized academic schedule, giving students a simple way to stay on top of their deadlines and manage their semester with confidence.
