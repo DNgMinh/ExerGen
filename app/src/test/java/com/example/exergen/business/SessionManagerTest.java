@@ -2,8 +2,6 @@ package com.example.exergen.business;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-import com.example.exergen.objects.Exercise;
-import com.example.exergen.objects.Workout;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,8 +1,5 @@
 package com.example.exergen.business;
 
-import com.example.exergen.objects.Exercise;
-import com.example.exergen.objects.Workout;
-
 public class SessionManager {
     private Workout currentWorkout;
     private int currentStepIndex = 0;
