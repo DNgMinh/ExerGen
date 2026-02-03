@@ -1,7 +1,7 @@
 package com.example.exergen.persistence;
 
-import com.example.exergen.objects.Exercise;
-import com.example.exergen.objects.Workout;
+import com.example.exergen.business.Exercise;
+import com.example.exergen.business.Workout;
 import java.util.ArrayList;
 import java.util.List;
 

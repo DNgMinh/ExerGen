@@ -1,4 +1,4 @@
-package com.example.exergen.objects;
+package com.example.exergen.business;
 
 import java.util.List;
 
