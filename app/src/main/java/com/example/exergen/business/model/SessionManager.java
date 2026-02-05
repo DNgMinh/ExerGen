@@ -1,4 +1,4 @@
-package com.example.exergen.business;
+package com.example.exergen.business.model;
 
 public class SessionManager {
     private Workout currentWorkout;
