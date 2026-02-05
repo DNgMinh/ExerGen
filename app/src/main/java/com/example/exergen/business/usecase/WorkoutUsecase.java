@@ -27,4 +27,3 @@ public class WorkoutUseCase {
         return workoutRepository.getAllWorkouts();
     }
 }
-
