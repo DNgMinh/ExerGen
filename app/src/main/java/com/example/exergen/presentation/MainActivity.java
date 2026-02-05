@@ -1,16 +1,6 @@
 package com.example.exergen.presentation;
 
 import android.os.Bundle;
-<<<<<<< HEAD
-import androidx.appcompat.app.AppCompatActivity;
-import com.example.exergen.R;
-
-public class MainActivity extends AppCompatActivity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-=======
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,7 +11,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.exergen.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,6 +52,5 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
->>>>>>> e681749498421cb6c3bd566de5ae59d95facb2a8
     }
 }
