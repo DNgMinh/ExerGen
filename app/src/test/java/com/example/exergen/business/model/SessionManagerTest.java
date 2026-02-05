@@ -36,8 +36,8 @@ public class SessionManagerTest {
     public void testNextMovesToNextExercise() {
         // Arrange fake repo
         FakeExerciseRepository repo = new FakeExerciseRepository();
-        Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "");
-        Exercise e2 = new Exercise("e2", "Second", List.of(), List.of(), "");
+        Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "", 0, 1);
+        Exercise e2 = new Exercise("e2", "Second", List.of(), List.of(), "", 0, 1);
 
         repo.save(e1);
         repo.save(e2);
@@ -49,8 +49,7 @@ public class SessionManagerTest {
                 1,
                 List.of("e1", "e2"),
                 List.of(0, 0),
-                List.of(0, 0)
-        );
+                List.of(0, 0));
 
         SessionManager manager = new SessionManager(w, repo);
 
