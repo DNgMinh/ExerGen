@@ -6,9 +6,11 @@ import java.util.List;
 
 public interface ExerciseRepository {
 
-    Exercise getById(String id);
+    Exercise getExerciseById(String id);
 
-    List<Exercise> getAll();
+    List<Exercise> getAllExercises();
 
-    void save(Exercise exercise);
+    List<Exercise> filterByEquipment(String equipment);
+
+    List<Exercise> filterByMuscleGroup(String muscle);
 }

@@ -10,8 +10,10 @@ public class SessionManager {
     private int currentStep = 0;
 
     public SessionManager(Workout workout, ExerciseRepository exerciseRepository) {
-        if (workout == null) throw new IllegalArgumentException("workout required");
-        if (exerciseRepository == null) throw new IllegalArgumentException("exerciseRepository required");
+        if (workout == null)
+            throw new IllegalArgumentException("workout required");
+        if (exerciseRepository == null)
+            throw new IllegalArgumentException("exerciseRepository required");
 
         this.workout = workout;
         this.exerciseRepository = exerciseRepository;
@@ -20,10 +22,11 @@ public class SessionManager {
     // --- Core logic ---------------------------------------------------------
 
     public Exercise getCurrentExercise() {
-        if (isFinished()) return null;
+        if (isFinished())
+            return null;
 
         String id = workout.getExerciseIds().get(currentStep);
-        return exerciseRepository.getById(id);
+        return exerciseRepository.getExerciseById(id);
     }
 
     public void next() {

@@ -4,7 +4,6 @@ import com.example.exergen.persistence.repository.ExerciseRepository;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,32 +14,54 @@ public class SessionManagerTest {
     // Fake repository for testing
     private static class FakeExerciseRepository implements ExerciseRepository {
         private final HashMap<String, Exercise> store = new HashMap<>();
+        private final List<Exercise> allExercises;
+
+        private FakeExerciseRepository(List<Exercise> exercises) {
+            for (Exercise exercise : exercises) {
+                store.put(exercise.getId(), exercise);
+            }
+            this.allExercises = List.copyOf(exercises);
+        }
 
         @Override
-        public Exercise getById(String id) {
+        public Exercise getExerciseById(String id) {
             return store.get(id);
         }
 
         @Override
-        public List<Exercise> getAll() {
-            return new ArrayList<>(store.values());
+        public List<Exercise> getAllExercises() {
+            return allExercises;
         }
 
         @Override
-        public void save(Exercise e) {
-            store.put(e.getId(), e);
+        public List<Exercise> filterByEquipment(String equipment) {
+            if (equipment == null || equipment.isEmpty()) {
+                return allExercises;
+            }
+
+            return allExercises.stream()
+                    .filter(exercise -> exercise.getEquipment().contains(equipment))
+                    .toList();
+        }
+
+        @Override
+        public List<Exercise> filterByMuscleGroup(String muscle) {
+            if (muscle == null || muscle.isEmpty()) {
+                return allExercises;
+            }
+
+            return allExercises.stream()
+                    .filter(exercise -> exercise.getMuscleGroups().contains(muscle))
+                    .toList();
         }
     }
 
     @Test
     public void testNextMovesToNextExercise() {
         // Arrange fake repo
-        FakeExerciseRepository repo = new FakeExerciseRepository();
         Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "", 0, 1);
         Exercise e2 = new Exercise("e2", "Second", List.of(), List.of(), "", 0, 1);
-
-        repo.save(e1);
-        repo.save(e2);
+        FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1, e2));
 
         // Workout stores only IDs
         Workout w = new Workout(
