@@ -3,19 +3,49 @@ package com.example.exergen.business.model;
 import java.util.List;
 
 public class Workout {
-    private String name;
-    private List<Exercise> exerciseList;
 
-    public Workout(String name, List<Exercise> exerciseList) {
+    private final String id;
+    private final String name;
+    private final int rounds;
+
+    private final List<String> exerciseIds;
+    private final List<Integer> workSeconds;
+    private final List<Integer> restSeconds;
+
+    public Workout(String id,
+                   String name,
+                   int rounds,
+                   List<String> exerciseIds,
+                   List<Integer> workSeconds,
+                   List<Integer> restSeconds) {
+
+        if (id == null || id.isEmpty()) throw new IllegalArgumentException("id required");
+        if (rounds <= 0) throw new IllegalArgumentException("rounds must be > 0");
+        if (exerciseIds == null || exerciseIds.isEmpty()) throw new IllegalArgumentException("exerciseIds required");
+        if (workSeconds.size() != exerciseIds.size()) throw new IllegalArgumentException("workSeconds mismatch");
+        if (restSeconds.size() != exerciseIds.size()) throw new IllegalArgumentException("restSeconds mismatch");
+
+        this.id = id;
         this.name = name;
-        this.exerciseList = exerciseList;
+        this.rounds = rounds;
+        this.exerciseIds = exerciseIds;
+        this.workSeconds = workSeconds;
+        this.restSeconds = restSeconds;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public int getRounds() { return rounds; }
+    public List<String> getExerciseIds() { return exerciseIds; }
+    public List<Integer> getWorkSeconds() { return workSeconds; }
+    public List<Integer> getRestSeconds() { return restSeconds; }
 
-    public List<Exercise> getExerciseList() {
-        return exerciseList;
+    public int totalDurationSec() {
+        int perRound = 0;
+        for (int i = 0; i < exerciseIds.size(); i++) {
+            perRound += workSeconds.get(i) + restSeconds.get(i);
+        }
+        return perRound * rounds;
     }
 }
+
