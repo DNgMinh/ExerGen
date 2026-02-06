@@ -11,7 +11,6 @@ public class Exercise {
     private final List<String> muscleGroups; // e.g. ["chest", "triceps"]
     private final List<String> equipment; // e.g. ["dumbbells"] or ["bodyweight"]
     private final String instructions; // optional text
-    private final int durationSeconds; // exercise duration (seconds)
     private final int intensity; // 1-5 scale (or similar)
 
     public Exercise(String id,
@@ -19,7 +18,6 @@ public class Exercise {
             List<String> muscleGroups,
             List<String> equipment,
             String instructions,
-            int durationSeconds,
             int intensity) {
 
         if (id == null || id.isEmpty())
@@ -30,8 +28,6 @@ public class Exercise {
             throw new IllegalArgumentException("muscleGroups required");
         if (equipment == null)
             throw new IllegalArgumentException("equipment required");
-        if (durationSeconds < 0)
-            throw new IllegalArgumentException("durationSeconds must be >= 0");
         if (intensity < 0)
             throw new IllegalArgumentException("intensity must be >= 0");
 
@@ -40,7 +36,6 @@ public class Exercise {
         this.muscleGroups = Collections.unmodifiableList(new ArrayList<>(muscleGroups));
         this.equipment = Collections.unmodifiableList(new ArrayList<>(equipment));
         this.instructions = instructions;
-        this.durationSeconds = durationSeconds;
         this.intensity = intensity;
     }
 
@@ -62,10 +57,6 @@ public class Exercise {
 
     public String getInstructions() {
         return instructions;
-    }
-
-    public int getDurationSeconds() {
-        return durationSeconds;
     }
 
     public int getIntensity() {

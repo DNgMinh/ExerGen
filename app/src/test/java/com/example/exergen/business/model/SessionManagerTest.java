@@ -59,8 +59,8 @@ public class SessionManagerTest {
     @Test
     public void testNextMovesToNextExercise() {
         // Arrange fake repo
-        Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "", 0, 1);
-        Exercise e2 = new Exercise("e2", "Second", List.of(), List.of(), "", 0, 1);
+        Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "", 1);
+        Exercise e2 = new Exercise("e2", "Second", List.of(), List.of(), "", 1);
         FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1, e2));
 
         // Workout stores only IDs
