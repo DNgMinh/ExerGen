@@ -14,12 +14,14 @@ public class WorkoutUseCase {
     }
 
     public void saveWorkout(Workout workout) {
-        if (workout == null) throw new IllegalArgumentException("workout required");
+        if (workout == null)
+            throw new IllegalArgumentException("workout required");
         workoutRepository.saveWorkout(workout);
     }
 
     public Workout loadWorkout(String id) {
-        if (id == null || id.isEmpty()) throw new IllegalArgumentException("id required");
+        if (id == null || id.isEmpty())
+            throw new IllegalArgumentException("id required");
         return workoutRepository.getWorkoutById(id);
     }
 
