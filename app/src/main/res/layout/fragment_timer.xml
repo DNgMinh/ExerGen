@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tv_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textColor="@android:color/black"
+        android:textSize="80sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_phase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ready"
+        android:textSize="24sp"
+        android:layout_marginBottom="32dp"/>
+
+    <LinearLayout
+        android:id="@+id/input_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="24dp">
+
+        <EditText
+            android:id="@+id/et_work"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:hint="Work"
+            android:inputType="number"
+            android:text="30"
+            android:textAlignment="center"/>
+
+        <EditText
+            android:id="@+id/et_rest"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:hint="Rest"
+            android:inputType="number"
+            android:layout_marginStart="16dp"
+            android:text="10"
+            android:textAlignment="center"/>
+
+        <EditText
+            android:id="@+id/et_sets"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:hint="Sets"
+            android:inputType="number"
+            android:layout_marginStart="16dp"
+            android:text="5"
+            android:textAlignment="center"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:spacing="16dp">
+
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start"
+            android:layout_marginEnd="16dp"/>
+
+        <Button
+            android:id="@+id/btn_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pause"
+            android:backgroundTint="#FF5722"/>
+    </LinearLayout>
+</LinearLayout>
