@@ -26,6 +26,13 @@ public class ExerciseService {
         return exerciseRepository.getAllExercises();
     }
 
+    public void addExercise(Exercise exercise) {
+        if (exercise == null) {
+            throw new IllegalArgumentException("exercise required");
+        }
+        exerciseRepository.addExercise(exercise);
+    }
+
     public List<Exercise> filterByEquipment(String equipment) {
         if (equipment == null || equipment.isEmpty()) {
             throw new IllegalArgumentException("equipment required");
