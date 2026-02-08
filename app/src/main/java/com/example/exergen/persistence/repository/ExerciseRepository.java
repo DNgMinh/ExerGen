@@ -13,4 +13,6 @@ public interface ExerciseRepository {
     List<Exercise> filterByEquipment(String equipment);
 
     List<Exercise> filterByMuscleGroup(String muscle);
+
+    void addExercise(Exercise exercise);
 }
