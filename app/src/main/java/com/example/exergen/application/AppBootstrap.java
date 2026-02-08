@@ -2,8 +2,11 @@ package com.example.exergen.application;
 
 import android.app.Application;
 
+import com.example.exergen.application.repository.ExerciseRepositoryStub;
 import com.example.exergen.application.repository.WorkoutRepositoryStub;
+import com.example.exergen.business.usecase.ExerciseService;
 import com.example.exergen.business.usecase.WorkoutUseCase;
+import com.example.exergen.persistence.repository.ExerciseRepository;
 import com.example.exergen.persistence.repository.WorkoutRepository;
 
 public final class AppBootstrap {
@@ -24,12 +27,15 @@ public final class AppBootstrap {
 
     // Expose use cases to presentation
     public final WorkoutUseCase workoutUseCase;
+    public final ExerciseService exerciseService;
 
     private AppBootstrap(Application app) {
         // Stub persistence for Iteration 1
         WorkoutRepository workoutRepository = new WorkoutRepositoryStub();
+        ExerciseRepository exerciseRepository = new ExerciseRepositoryStub();
 
         // Business use case
         this.workoutUseCase = new WorkoutUseCase(workoutRepository);
+        this.exerciseService = new ExerciseService(exerciseRepository);
     }
 }
