@@ -126,4 +126,19 @@ public class ExerciseRepositoryStub implements ExerciseRepository {
         }
         return result;
     }
+
+    @Override
+    public void addExercise(Exercise exercise) {
+        if (exercise == null) {
+            throw new IllegalArgumentException("exercise required");
+        }
+
+        for (Exercise existing : exercises) {
+            if (existing.getId().equals(exercise.getId())) {
+                return;
+            }
+        }
+
+        exercises.add(exercise);
+    }
 }
