@@ -41,6 +41,11 @@ public class ExerciseDetailLookupTest {
         public List<Exercise> filterByMuscleGroup(String muscle) {
             return List.of();
         }
+
+        @Override
+        public void addExercise(Exercise exercise) {
+            // Not needed for these tests.
+        }
     }
 
     @Test
