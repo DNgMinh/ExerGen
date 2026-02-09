@@ -54,6 +54,11 @@ public class ExerciseServiceTest {
             }
             return result;
         }
+
+        @Override
+        public void addExercise(Exercise exercise) {
+            // Not needed for these tests.
+        }
     }
 
     @Test

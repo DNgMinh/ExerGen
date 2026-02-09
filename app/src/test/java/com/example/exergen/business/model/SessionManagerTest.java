@@ -54,6 +54,11 @@ public class SessionManagerTest {
                     .filter(exercise -> exercise.getMuscleGroups().contains(muscle))
                     .toList();
         }
+
+        @Override
+        public void addExercise(Exercise exercise) {
+            // Not needed for these tests.
+        }
     }
 
     @Test
