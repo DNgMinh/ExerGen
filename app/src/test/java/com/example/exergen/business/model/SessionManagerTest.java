@@ -57,10 +57,7 @@ public class SessionManagerTest {
 
         @Override
         public void addExercise(Exercise exercise) {
-            if (exercise == null) {
-                return;
-            }
-            store.put(exercise.getId(), exercise);
+            // Not needed for these tests.
         }
     }
 
