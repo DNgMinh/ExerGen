@@ -38,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new TimerFragment();
             }
             else if (itemId == R.id.nav_workouts) {
-                //selectedFragment = new WorkoutFragment();
+                selectedFragment = new WorkoutsFragment();
             }
             else if (itemId == R.id.nav_add) {
-                //selectedFragment = new AddFragment();
+                selectedFragment = new AddFragment();
             }
             else if (itemId == R.id.nav_stats) {
-                //selectedFragment = new StatsFragment();
+                selectedFragment = new StatsFragment();
             }
 
             //Load the fragment if a valid one was selected
