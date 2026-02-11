@@ -5,113 +5,166 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
 import com.example.exergen.R;
 import com.example.exergen.business.IntervalTimer;
 import com.example.exergen.business.TimerObserver;
 
 public class TimerFragment extends Fragment implements TimerObserver {
 
-    private TextView tvTimer;
-    private TextView tvPhase;
-    private Button btnStart;
-    private Button btnPause;
-    private EditText etWork;//Work Duration
-    private EditText etRest;//Rest Duration
-    private EditText etSets;//Number of Sets
+    //UI Components
+    private TextView tvTimer, tvPhase;
+    private Button btnStart, btnPause, btnStop;
+    private LinearLayout pickerContainer;
+    private NumberPicker npWork, npRest, npSets;
 
+    //Logic
     private IntervalTimer intervalTimer;
+
+    //---Fragment Lifecycle Methods---
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //Inflate the layout we just created
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
+        initializeViews(view);
+        setupPickers();
+        setupButtons();
+        return view;
+    }
 
-        //Buttons
+    private void initializeViews(View view) {
         tvTimer = view.findViewById(R.id.tv_timer);
         tvPhase = view.findViewById(R.id.tv_phase);
         btnStart = view.findViewById(R.id.btn_start);
         btnPause = view.findViewById(R.id.btn_pause);
-
-        //Interval Settings
-        etWork = view.findViewById(R.id.et_work);
-        etRest = view.findViewById(R.id.et_rest);
-        etSets = view.findViewById(R.id.et_sets);
-
-        //Set Button Listeners
-        btnStart.setOnClickListener(v -> intervalTimer.start());
-        btnPause.setOnClickListener(v -> intervalTimer.pause());
-
-        btnStart.setOnClickListener(v -> {
-            //If the timer doesn't exist (fresh start) or is finished...
-            if (intervalTimer == null) {
-                startNewWorkout();
-            } else {
-                //If it exists, it might be paused, so just resume it
-                intervalTimer.start();
-            }
-        });
-
-        return view;
+        btnStop = view.findViewById(R.id.btn_stop);
+        pickerContainer = view.findViewById(R.id.picker_container);
+        npWork = view.findViewById(R.id.np_work);
+        npRest = view.findViewById(R.id.np_rest);
+        npSets = view.findViewById(R.id.np_sets);
     }
+
+    //---Setup Methods---
+
+    private void setupPickers() {
+        npWork.setMinValue(5); npWork.setMaxValue(60); npWork.setValue(30);
+        npRest.setMinValue(5); npRest.setMaxValue(60); npRest.setValue(10);
+        npSets.setMinValue(1); npSets.setMaxValue(20); npSets.setValue(3);
+    }
+
+    private void setupButtons() {
+        btnStart.setOnClickListener(v -> startOrResumeTimer());
+        btnPause.setOnClickListener(v -> pauseTimer());
+        btnStop.setOnClickListener(v -> stopTimer());
+    }
+
+    //---User Action Handlers---
+
+    private void startOrResumeTimer() {
+        if (intervalTimer == null) {
+            createNewTimer();
+        }
+        else {
+            intervalTimer.start();
+        }
+        btnStart.setText(getString(R.string.btn_resume));
+    }
+
+    private void createNewTimer() {
+        int work = npWork.getValue();
+        int rest = npRest.getValue();
+        int sets = npSets.getValue();
+
+        intervalTimer = new IntervalTimer(work, rest, sets, this);
+        intervalTimer.start();
+
+        setSetupModeVisible(false);
+    }
+
+    private void pauseTimer() {
+        if (intervalTimer != null) {
+            intervalTimer.pause();
+            tvPhase.setText(getString(R.string.timer_paused));
+        }
+    }
+
+    private void stopTimer() {
+        if (intervalTimer != null) {
+            intervalTimer.cancel();
+            intervalTimer = null;
+        }
+        resetToDefaultState();
+    }
+
+    //---UI Helper Methods---
+
+    private void setSetupModeVisible(boolean isVisible) {
+        if (isVisible) {
+            pickerContainer.setVisibility(View.VISIBLE);
+            btnStart.setText(getString(R.string.btn_start));
+        }
+        else {
+            pickerContainer.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateTimerText(long secondsRemaining) {
+        String timeString = String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60);
+        tvTimer.setText(timeString);
+    }
+
+    private void updatePhaseText(boolean isWorkPhase) {
+        if (isWorkPhase) {
+            tvPhase.setText(getString(R.string.timer_work));
+            tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+        } else {
+            tvPhase.setText(getString(R.string.timer_rest));
+            tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
+        }
+    }
+
+    private void showDoneState() {
+        tvPhase.setText(getString(R.string.timer_done));
+    }
+
+    private void resetToDefaultState() {
+        // Safe to call from any thread because we wrap it
+        safeRunOnUiThread(() -> {
+            tvTimer.setText(getString(R.string.timer_default));
+            tvPhase.setText(getString(R.string.timer_ready));
+            setSetupModeVisible(true);
+            intervalTimer = null;
+        });
+    }
+
+    //---Observer Implementation (Callbacks from IntervalTimer)---
 
     @Override
     public void onTick(long secondsRemaining) {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                String time = String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60);
-                tvTimer.setText(time);
-            });
-        }
+        safeRunOnUiThread(() -> updateTimerText(secondsRemaining));
     }
 
     @Override
     public void onPhaseChange(boolean isWorkPhase) {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                if (isWorkPhase) {
-                    tvPhase.setText("WORK!");
-                    tvPhase.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-                } else {
-                    tvPhase.setText("REST");
-                    tvPhase.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
-                }
-            });
-        }
+        safeRunOnUiThread(() -> updatePhaseText(isWorkPhase));
     }
 
     @Override
     public void onFinish() {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                tvTimer.setText("DONE");
-                tvPhase.setText("Tap Start to Reset");
-
-                intervalTimer = null;
-            });
-        }
+        resetToDefaultState();
+        safeRunOnUiThread(() -> showDoneState());
     }
 
-    private void startNewWorkout() {
-        //Get the text from the boxes
-        String workText = etWork.getText().toString();
-        String restText = etRest.getText().toString();
-        String setsText = etSets.getText().toString();
-
-        //Convert to numbers (integers)
-        int work = Integer.parseInt(workText);
-        int rest = Integer.parseInt(restText);
-        int sets = Integer.parseInt(setsText);
-
-        //Create the timer logic with user input
-        intervalTimer = new IntervalTimer(work, rest, sets, this);
-        intervalTimer.start();
-
+    private void safeRunOnUiThread(Runnable action) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(action);
+        }
     }
 }
