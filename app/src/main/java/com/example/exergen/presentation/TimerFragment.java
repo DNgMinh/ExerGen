@@ -18,11 +18,16 @@ import com.example.exergen.business.TimerObserver;
 
 public class TimerFragment extends Fragment implements TimerObserver {
 
+    //UI Components
     private TextView tvTimer, tvPhase;
     private Button btnStart, btnPause, btnStop;
     private LinearLayout pickerContainer;
     private NumberPicker npWork, npRest, npSets;
+
+    //Logic
     private IntervalTimer intervalTimer;
+
+    //---Fragment Lifecycle Methods---
 
     @Nullable
     @Override
@@ -46,6 +51,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
         npSets = view.findViewById(R.id.np_sets);
     }
 
+    //---Setup Methods---
+
     private void setupPickers() {
         npWork.setMinValue(5); npWork.setMaxValue(60); npWork.setValue(30);
         npRest.setMinValue(5); npRest.setMaxValue(60); npRest.setValue(10);
@@ -53,78 +60,111 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     private void setupButtons() {
-        btnStart.setOnClickListener(v -> handleStartClick());
-        btnPause.setOnClickListener(v -> {
-            if (intervalTimer != null) {
-                intervalTimer.pause();
-                tvPhase.setText(getString(R.string.timer_paused));
-            }
-        });
-        btnStop.setOnClickListener(v -> {
-            if (intervalTimer != null) {
-                intervalTimer.cancel();
-                intervalTimer = null;
-            }
-            resetUI();
-        });
+        btnStart.setOnClickListener(v -> startOrResumeTimer());
+        btnPause.setOnClickListener(v -> pauseTimer());
+        btnStop.setOnClickListener(v -> stopTimer());
     }
 
-    private void handleStartClick() {
+    //---User Action Handlers---
+
+    private void startOrResumeTimer() {
         if (intervalTimer == null) {
-            int work = npWork.getValue();
-            int rest = npRest.getValue();
-            int sets = npSets.getValue();
-            intervalTimer = new IntervalTimer(work, rest, sets, this);
+            createNewTimer();
+        }
+        else {
             intervalTimer.start();
-            pickerContainer.setVisibility(View.GONE);
-            btnStart.setText(getString(R.string.btn_resume));
-        } else {
-            intervalTimer.start();
+        }
+        btnStart.setText(getString(R.string.btn_resume));
+    }
+
+    private void createNewTimer() {
+        int work = npWork.getValue();
+        int rest = npRest.getValue();
+        int sets = npSets.getValue();
+
+        intervalTimer = new IntervalTimer(work, rest, sets, this);
+        intervalTimer.start();
+
+        setSetupModeVisible(false);
+    }
+
+    private void pauseTimer() {
+        if (intervalTimer != null) {
+            intervalTimer.pause();
+            tvPhase.setText(getString(R.string.timer_paused));
         }
     }
 
-    private void resetUI() {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                tvTimer.setText(getString(R.string.timer_default));
-                tvPhase.setText(getString(R.string.timer_ready));
-                pickerContainer.setVisibility(View.VISIBLE);
-                btnStart.setText(getString(R.string.btn_start));
-                intervalTimer = null;
-            });
+    private void stopTimer() {
+        if (intervalTimer != null) {
+            intervalTimer.cancel();
+            intervalTimer = null;
+        }
+        resetToDefaultState();
+    }
+
+    //---UI Helper Methods---
+
+    private void setSetupModeVisible(boolean isVisible) {
+        if (isVisible) {
+            pickerContainer.setVisibility(View.VISIBLE);
+            btnStart.setText(getString(R.string.btn_start));
+        }
+        else {
+            pickerContainer.setVisibility(View.GONE);
         }
     }
+
+    private void updateTimerText(long secondsRemaining) {
+        String timeString = String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60);
+        tvTimer.setText(timeString);
+    }
+
+    private void updatePhaseText(boolean isWorkPhase) {
+        if (isWorkPhase) {
+            tvPhase.setText(getString(R.string.timer_work));
+            tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+        } else {
+            tvPhase.setText(getString(R.string.timer_rest));
+            tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
+        }
+    }
+
+    private void showDoneState() {
+        tvPhase.setText(getString(R.string.timer_done));
+    }
+
+    private void resetToDefaultState() {
+        // Safe to call from any thread because we wrap it
+        safeRunOnUiThread(() -> {
+            tvTimer.setText(getString(R.string.timer_default));
+            tvPhase.setText(getString(R.string.timer_ready));
+            setSetupModeVisible(true);
+            intervalTimer = null;
+        });
+    }
+
+    //---Observer Implementation (Callbacks from IntervalTimer)---
 
     @Override
     public void onTick(long secondsRemaining) {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                String time = String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60);
-                tvTimer.setText(time);
-            });
-        }
+        safeRunOnUiThread(() -> updateTimerText(secondsRemaining));
     }
 
     @Override
     public void onPhaseChange(boolean isWorkPhase) {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> {
-                if (isWorkPhase) {
-                    tvPhase.setText(getString(R.string.timer_work));
-                    tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                } else {
-                    tvPhase.setText(getString(R.string.timer_rest));
-                    tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
-                }
-            });
-        }
+        safeRunOnUiThread(() -> updatePhaseText(isWorkPhase));
     }
 
     @Override
     public void onFinish() {
-        resetUI();
-        if(getActivity() != null) {
-            getActivity().runOnUiThread(() -> tvPhase.setText(getString(R.string.timer_done)));
+        resetToDefaultState();
+        safeRunOnUiThread(() -> showDoneState());
+    }
+
+    private void safeRunOnUiThread(Runnable action) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(action);
         }
     }
 }

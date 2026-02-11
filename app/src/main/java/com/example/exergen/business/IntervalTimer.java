@@ -7,51 +7,65 @@ public class IntervalTimer {
     private Timer timer;
     private TimerObserver observer;
 
-    //Settings/Config
+    // Settings
     private int workDurationSeconds;
     private int restDurationSeconds;
     private int totalSets;
 
-    //State
+    // State
     private int currentSet = 1;
-    private boolean isWorkPhase = true; //true = Work, false = Rest
+    private boolean isWorkPhase = true;
     private int remainingSeconds;
     private boolean isRunning = false;
 
-    //Constructor: Pass in the settings and the listener (observer)
     public IntervalTimer(int workSecs, int restSecs, int sets, TimerObserver observer) {
         this.workDurationSeconds = workSecs;
         this.restDurationSeconds = restSecs;
         this.totalSets = sets;
         this.observer = observer;
-        reset(); //Set up the initial state
+        reset();
     }
 
     public void start() {
-        if (isRunning)
-            return; //Don't start if already running
+        if(isRunning)
+            return;
 
         isRunning = true;
+
+        if(observer != null)
+            observer.onPhaseChange(isWorkPhase);
+
         timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                tick();
+            }
+        }, 1000, 1000); // Delay 1 sec, then repeat every 1 sec
     }
 
     public void pause() {
         if (timer != null) {
-            timer.cancel(); //Kill the timer thread
+            timer.cancel();
             timer = null;
         }
         isRunning = false;
     }
 
-    //The logic that runs every second
+    //Call this to kill the timer completely (Zombie fix)
+    public void cancel() {
+        pause();
+    }
+
     private void tick() {
         remainingSeconds--;
 
         if (remainingSeconds < 0) {
             handlePhaseSwitch();
         } else {
-            //Update the text
             if (observer != null) {
+                // Determine if we need to switch phases or just update UI
                 observer.onTick(remainingSeconds);
             }
         }
@@ -59,17 +73,16 @@ public class IntervalTimer {
 
     private void handlePhaseSwitch() {
         if (isWorkPhase) {
-            //Work just finished. Time to Rest.
+            //Work finished. Switch to Rest.
             if (restDurationSeconds > 0) {
                 isWorkPhase = false;
                 remainingSeconds = restDurationSeconds;
-                if (observer != null) observer.onPhaseChange(false); //Tell UI: "REST MODE"
+                if (observer != null) observer.onPhaseChange(false); //Rest
             } else {
-                //If rest is 0 seconds, go to the next set
                 startNextSet();
             }
         } else {
-            //Rest just finished. Time to Work.
+            //Rest finished. Switch to Work (Next Set).
             startNextSet();
         }
     }
@@ -82,15 +95,16 @@ public class IntervalTimer {
         else {
             isWorkPhase = true;
             remainingSeconds = workDurationSeconds;
-            if (observer != null)
-                observer.onPhaseChange(true); //Tell UI: "WORK MODE"
+            if (observer != null) observer.onPhaseChange(true); //Work
         }
     }
 
     private void finish() {
         pause();
-        if (observer != null)
+        if (observer != null) {
+            observer.onTick(0);
             observer.onFinish();
+        }
     }
 
     public void reset() {
@@ -99,7 +113,6 @@ public class IntervalTimer {
         isWorkPhase = true;
         remainingSeconds = workDurationSeconds;
 
-        //Update UI immediately so it doesn't show old numbers
         if (observer != null) {
             observer.onPhaseChange(true);
             observer.onTick(remainingSeconds);
