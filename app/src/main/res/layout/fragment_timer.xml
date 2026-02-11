@@ -1,77 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp">
+    android:padding="24dp">
 
     <TextView
         android:id="@+id/tv_timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="00:00"
-        android:textColor="@android:color/black"
+        android:text="@string/timer_default"
         android:textSize="80sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp"/>
 
     <TextView
         android:id="@+id/tv_phase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ready"
+        android:text="@string/timer_ready"
         android:textSize="24sp"
-        android:layout_marginBottom="32dp"/>
+        app:layout_constraintTop_toBottomOf="@id/tv_timer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
 
     <LinearLayout
-        android:id="@+id/input_container"
+        android:id="@+id/picker_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/tv_phase"
+        app:layout_constraintBottom_toTopOf="@id/btn_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Work (s)" android:textStyle="bold"/>
+            <NumberPicker android:id="@+id/np_work" android:layout_width="wrap_content" android:layout_height="120dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rest (s)" android:textStyle="bold"/>
+            <NumberPicker android:id="@+id/np_rest" android:layout_width="wrap_content" android:layout_height="120dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sets" android:textStyle="bold"/>
+            <NumberPicker android:id="@+id/np_sets" android:layout_width="wrap_content" android:layout_height="120dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginBottom="24dp">
-
-        <EditText
-            android:id="@+id/et_work"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:hint="Work"
-            android:inputType="number"
-            android:text="30"
-            android:textAlignment="center"/>
-
-        <EditText
-            android:id="@+id/et_rest"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:hint="Rest"
-            android:inputType="number"
-            android:layout_marginStart="16dp"
-            android:text="10"
-            android:textAlignment="center"/>
-
-        <EditText
-            android:id="@+id/et_sets"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:hint="Sets"
-            android:inputType="number"
-            android:layout_marginStart="16dp"
-            android:text="5"
-            android:textAlignment="center"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:spacing="16dp">
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="16dp">
 
         <Button
-            android:id="@+id/btn_start"
+            android:id="@+id/btn_stop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start"
+            android:text="Stop"
+            android:backgroundTint="#D32F2F"
             android:layout_marginEnd="16dp"/>
 
         <Button
@@ -79,6 +93,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pause"
-            android:backgroundTint="#FF5722"/>
+            android:backgroundTint="#FF5722"
+            android:layout_marginEnd="16dp"/>
+
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_start"
+            android:paddingHorizontal="32dp"/>
     </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
