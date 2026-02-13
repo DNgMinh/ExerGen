@@ -13,8 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
-import com.example.exergen.business.IntervalTimer;
-import com.example.exergen.business.TimerObserver;
+import com.example.exergen.business.service.IntervalTimer;
+import com.example.exergen.business.service.TimerObserver;
 
 public class TimerFragment extends Fragment implements TimerObserver {
 

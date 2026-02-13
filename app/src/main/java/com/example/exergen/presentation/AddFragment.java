@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
-import com.example.exergen.business.model.Exercise;
-import com.example.exergen.business.usecase.ExerciseService;
+import com.example.exergen.model.Exercise;
+import com.example.exergen.business.service.ExerciseService;
 import java.util.List;
 
 public class AddFragment extends Fragment {

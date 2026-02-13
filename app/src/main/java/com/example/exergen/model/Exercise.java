@@ -1,4 +1,4 @@
-package com.example.exergen.business.model;
+package com.example.exergen.model;
 
 import java.util.ArrayList;
 import java.util.Collections;

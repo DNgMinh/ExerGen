@@ -1,6 +1,6 @@
-package com.example.exergen.business.usecase;
+package com.example.exergen.business.service;
 
-import com.example.exergen.business.model.Exercise;
+import com.example.exergen.model.Exercise;
 import com.example.exergen.persistence.repository.ExerciseRepository;
 
 import java.util.List;

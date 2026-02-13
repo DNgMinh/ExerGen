@@ -1,5 +1,7 @@
-package com.example.exergen.business.model;
+package com.example.exergen.business.service;
 
+import com.example.exergen.model.Exercise;
+import com.example.exergen.model.Workout;
 import com.example.exergen.persistence.repository.ExerciseRepository;
 
 public class SessionManager {

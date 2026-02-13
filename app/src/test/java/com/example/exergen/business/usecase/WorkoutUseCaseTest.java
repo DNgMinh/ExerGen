@@ -1,6 +1,6 @@
 package com.example.exergen.business.usecase;
 
-import com.example.exergen.business.model.Workout;
+import com.example.exergen.model.Workout;
 import com.example.exergen.persistence.repository.WorkoutRepository;
 
 import org.junit.Test;

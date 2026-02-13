@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
-import com.example.exergen.business.model.Workout;
+import com.example.exergen.model.Workout;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import java.util.List;
 
