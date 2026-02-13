@@ -1,4 +1,4 @@
-package com.example.exergen.business;
+package com.example.exergen.business.service;
 
 public interface TimerObserver {
     //1. Called every second to update the countdown (e.g., "00:29")

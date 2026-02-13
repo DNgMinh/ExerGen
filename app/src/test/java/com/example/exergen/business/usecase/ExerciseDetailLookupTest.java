@@ -1,6 +1,7 @@
 package com.example.exergen.business.usecase;
 
-import com.example.exergen.business.model.Exercise;
+import com.example.exergen.model.Exercise;
+import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.persistence.repository.ExerciseRepository;
 
 import org.junit.Test;

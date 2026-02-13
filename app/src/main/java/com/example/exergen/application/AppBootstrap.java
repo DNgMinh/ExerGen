@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.example.exergen.application.repository.ExerciseRepositoryStub;
 import com.example.exergen.application.repository.WorkoutRepositoryStub;
-import com.example.exergen.business.usecase.ExerciseService;
+import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.persistence.repository.ExerciseRepository;
 import com.example.exergen.persistence.repository.WorkoutRepository;

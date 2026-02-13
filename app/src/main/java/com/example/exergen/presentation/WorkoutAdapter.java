@@ -7,7 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.business.model.Workout;
+import com.example.exergen.model.Workout;
 import java.util.List;
 import java.util.Locale;
 

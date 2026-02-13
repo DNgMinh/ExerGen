@@ -1,4 +1,4 @@
-package com.example.exergen.business;
+package com.example.exergen.business.service;
 
 import java.util.Timer;
 import java.util.TimerTask;
