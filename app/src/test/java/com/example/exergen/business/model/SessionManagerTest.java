@@ -1,5 +1,8 @@
 package com.example.exergen.business.model;
 
+import com.example.exergen.model.Exercise;
+import com.example.exergen.business.service.SessionManager;
+import com.example.exergen.model.Workout;
 import com.example.exergen.persistence.repository.ExerciseRepository;
 
 import org.junit.Test;
@@ -53,6 +56,11 @@ public class SessionManagerTest {
             return allExercises.stream()
                     .filter(exercise -> exercise.getMuscleGroups().contains(muscle))
                     .toList();
+        }
+
+        @Override
+        public void addExercise(Exercise exercise) {
+            // Not needed for these tests.
         }
     }
 

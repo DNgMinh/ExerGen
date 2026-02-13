@@ -1,6 +1,6 @@
 package com.example.exergen.persistence.repository;
 
-import com.example.exergen.business.model.Workout;
+import com.example.exergen.model.Workout;
 
 import java.util.List;
 

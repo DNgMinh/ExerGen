@@ -1,6 +1,7 @@
 package com.example.exergen.business.usecase;
 
-import com.example.exergen.business.model.Exercise;
+import com.example.exergen.model.Exercise;
+import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.persistence.repository.ExerciseRepository;
 
 import org.junit.Test;
@@ -40,6 +41,11 @@ public class ExerciseDetailLookupTest {
         @Override
         public List<Exercise> filterByMuscleGroup(String muscle) {
             return List.of();
+        }
+
+        @Override
+        public void addExercise(Exercise exercise) {
+            // Not needed for these tests.
         }
     }
 

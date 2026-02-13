@@ -1,4 +1,4 @@
-package com.example.exergen.business.model;
+package com.example.exergen.model;
 
 import java.util.List;
 
@@ -19,11 +19,11 @@ public class Workout {
                    List<Integer> workSeconds,
                    List<Integer> restSeconds) {
 
-        if (id == null || id.isEmpty()) throw new IllegalArgumentException("id required");
-        if (rounds <= 0) throw new IllegalArgumentException("rounds must be > 0");
+        if (id == null || id.isEmpty()) throw new IllegalArgumentException("ID required");
+        if (rounds <= 0) throw new IllegalArgumentException("Rounds must be > 0");
         if (exerciseIds == null || exerciseIds.isEmpty()) throw new IllegalArgumentException("exerciseIds required");
-        if (workSeconds.size() != exerciseIds.size()) throw new IllegalArgumentException("workSeconds mismatch");
-        if (restSeconds.size() != exerciseIds.size()) throw new IllegalArgumentException("restSeconds mismatch");
+        if (workSeconds.size() != exerciseIds.size()) throw new IllegalArgumentException("WorkSeconds mismatch");
+        if (restSeconds.size() != exerciseIds.size()) throw new IllegalArgumentException("RestSeconds mismatch");
 
         this.id = id;
         this.name = name;
@@ -33,13 +33,31 @@ public class Workout {
         this.restSeconds = restSeconds;
     }
 
-    public String getId() { return id; }
-    public String getName() { return name; }
-    public int getRounds() { return rounds; }
-    public List<String> getExerciseIds() { return exerciseIds; }
-    public List<Integer> getWorkSeconds() { return workSeconds; }
-    public List<Integer> getRestSeconds() { return restSeconds; }
+    public String getId() {
+        return id;
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public int getRounds() {
+        return rounds;
+    }
+
+    public List<String> getExerciseIds() {
+        return exerciseIds;
+    }
+
+    public List<Integer> getWorkSeconds() {
+        return workSeconds;
+    }
+
+    public List<Integer> getRestSeconds() {
+        return restSeconds;
+    }
+
+    // Calculate total duration of the working (in seconds)
     public int totalDurationSec() {
         int perRound = 0;
         for (int i = 0; i < exerciseIds.size(); i++) {

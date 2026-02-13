@@ -1,10 +1,11 @@
 package com.example.exergen.business.usecase;
 
-import com.example.exergen.business.model.Workout;
+import com.example.exergen.model.Workout;
 import com.example.exergen.persistence.repository.WorkoutRepository;
 
 import java.util.List;
 
+//
 public class WorkoutUseCase {
 
     private final WorkoutRepository workoutRepository;
@@ -14,14 +15,16 @@ public class WorkoutUseCase {
     }
 
     public void saveWorkout(Workout workout) {
-        if (workout == null)
-            throw new IllegalArgumentException("workout required");
+        if (workout == null) {
+            throw new IllegalArgumentException("Workout required.");
+        }
         workoutRepository.saveWorkout(workout);
     }
 
     public Workout loadWorkout(String id) {
-        if (id == null || id.isEmpty())
-            throw new IllegalArgumentException("id required");
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("ID required.");
+        }
         return workoutRepository.getWorkoutById(id);
     }
 

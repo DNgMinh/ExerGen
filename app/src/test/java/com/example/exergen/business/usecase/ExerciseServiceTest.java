@@ -1,6 +1,7 @@
 package com.example.exergen.business.usecase;
 
-import com.example.exergen.business.model.Exercise;
+import com.example.exergen.model.Exercise;
+import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.persistence.repository.ExerciseRepository;
 
 import org.junit.Test;
@@ -53,6 +54,11 @@ public class ExerciseServiceTest {
                 }
             }
             return result;
+        }
+
+        @Override
+        public void addExercise(Exercise exercise) {
+            // Not needed for these tests.
         }
     }
 

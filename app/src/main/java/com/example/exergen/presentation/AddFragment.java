@@ -1,0 +1,73 @@
+package com.example.exergen.presentation;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.exergen.R;
+import com.example.exergen.application.AppBootstrap;
+import com.example.exergen.model.Exercise;
+import com.example.exergen.business.service.ExerciseService;
+import java.util.List;
+
+// Fragment responsible for displaying the list of available exercises
+public class AddFragment extends Fragment {
+
+    private ExerciseService exerciseService;
+    private RecyclerView recyclerView;
+    private TextView emptyStateText;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        exerciseService = AppBootstrap.get().exerciseService;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_workouts, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        recyclerView = view.findViewById(R.id.exercise_recycler_view);
+        emptyStateText = view.findViewById(R.id.empty_state_text);
+        emptyStateText.setText("No exercises found");
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Fetch data from business layer
+        List<Exercise> exercises = exerciseService.getAllExercises();
+
+        if (exercises == null || exercises.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            emptyStateText.setVisibility(View.VISIBLE);
+        }
+        else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyStateText.setVisibility(View.GONE);
+            recyclerView.setAdapter(new ExerciseAdapter(exercises, this::openExerciseDetail));
+        }
+    }
+
+    private void openExerciseDetail(Exercise exercise) {
+        if (exercise == null) {
+            return;
+        }
+
+        ExerciseDetailFragment detailFragment = ExerciseDetailFragment.newInstance(exercise.getId());
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, detailFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+}
