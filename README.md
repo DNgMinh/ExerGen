@@ -38,7 +38,7 @@ The project will be considered successful if the following conditions are met:
 ## Architecture & Package Structure
 
 ```
-app/src/main/java/com.example.exergen
+app/src/main/java/com/example/exergen/
 
 │
 ├── application/       // Composition root (ExerGenApp, AppBootstrap)
@@ -113,3 +113,4 @@ Run with:
 * Git / GitLab (hosted at code.cs.umanitoba.ca)
 
 ---
+
