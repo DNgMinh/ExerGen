@@ -38,20 +38,21 @@ The project will be considered successful if the following conditions are met:
 ## Architecture & Package Structure
 
 ```
-app/src/main/java/com/yourorg/exergen/
+app/src/main/java/com.example.exergen
+
 │
-├── presentation/      // Android UI
+├── application/       // Composition root (ExerGenApp, AppBootstrap)
+│   ├──repository/      // Current implementations (Stub/Fake for Iteration 1)
 │
-├── business/           // Logic and services
-│   ├── services/       // Logic 
-│   └── usecase/        // Use cases
-├── persistence/        // Repository interfaces and implementations
-│   └──repository/      // In-memory repositories 
-│   
+├── business/          // Domain logic and services
+│   ├── service/       // Logic services (e.g., ExerciseService, IntervalTimer, SessionManager)
+│   └── usecase/       // High-level business rules (e.g., WorkoutUseCase)
 │
-├── models/             // Data objects 
+├── model/             // Plain data objects (Exercise, Workout)
 │
-└── application/        // Wiring
+├── persistence/       // Repository interfaces + implementations
+│  
+└── presentation/      // Android UI (Activities, Fragments, Adapters)
 ```
 
 * Our [Architecture](ARCHITECTURE.md) for this project
@@ -64,10 +65,51 @@ app/src/main/java/com/yourorg/exergen/
 
 ---
 
+### Dependency Rules (STRICT)
+
+* `presentation → business → persistence`
+* `application` wires concrete implementations together.
+* **No Android imports** (`android.*`, `androidx.*`) are allowed in `business`, `persistence`, or `model` layers.
+* Android-specific code belongs **only** in `presentation` and `application`.
+
+---
+
+## Persistence & Database
+
+* Currently using **Stub/Fake repositories** for Iteration 1.
+* Future iterations will implement **SQLite** via `SupportSQLiteOpenHelper`.
+
+---
+
 ## Testing Strategy
 
 ### 1. Unit Tests
 
 **Location:** `app/src/test/java`
 
-* Business logic tested in isolation
+* Tests business logic in isolation using JUnit.
+* No Android dependencies.
+* Uses fake/stub repositories.
+
+
+Run with:
+```sh
+./gradlew :app:testDebugUnitTest
+```
+
+## SDK & Tooling Requirements
+
+### Android SDK
+* `compileSdk = 35` (or as per build.gradle)
+* `minSdk = 26`
+* `targetSdk = 35`
+
+### Java
+* **Java 17** (or as per project configuration)
+* Kotlin is **not used** in the logic/persistence layers of this project.
+
+### Tools
+* Android Studio
+* Git / GitLab (hosted at code.cs.umanitoba.ca)
+
+---
