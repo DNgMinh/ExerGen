@@ -51,7 +51,20 @@ public class AddFragment extends Fragment {
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
-            recyclerView.setAdapter(new ExerciseAdapter(exercises));
+            recyclerView.setAdapter(new ExerciseAdapter(exercises, this::openExerciseDetail));
         }
+    }
+
+    private void openExerciseDetail(Exercise exercise) {
+        if (exercise == null) {
+            return;
+        }
+
+        ExerciseDetailFragment detailFragment = ExerciseDetailFragment.newInstance(exercise.getId());
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, detailFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
