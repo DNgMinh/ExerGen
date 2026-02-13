@@ -32,3 +32,42 @@ The project will be considered successful if the following conditions are met:
 - **Filter Accuracy**: Exercise selection must match equipment constraints with 100 percent accuracy.
 - **Session Continuity**: Active workout timers must remain accurate within one second when paused, resumed, or when the device orientation changes.
 - **Data Integrity**: Completed workouts must be saved correctly and reflected immediately in session history and statistics in all cases.
+
+---
+
+## Architecture & Package Structure
+
+```
+app/src/main/java/com/yourorg/exergen/
+│
+├── presentation/      // Android UI
+│
+├── business/           // Logic and services
+│   ├── services/       // Logic 
+│   └── usecase/        // Use cases
+├── persistence/        // Repository interfaces and implementations
+│   └──repository/      // In-memory repositories 
+│   
+│
+├── models/             // Data objects 
+│
+└── application/        // Wiring
+```
+
+Our [Architecture](ARCHITECTURE.md) for this project
+
+---
+
+## Persistence & Database
+
+* Fake repositories exist **only for the moment, since we are in iteration 1** 
+
+---
+
+## Testing Strategy
+
+### 1. Unit Tests
+
+**Location:** `app/src/test/java`
+
+* Business logic tested in isolation
