@@ -54,7 +54,7 @@ app/src/main/java/com/yourorg/exergen/
 └── application/        // Wiring
 ```
 
-Our [Architecture](ARCHITECTURE.md) for this project
+* Our [Architecture](ARCHITECTURE.md) for this project
 
 ---
 
