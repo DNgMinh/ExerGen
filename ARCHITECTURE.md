@@ -32,6 +32,9 @@
     - Adapts a list of workouts to be displayed
 - **[`WorkoutsFragment`](app/src/main/java/com/example/exergen/presentation/WorkoutsFragment.java)**
     - Displays a list of user's saved wotkout
+- **[`ExerciseDetailFragment`](app/src/main/java/com/example/exergen/presentation/ExerciseDetailFragment.java)**
+    - Displays detailed information about an exercise
+
 ### Business Layer
 
 #### `business/usecase/`
