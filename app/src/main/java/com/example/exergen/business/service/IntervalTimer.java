@@ -3,6 +3,7 @@ package com.example.exergen.business.service;
 import java.util.Timer;
 import java.util.TimerTask;
 
+// Manages the core interval timer logic (work/rest cycles)
 public class IntervalTimer {
     private Timer timer;
     private TimerObserver observer;
@@ -18,6 +19,7 @@ public class IntervalTimer {
     private int remainingSeconds;
     private boolean isRunning = false;
 
+    // Initializes timer with specific settings
     public IntervalTimer(int workSecs, int restSecs, int sets, TimerObserver observer) {
         this.workDurationSeconds = workSecs;
         this.restDurationSeconds = restSecs;
@@ -26,7 +28,9 @@ public class IntervalTimer {
         reset();
     }
 
+    // Starts/resumes the timer if it is currently paused
     public void start() {
+        // Prevent multiple from running concurrently
         if(isRunning)
             return;
 
@@ -37,12 +41,13 @@ public class IntervalTimer {
 
         timer = new Timer();
 
+        // Schedule the task to run every second
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 tick();
             }
-        }, 1000, 1000); // Delay 1 sec, then repeat every 1 sec
+        }, 1000, 1000);
     }
 
     public void pause() {
@@ -53,7 +58,7 @@ public class IntervalTimer {
         isRunning = false;
     }
 
-    //Call this to kill the timer completely (Zombie fix)
+    // Completely stops the timer
     public void cancel() {
         pause();
     }
@@ -71,18 +76,21 @@ public class IntervalTimer {
         }
     }
 
+    // Logic to determine if we switch phases (work -> rest) or begin a new set
     private void handlePhaseSwitch() {
         if (isWorkPhase) {
-            //Work finished. Switch to Rest.
+            // Work finished. Switch to Rest.
             if (restDurationSeconds > 0) {
                 isWorkPhase = false;
                 remainingSeconds = restDurationSeconds;
                 if (observer != null) observer.onPhaseChange(false); //Rest
-            } else {
+            }
+            else {
                 startNextSet();
             }
-        } else {
-            //Rest finished. Switch to Work (Next Set).
+        }
+        else {
+            // Rest finished. Switch to Work (Next Set).
             startNextSet();
         }
     }
@@ -107,6 +115,7 @@ public class IntervalTimer {
         }
     }
 
+    // Reset the timer to the initial state
     public void reset() {
         pause();
         currentSet = 1;

@@ -11,10 +11,13 @@ import com.example.exergen.model.Workout;
 import java.util.List;
 import java.util.Locale;
 
+// RecyclerView adapter for displaying a list of workout items,
+// binds workout domain models to the UI views
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder> {
 
     private List<Workout> workouts;
 
+    // Initializes the adapter with a list of workouts
     public WorkoutAdapter(List<Workout> workouts) {
         this.workouts = workouts;
     }

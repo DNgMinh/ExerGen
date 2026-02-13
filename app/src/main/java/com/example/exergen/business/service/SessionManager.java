@@ -4,6 +4,7 @@ import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 import com.example.exergen.persistence.repository.ExerciseRepository;
 
+// Manages the state of an active workout session
 public class SessionManager {
 
     private final Workout workout;
@@ -11,21 +12,24 @@ public class SessionManager {
 
     private int currentStep = 0;
 
+    // Initializes a new session for the given workout
     public SessionManager(Workout workout, ExerciseRepository exerciseRepository) {
-        if (workout == null)
-            throw new IllegalArgumentException("workout required");
-        if (exerciseRepository == null)
-            throw new IllegalArgumentException("exerciseRepository required");
+        if (workout == null) {
+            throw new IllegalArgumentException("Workout required.");
+        }
+        if (exerciseRepository == null) {
+            throw new IllegalArgumentException("exerciseRepository required.");
+        }
 
         this.workout = workout;
         this.exerciseRepository = exerciseRepository;
     }
 
-    // --- Core logic ---------------------------------------------------------
-
+    // Retrieve the exercise for the current step
     public Exercise getCurrentExercise() {
-        if (isFinished())
+        if (isFinished()) {
             return null;
+        }
 
         String id = workout.getExerciseIds().get(currentStep);
         return exerciseRepository.getExerciseById(id);
@@ -40,8 +44,6 @@ public class SessionManager {
     public boolean isFinished() {
         return currentStep >= workout.getExerciseIds().size();
     }
-
-    // --- Helpers ------------------------------------------------------------
 
     public int getCurrentStepIndex() {
         return currentStep;

@@ -11,6 +11,8 @@ import com.example.exergen.R;
 import com.example.exergen.model.Exercise;
 import java.util.List;
 
+// RecyclerView adapter for displaying a list of exercise items, binds
+// exercise domain models to the UI views
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
 
     private List<Exercise> exercises;

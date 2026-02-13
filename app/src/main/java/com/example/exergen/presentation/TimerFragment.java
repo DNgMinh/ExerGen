@@ -18,16 +18,16 @@ import com.example.exergen.business.service.TimerObserver;
 
 public class TimerFragment extends Fragment implements TimerObserver {
 
-    //UI Components
+    // UI Components
     private TextView tvTimer, tvPhase;
     private Button btnStart, btnPause, btnStop;
     private LinearLayout pickerContainer;
     private NumberPicker npWork, npRest, npSets;
 
-    //Logic
+    // Logic
     private IntervalTimer intervalTimer;
 
-    //---Fragment Lifecycle Methods---
+    // Fragment Lifecycle Methods
 
     @Nullable
     @Override
@@ -51,7 +51,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
         npSets = view.findViewById(R.id.np_sets);
     }
 
-    //---Setup Methods---
+    // Setup Methods
 
     private void setupPickers() {
         npWork.setMinValue(5); npWork.setMaxValue(60); npWork.setValue(30);
@@ -65,7 +65,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
         btnStop.setOnClickListener(v -> stopTimer());
     }
 
-    //---User Action Handlers---
+    // User Action Handlers
 
     private void startOrResumeTimer() {
         if (intervalTimer == null) {
@@ -103,7 +103,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
         resetToDefaultState();
     }
 
-    //---UI Helper Methods---
+    // UI Helper Methods
 
     private void setSetupModeVisible(boolean isVisible) {
         if (isVisible) {
@@ -144,7 +144,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
         });
     }
 
-    //---Observer Implementation (Callbacks from IntervalTimer)---
+    // Observer Implementation (Callbacks from IntervalTimer)
 
     @Override
     public void onTick(long secondsRemaining) {

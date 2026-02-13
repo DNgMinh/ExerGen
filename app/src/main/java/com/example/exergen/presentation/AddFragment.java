@@ -16,6 +16,7 @@ import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
 import java.util.List;
 
+// Fragment responsible for displaying the list of available exercises
 public class AddFragment extends Fragment {
 
     private ExerciseService exerciseService;
@@ -43,12 +44,14 @@ public class AddFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Fetch data from business layer
         List<Exercise> exercises = exerciseService.getAllExercises();
 
         if (exercises == null || exercises.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyStateText.setVisibility(View.VISIBLE);
-        } else {
+        }
+        else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
             recyclerView.setAdapter(new ExerciseAdapter(exercises));

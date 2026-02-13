@@ -16,6 +16,8 @@ import com.example.exergen.model.Workout;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import java.util.List;
 
+// Fragment responsible for displaying the user's saved workouts,
+// handles fetching data from the business layer and updating the UI
 public class WorkoutsFragment extends Fragment {
 
     private WorkoutUseCase workoutUseCase;
@@ -43,12 +45,15 @@ public class WorkoutsFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Fetch the list of workouts from the business layer
         List<Workout> workouts = workoutUseCase.getAllWorkouts();
 
+        // Toggle visibility based on whether data exists
         if (workouts == null || workouts.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyStateText.setVisibility(View.VISIBLE);
-        } else {
+        }
+        else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
             recyclerView.setAdapter(new WorkoutAdapter(workouts));
