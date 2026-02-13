@@ -1,7 +1,6 @@
-package com.example.exergen.application.repository;
+package com.example.exergen.persistence.repository;
 
 import com.example.exergen.model.Workout;
-import com.example.exergen.persistence.repository.WorkoutRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;

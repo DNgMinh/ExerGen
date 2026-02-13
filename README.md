@@ -42,7 +42,6 @@ app/src/main/java/com/example/exergen/
 
 │
 ├── application/       // Composition root (ExerGenApp, AppBootstrap)
-│   ├──repository/      // Current implementations (Stub/Fake for Iteration 1)
 │
 ├── business/          // Domain logic and services
 │   ├── service/       // Logic services (e.g., ExerciseService, IntervalTimer, SessionManager)
@@ -50,7 +49,7 @@ app/src/main/java/com/example/exergen/
 │
 ├── model/             // Plain data objects (Exercise, Workout)
 │
-├── persistence/       // Repository interfaces + implementations
+├── persistence/       // Repository interfaces, implementations, and stubs/fakes
 │  
 └── presentation/      // Android UI (Activities, Fragments, Adapters)
 ```
@@ -59,13 +58,7 @@ app/src/main/java/com/example/exergen/
 
 ---
 
-## Persistence & Database
-
-* Fake repositories exist **only for the moment, since we are in iteration 1** 
-
----
-
-### Dependency Rules (STRICT)
+### Dependency Rules
 
 * `presentation → business → persistence`
 * `application` wires concrete implementations together.
@@ -76,26 +69,25 @@ app/src/main/java/com/example/exergen/
 
 ## Persistence & Database
 
-* Currently using **Stub/Fake repositories** for Iteration 1.
+* Currently using **Stub/Fake repository** for Iteration 1.
 * Future iterations will implement **SQLite** via `SupportSQLiteOpenHelper`.
 
 ---
 
 ## Testing Strategy
 
-### 1. Unit Tests
-
+### Unit Tests
 **Location:** `app/src/test/java`
 
-* Tests business logic in isolation using JUnit.
-* No Android dependencies.
-* Uses fake/stub repositories.
+* Verifies business logic in isolation (e.g., `ExerciseService`, `SessionManager`).
+* Uses JUnit 4.
+* Relies on Fake/Stub repositories to ensure tests run without Android dependencies.
 
-
-Run with:
-```sh
-./gradlew :app:testDebugUnitTest
-```
+**To run tests:**
+1. Open the project in **Android Studio**.
+2. In the Project view (left panel), navigate to `app/src/test/java`.
+3. Right-click the `com.example.exergen` package.
+4. Select **Run 'Tests in 'com.example.exergen''**.
 
 ## SDK & Tooling Requirements
 

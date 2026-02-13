@@ -2,8 +2,8 @@ package com.example.exergen.application;
 
 import android.app.Application;
 
-import com.example.exergen.application.repository.ExerciseRepositoryStub;
-import com.example.exergen.application.repository.WorkoutRepositoryStub;
+import com.example.exergen.persistence.repository.ExerciseRepositoryStub;
+import com.example.exergen.persistence.repository.WorkoutRepositoryStub;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.persistence.repository.ExerciseRepository;

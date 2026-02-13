@@ -1,7 +1,6 @@
-package com.example.exergen.application.repository;
+package com.example.exergen.persistence.repository;
 
 import com.example.exergen.model.Exercise;
-import com.example.exergen.persistence.repository.ExerciseRepository;
 
 import java.util.ArrayList;
 import java.util.List;

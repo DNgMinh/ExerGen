@@ -1,6 +1,7 @@
 package com.example.exergen.application.repository;
 
 import com.example.exergen.model.Exercise;
+import com.example.exergen.persistence.repository.ExerciseRepositoryStub;
 
 import org.junit.Test;
 
