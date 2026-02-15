@@ -106,3 +106,6 @@ app/src/main/java/com/example/exergen/
 
 ---
 
+## Branching
+
+Our team employs a feature branch workflow to ensure code stability and organized collaboration throughout development. The `main` branch is strictly reserved for production-ready releases, while `dev` serves as the primary integration branch for ongoing work. All new features, such as the Exercise Library, are developed in isolation on dedicated branches created off of `dev`, using the naming convention `feature/feature-name`. These feature branches are only merged back into develop via merge requests after passing code review and successful unit tests.
