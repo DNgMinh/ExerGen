@@ -2,10 +2,12 @@
     <!-- Workout related strings -->
     <string name="workouts_empty">No workouts found</string>
     <string name="workout_list_title">Your Workouts</string>
+    <string name="workout_details_format">%1$d exercises | %2$d min</string>
 
     <!-- Add exercise related strings -->
     <string name="exercises_empty">No exercises found</string>
     <string name="add_exercise_title">Select Exercise</string>
+    <string name="exercise_attributes_format">Muscles: %1$s | Equipment: %2$s</string>
 
     <!-- Exercise Detail strings -->
     <string name="exercise_not_found">Exercise not found</string>
@@ -16,6 +18,13 @@
     <string name="label_duration">Duration: %s</string>
     <string name="label_duration_varies">Duration: Varies by workout</string>
     <string name="label_na">N/A</string>
+
+    <!-- Timer related strings -->
+    <string name="timer_label_work">Work (s)</string>
+    <string name="timer_label_rest">Rest (s)</string>
+    <string name="timer_label_sets">Sets</string>
+    <string name="btn_stop">Stop</string>
+    <string name="btn_pause">Pause</string>
 
     <!-- Generic presentation strings -->
     <string name="loading">Loading...</string>

@@ -1,5 +1,6 @@
 package com.example.exergen.presentation;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,8 +36,8 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
         holder.name.setText(workout.getName());
 
         int totalDuration = workout.totalDurationSec();
-        String details = String.format(Locale.getDefault(),
-                "%d exercises | %d min",
+        Context context = holder.itemView.getContext();
+        String details = context.getString(R.string.workout_details_format,
                 workout.getExerciseIds().size(),
                 totalDuration / 60);
 

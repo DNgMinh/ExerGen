@@ -1,5 +1,6 @@
 package com.example.exergen.presentation;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,11 +39,12 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
         Exercise exercise = exercises.get(position);
         holder.name.setText(exercise.getName());
-        
+
+        Context context = holder.itemView.getContext();
         String muscles = TextUtils.join(", ", exercise.getMuscleGroups());
         String equipment = TextUtils.join(", ", exercise.getEquipment());
-        
-        String attributes = "Muscles: " + muscles + " | Equipment: " + equipment;
+
+        String attributes = context.getString(R.string.exercise_attributes_format, muscles, equipment);
         holder.attributes.setText(attributes);
 
         holder.itemView.setOnClickListener(v -> {
