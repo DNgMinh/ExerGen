@@ -1,5 +1,7 @@
 package com.example.exergen.presentation;
 
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,16 +20,21 @@ import com.example.exergen.business.service.TimerObserver;
 
 public class TimerFragment extends Fragment implements TimerObserver {
 
-    // UI Components
     private TextView tvTimer, tvPhase;
     private Button btnStart, btnPause, btnStop;
     private LinearLayout pickerContainer;
     private NumberPicker npWork, npRest, npSets;
 
-    // Logic
     private IntervalTimer intervalTimer;
+    private ToneGenerator toneGenerator;
+    private boolean isTimerActive = false;
 
-    // Fragment Lifecycle Methods
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Initialize tone generator for audio cues
+        toneGenerator = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
+    }
 
     @Nullable
     @Override
@@ -51,8 +58,6 @@ public class TimerFragment extends Fragment implements TimerObserver {
         npSets = view.findViewById(R.id.np_sets);
     }
 
-    // Setup Methods
-
     private void setupPickers() {
         npWork.setMinValue(5); npWork.setMaxValue(60); npWork.setValue(30);
         npRest.setMinValue(5); npRest.setMaxValue(60); npRest.setValue(10);
@@ -65,9 +70,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
         btnStop.setOnClickListener(v -> stopTimer());
     }
 
-    // User Action Handlers
-
     private void startOrResumeTimer() {
+        isTimerActive = true;
         if (intervalTimer == null) {
             createNewTimer();
         }
@@ -84,7 +88,6 @@ public class TimerFragment extends Fragment implements TimerObserver {
 
         intervalTimer = new IntervalTimer(work, rest, sets, this);
         intervalTimer.start();
-
         setSetupModeVisible(false);
     }
 
@@ -96,6 +99,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     private void stopTimer() {
+        isTimerActive = false;
         if (intervalTimer != null) {
             intervalTimer.cancel();
             intervalTimer = null;
@@ -103,16 +107,9 @@ public class TimerFragment extends Fragment implements TimerObserver {
         resetToDefaultState();
     }
 
-    // UI Helper Methods
-
     private void setSetupModeVisible(boolean isVisible) {
-        if (isVisible) {
-            pickerContainer.setVisibility(View.VISIBLE);
-            btnStart.setText(getString(R.string.btn_start));
-        }
-        else {
-            pickerContainer.setVisibility(View.GONE);
-        }
+        pickerContainer.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+        if (isVisible) btnStart.setText(getString(R.string.btn_start));
     }
 
     private void updateTimerText(long secondsRemaining) {
@@ -124,18 +121,14 @@ public class TimerFragment extends Fragment implements TimerObserver {
         if (isWorkPhase) {
             tvPhase.setText(getString(R.string.timer_work));
             tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-        } else {
+        }
+        else {
             tvPhase.setText(getString(R.string.timer_rest));
             tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
         }
     }
 
-    private void showDoneState() {
-        tvPhase.setText(getString(R.string.timer_done));
-    }
-
     private void resetToDefaultState() {
-        // Safe to call from any thread because we wrap it
         safeRunOnUiThread(() -> {
             tvTimer.setText(getString(R.string.timer_default));
             tvPhase.setText(getString(R.string.timer_ready));
@@ -144,27 +137,43 @@ public class TimerFragment extends Fragment implements TimerObserver {
         });
     }
 
-    // Observer Implementation (Callbacks from IntervalTimer)
-
     @Override
     public void onTick(long secondsRemaining) {
-        safeRunOnUiThread(() -> updateTimerText(secondsRemaining));
+        safeRunOnUiThread(() -> {
+            updateTimerText(secondsRemaining);
+            // Play beeps on 3, 2, 1
+            if (isTimerActive && secondsRemaining > 0 && secondsRemaining <= 3) {
+                toneGenerator.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
+            }
+        });
     }
 
     @Override
     public void onPhaseChange(boolean isWorkPhase) {
-        safeRunOnUiThread(() -> updatePhaseText(isWorkPhase));
+        safeRunOnUiThread(() -> {
+            updatePhaseText(isWorkPhase);
+            // Transition beep
+            if (isTimerActive) {
+                toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 500);
+            }
+        });
     }
 
     @Override
     public void onFinish() {
+        isTimerActive = false;
         resetToDefaultState();
-        safeRunOnUiThread(() -> showDoneState());
     }
 
     private void safeRunOnUiThread(Runnable action) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(action);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (toneGenerator != null) toneGenerator.release();
     }
 }
