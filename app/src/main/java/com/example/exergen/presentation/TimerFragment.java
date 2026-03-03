@@ -86,8 +86,9 @@ public class TimerFragment extends Fragment implements TimerObserver {
         int rest = npRest.getValue();
         int sets = npSets.getValue();
 
-        intervalTimer = new IntervalTimer(work, rest, sets, this);
+        intervalTimer = new IntervalTimer(work, rest, sets, this, new java.util.Timer());
         intervalTimer.start();
+
         setSetupModeVisible(false);
     }
 

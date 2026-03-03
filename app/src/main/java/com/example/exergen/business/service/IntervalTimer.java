@@ -17,11 +17,12 @@ public class IntervalTimer {
     private int remainingSeconds;
     private boolean isRunning = false;
 
-    public IntervalTimer(int workSecs, int restSecs, int sets, TimerObserver observer) {
+    public IntervalTimer(int workSecs, int restSecs, int sets, TimerObserver observer, Timer timer) {
         this.workDurationSeconds = workSecs;
         this.restDurationSeconds = restSecs;
         this.totalSets = sets;
         this.observer = observer;
+        this.timer = timer; // Pass in timer object (dependency injection)
         reset();
     }
 
@@ -29,21 +30,17 @@ public class IntervalTimer {
         if(isRunning) return;
         isRunning = true;
 
-        // 1. Notify the observer of the phase (Work/Rest)
         if(observer != null) {
             observer.onPhaseChange(isWorkPhase);
-            // 2. NEW: Immediately tell the UI to display the starting number (e.g., 30)
-            // This stops the "00:00" flicker on start.
             observer.onTick(remainingSeconds);
         }
 
-        timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 tick();
             }
-        }, 1000, 1000); // This delay is why the first tick took 1 second to appear
+        }, 1000, 1000);
     }
 
     public void pause() {
@@ -61,7 +58,6 @@ public class IntervalTimer {
     private void tick() {
         remainingSeconds--;
 
-        // FIX: If we hit -1, switch phases so '0' only shows once
         if (remainingSeconds < 0) {
             handlePhaseSwitch();
         }
