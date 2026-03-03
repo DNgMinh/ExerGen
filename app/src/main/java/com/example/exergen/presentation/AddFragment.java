@@ -40,7 +40,7 @@ public class AddFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.exercise_recycler_view);
         emptyStateText = view.findViewById(R.id.empty_state_text);
-        emptyStateText.setText("No exercises found");
+        emptyStateText.setText(getString(R.string.exercises_empty));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
