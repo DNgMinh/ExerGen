@@ -85,20 +85,20 @@ public class ExerciseDetailFragment extends Fragment {
         }
 
         nameText.setText(exercise.getName());
-        instructionsText.setText(normalizeOrFallback(exercise.getInstructions(), "No instructions available."));
-        equipmentText.setText("Equipment: " + TextUtils.join(", ", exercise.getEquipment()));
-        musclesText.setText("Muscles: " + TextUtils.join(", ", exercise.getMuscleGroups()));
-        intensityText.setText("Intensity: " + exercise.getIntensity());
-        durationText.setText("Duration: Varies by workout");
+        instructionsText.setText(normalizeOrFallback(exercise.getInstructions(), getString(R.string.instructions_fallback)));
+        equipmentText.setText(getString(R.string.label_equipment, TextUtils.join(", ", exercise.getEquipment())));
+        musclesText.setText(getString(R.string.label_muscles, TextUtils.join(", ", exercise.getMuscleGroups())));
+        intensityText.setText(getString(R.string.label_intensity, exercise.getIntensity()));
+        durationText.setText(getString(R.string.label_duration_varies));
     }
 
     private void showMissingExercise() {
-        nameText.setText("Exercise not found");
-        instructionsText.setText("No instructions available.");
-        equipmentText.setText("Equipment: N/A");
-        musclesText.setText("Muscles: N/A");
-        intensityText.setText("Intensity: N/A");
-        durationText.setText("Duration: N/A");
+        nameText.setText(getString(R.string.exercise_not_found));
+        instructionsText.setText(getString(R.string.instructions_fallback));
+        equipmentText.setText(getString(R.string.label_equipment, getString(R.string.label_na)));
+        musclesText.setText(getString(R.string.label_muscles, getString(R.string.label_na)));
+        intensityText.setText(getString(R.string.label_intensity, getString(R.string.label_na)));
+        durationText.setText(getString(R.string.label_duration, getString(R.string.label_na)));
     }
 
     private String normalizeOrFallback(String value, String fallback) {
