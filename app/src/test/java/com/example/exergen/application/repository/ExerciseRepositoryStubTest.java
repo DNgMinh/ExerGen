@@ -1,7 +1,7 @@
 package com.example.exergen.application.repository;
 
 import com.example.exergen.model.Exercise;
-import com.example.exergen.persistence.repository.ExerciseRepositoryStub;
+import com.example.exergen.persistence.ExerciseRepositoryStub;
 
 import org.junit.Test;
 
@@ -37,29 +37,5 @@ public class ExerciseRepositoryStubTest {
         Exercise result = stub.getExerciseById("missing");
 
         assertNull(result);
-    }
-
-    @Test
-    public void filterByEquipmentReturnsMatchingExercises() {
-        ExerciseRepositoryStub stub = new ExerciseRepositoryStub();
-
-        List<Exercise> result = stub.filterByEquipment("Dumbbells");
-
-        assertFalse(result.isEmpty());
-        for (Exercise exercise : result) {
-            assertTrue(exercise.getEquipment().contains("Dumbbells"));
-        }
-    }
-
-    @Test
-    public void filterByMuscleGroupReturnsMatchingExercises() {
-        ExerciseRepositoryStub stub = new ExerciseRepositoryStub();
-
-        List<Exercise> result = stub.filterByMuscleGroup("Legs");
-
-        assertFalse(result.isEmpty());
-        for (Exercise exercise : result) {
-            assertTrue(exercise.getMuscleGroups().contains("Legs"));
-        }
     }
 }

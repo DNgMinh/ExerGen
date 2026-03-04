@@ -43,6 +43,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
         initializeViews(view);
         setupPickers();
         setupButtons();
+        setSetupModeVisible(true);
+
         return view;
     }
 
@@ -72,12 +74,18 @@ public class TimerFragment extends Fragment implements TimerObserver {
 
     private void startOrResumeTimer() {
         isTimerActive = true;
+
         if (intervalTimer == null) {
-            createNewTimer();
+            int work = npWork.getValue();
+            int rest = npRest.getValue();
+            int sets = npSets.getValue();
+
+            intervalTimer = new IntervalTimer(work, rest, sets, this);
+            setSetupModeVisible(false);
         }
-        else {
-            intervalTimer.start();
-        }
+
+        intervalTimer.start();
+
         btnStart.setText(getString(R.string.btn_resume));
     }
 
@@ -86,7 +94,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
         int rest = npRest.getValue();
         int sets = npSets.getValue();
 
-        intervalTimer = new IntervalTimer(work, rest, sets, this, new java.util.Timer());
+        intervalTimer = new IntervalTimer(work, rest, sets, this);
         intervalTimer.start();
 
         setSetupModeVisible(false);
@@ -110,7 +118,13 @@ public class TimerFragment extends Fragment implements TimerObserver {
 
     private void setSetupModeVisible(boolean isVisible) {
         pickerContainer.setVisibility(isVisible ? View.VISIBLE : View.GONE);
-        if (isVisible) btnStart.setText(getString(R.string.btn_start));
+
+        // If setup is visible hide the stop button
+        btnStop.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+
+        if (isVisible) {
+            btnStart.setText(getString(R.string.btn_start));
+        }
     }
 
     private void updateTimerText(long secondsRemaining) {

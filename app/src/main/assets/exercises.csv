@@ -1,0 +1,4 @@
+id,name,muscle_groups,equipment,instructions,intensity,placeholder
+ex_1,Pushups,Chest|Triceps,Bodyweight,Keep back straight,3,placeholder
+ex_2,Squats,Quads|Glutes,Bodyweight,Go below parallel,3,placeholder
+ex_3,Plank,Core,Bodyweight,Hold steady,4,placeholder

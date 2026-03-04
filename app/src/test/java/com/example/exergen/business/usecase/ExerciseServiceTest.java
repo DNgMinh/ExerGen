@@ -2,17 +2,16 @@ package com.example.exergen.business.usecase;
 
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
-import com.example.exergen.persistence.repository.ExerciseRepository;
+import com.example.exergen.business.repository.IExerciseRepository;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class ExerciseServiceTest {
-    private static class FakeExerciseRepository implements ExerciseRepository {
+    private static class FakeExerciseRepository implements IExerciseRepository {
         private final List<Exercise> exercises;
 
         private FakeExerciseRepository(List<Exercise> exercises) {
@@ -35,38 +34,20 @@ public class ExerciseServiceTest {
         }
 
         @Override
-        public List<Exercise> filterByEquipment(String equipment) {
-            List<Exercise> result = new ArrayList<>();
-            for (Exercise exercise : exercises) {
-                if (exercise.getEquipment().contains(equipment)) {
-                    result.add(exercise);
-                }
-            }
-            return result;
-        }
+        public void insertExercise(Exercise exercise) {}
 
         @Override
-        public List<Exercise> filterByMuscleGroup(String muscle) {
-            List<Exercise> result = new ArrayList<>();
-            for (Exercise exercise : exercises) {
-                if (exercise.getMuscleGroups().contains(muscle)) {
-                    result.add(exercise);
-                }
-            }
-            return result;
-        }
+        public void deleteExercise(String id) {}
 
         @Override
-        public void addExercise(Exercise exercise) {
-            // Not needed for these tests.
-        }
+        public void seedData() {}
     }
 
     @Test
     public void getAllExercisesReturnsAllItems() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
+                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "placeholder"));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         List<Exercise> result = service.getAllExercises();
@@ -79,8 +60,8 @@ public class ExerciseServiceTest {
     @Test
     public void getExerciseByIdReturnsCorrectExercise() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
+                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "placeholder"));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         Exercise result = service.getExerciseById("e2");
@@ -92,8 +73,8 @@ public class ExerciseServiceTest {
     @Test
     public void filterByEquipmentReturnsMatchingExercises() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2),
-                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
+                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, "placeholder"));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         List<Exercise> result = service.filterByEquipment("Barbell");
@@ -105,8 +86,8 @@ public class ExerciseServiceTest {
     @Test
     public void filterByMuscleGroupReturnsMatchingExercises() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
+                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "placeholder"));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         List<Exercise> result = service.filterByMuscleGroup("Legs");

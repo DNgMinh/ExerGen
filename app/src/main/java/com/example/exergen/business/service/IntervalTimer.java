@@ -3,50 +3,50 @@ package com.example.exergen.business.service;
 import java.util.Timer;
 import java.util.TimerTask;
 
-// Manages the core interval timer logic (work/rest cycles)
 public class IntervalTimer {
     private Timer timer;
-    private TimerObserver observer;
+    private final TimerObserver observer;
 
-    private int workDurationSeconds;
-    private int restDurationSeconds;
-    private int totalSets;
+    private final int workDurationSeconds;
+    private final int restDurationSeconds;
+    private final int totalSets;
 
     private int currentSet = 1;
     private boolean isWorkPhase = true;
     private int remainingSeconds;
     private boolean isRunning = false;
 
-    public IntervalTimer(int workSecs, int restSecs, int sets, TimerObserver observer, Timer timer) {
+    public IntervalTimer(int workSecs, int restSecs, int sets, TimerObserver observer) {
         this.workDurationSeconds = workSecs;
         this.restDurationSeconds = restSecs;
         this.totalSets = sets;
         this.observer = observer;
-        this.timer = timer; // Pass in timer object (dependency injection)
         reset();
     }
 
     public void start() {
-        if(isRunning) return;
+        if (isRunning) return;
+
+        this.timer = new Timer();
         isRunning = true;
 
-        if(observer != null) {
+        if (observer != null) {
             observer.onPhaseChange(isWorkPhase);
             observer.onTick(remainingSeconds);
         }
 
-        timer.schedule(new TimerTask() {
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 tick();
             }
-        }, 1000, 1000);
+        }, 0, 1000);
     }
 
     public void pause() {
         if (timer != null) {
             timer.cancel();
-            timer = null;
+            timer = null;   // Reset the reference so start() knows to make a new one
         }
         isRunning = false;
     }
@@ -57,11 +57,9 @@ public class IntervalTimer {
 
     private void tick() {
         remainingSeconds--;
-
         if (remainingSeconds < 0) {
             handlePhaseSwitch();
         }
-
         if (isRunning && observer != null) {
             observer.onTick(remainingSeconds);
         }
@@ -73,12 +71,10 @@ public class IntervalTimer {
                 isWorkPhase = false;
                 remainingSeconds = restDurationSeconds;
                 if (observer != null) observer.onPhaseChange(false);
-            }
-            else {
+            } else {
                 startNextSet();
             }
-        }
-        else {
+        } else {
             startNextSet();
         }
     }
@@ -87,8 +83,7 @@ public class IntervalTimer {
         currentSet++;
         if (currentSet > totalSets) {
             finish();
-        }
-        else {
+        } else {
             isWorkPhase = true;
             remainingSeconds = workDurationSeconds;
             if (observer != null) observer.onPhaseChange(true);
@@ -97,9 +92,7 @@ public class IntervalTimer {
 
     private void finish() {
         pause();
-        if (observer != null) {
-            observer.onFinish();
-        }
+        if (observer != null) observer.onFinish();
     }
 
     public void reset() {
