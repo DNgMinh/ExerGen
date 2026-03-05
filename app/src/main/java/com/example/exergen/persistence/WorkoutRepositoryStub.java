@@ -1,5 +1,6 @@
-package com.example.exergen.persistence.repository;
+package com.example.exergen.persistence;
 
+import com.example.exergen.business.repository.IWorkoutRepository;
 import com.example.exergen.model.Workout;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorkoutRepositoryStub implements WorkoutRepository {
+public class WorkoutRepositoryStub implements IWorkoutRepository {
 
     private final Map<String, Workout> store = new HashMap<>();
 
@@ -48,6 +49,10 @@ public class WorkoutRepositoryStub implements WorkoutRepository {
     @Override
     public List<Workout> getAllWorkouts() {
         return new ArrayList<>(store.values());
+    }
+
+    public void seedData() {
+        // Left empty intentionally, stub automatically seeds data in constructor
     }
 }
 

@@ -1,13 +1,15 @@
-package com.example.exergen.persistence.repository;
+package com.example.exergen.business.repository;
 
 import com.example.exergen.model.Workout;
 
 import java.util.List;
 
-public interface WorkoutRepository {
+public interface IWorkoutRepository {
     void saveWorkout(Workout workout);
 
     Workout getWorkoutById(String workoutId);
 
     List<Workout> getAllWorkouts();
+
+    void seedData();
 }

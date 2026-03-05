@@ -2,7 +2,7 @@ package com.example.exergen.business.usecase;
 
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
-import com.example.exergen.persistence.repository.ExerciseRepository;
+import com.example.exergen.business.repository.IExerciseRepository;
 
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class ExerciseDetailLookupTest {
-    private static class FakeExerciseRepository implements ExerciseRepository {
+    private static class FakeExerciseRepository implements IExerciseRepository {
         private final List<Exercise> exercises;
 
         private FakeExerciseRepository(List<Exercise> exercises) {
@@ -34,24 +34,18 @@ public class ExerciseDetailLookupTest {
         }
 
         @Override
-        public List<Exercise> filterByEquipment(String equipment) {
-            return List.of();
-        }
+        public void insertExercise(Exercise exercise) {}
 
         @Override
-        public List<Exercise> filterByMuscleGroup(String muscle) {
-            return List.of();
-        }
+        public void deleteExercise(String id) {}
 
         @Override
-        public void addExercise(Exercise exercise) {
-            // Not needed for these tests.
-        }
+        public void seedData() {}
     }
 
     @Test
     public void getExerciseByIdReturnsExerciseWhenPresent() {
-        Exercise target = new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2);
+        Exercise target = new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder");
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(List.of(target)));
 
         Exercise result = service.getExerciseById("e1");

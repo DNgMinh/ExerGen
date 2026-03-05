@@ -43,6 +43,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
         initializeViews(view);
         setupPickers();
         setupButtons();
+        setSetupModeVisible(true);
+
         return view;
     }
 
@@ -72,24 +74,19 @@ public class TimerFragment extends Fragment implements TimerObserver {
 
     private void startOrResumeTimer() {
         isTimerActive = true;
+
         if (intervalTimer == null) {
-            createNewTimer();
-        }
-        else {
-            intervalTimer.start();
-        }
-        btnStart.setText(getString(R.string.btn_resume));
-    }
+            int work = npWork.getValue();
+            int rest = npRest.getValue();
+            int sets = npSets.getValue();
 
-    private void createNewTimer() {
-        int work = npWork.getValue();
-        int rest = npRest.getValue();
-        int sets = npSets.getValue();
+            intervalTimer = new IntervalTimer(work, rest, sets, this);
+            setSetupModeVisible(false);
+        }
 
-        intervalTimer = new IntervalTimer(work, rest, sets, this, new java.util.Timer());
         intervalTimer.start();
 
-        setSetupModeVisible(false);
+        btnStart.setText(getString(R.string.btn_resume));
     }
 
     private void pauseTimer() {
@@ -110,11 +107,18 @@ public class TimerFragment extends Fragment implements TimerObserver {
 
     private void setSetupModeVisible(boolean isVisible) {
         pickerContainer.setVisibility(isVisible ? View.VISIBLE : View.GONE);
-        if (isVisible) btnStart.setText(getString(R.string.btn_start));
+
+        // If setup is visible hide the stop button
+        btnStop.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+
+        if (isVisible) {
+            btnStart.setText(getString(R.string.btn_start));
+        }
     }
 
     private void updateTimerText(long secondsRemaining) {
-        String timeString = String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60);
+        String timeString = String.format(java.util.Locale.getDefault(), "%02d:%02d",
+                secondsRemaining / 60, secondsRemaining % 60);
         tvTimer.setText(timeString);
     }
 

@@ -1,0 +1,17 @@
+package com.example.exergen.business.repository;
+
+import com.example.exergen.model.Exercise;
+import java.util.List;
+
+public interface IExerciseRepository {
+    List<Exercise> getAllExercises();
+
+    void insertExercise(Exercise exercise);
+
+    // Get a single exercise by its database ID
+    Exercise getExerciseById(String id);
+
+    void deleteExercise(String id);
+
+    void seedData();
+}

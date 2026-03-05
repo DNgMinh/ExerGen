@@ -6,19 +6,22 @@ import java.util.List;
 
 public class Exercise {
 
-    private final String id; // Unique key (UUID or short string)
+    private final String id; // Unique key (UUID)
     private final String name; // Display name
     private final List<String> muscleGroups; // e.g. ["chest", "triceps"]
     private final List<String> equipment; // e.g. ["dumbbells"] or ["bodyweight"]
-    private final String instructions; // Optional text
-    private final int intensity; // 1-5 scale (or similar)
+    private final String instructions; // Instructions
+    private final int intensity; // 1-5 scale
+    private final String imageName; // Corresponding image in /res/drawable
+
 
     public Exercise(String id,
-            String name,
-            List<String> muscleGroups,
-            List<String> equipment,
-            String instructions,
-            int intensity) {
+                    String name,
+                    List<String> muscleGroups,
+                    List<String> equipment,
+                    String instructions,
+                    int intensity,
+                    String imageName) {
 
         if (id == null || id.isEmpty())
             throw new IllegalArgumentException("ID required");
@@ -30,13 +33,16 @@ public class Exercise {
             throw new IllegalArgumentException("Equipment required");
         if (intensity < 0)
             throw new IllegalArgumentException("Intensity must be >= 0");
+        if (imageName == null || imageName.trim().isEmpty())
+            throw new IllegalArgumentException("Image name required");
 
         this.id = id;
         this.name = name;
-        this.muscleGroups = Collections.unmodifiableList(new ArrayList<>(muscleGroups));
-        this.equipment = Collections.unmodifiableList(new ArrayList<>(equipment));
+        this.muscleGroups = List.copyOf(muscleGroups);
+        this.equipment = List.copyOf(equipment);
         this.instructions = instructions;
         this.intensity = intensity;
+        this.imageName = imageName;
     }
 
     // Getters
@@ -63,5 +69,9 @@ public class Exercise {
 
     public int getIntensity() {
         return intensity;
+    }
+
+    public String getImageName() {
+        return imageName;
     }
 }

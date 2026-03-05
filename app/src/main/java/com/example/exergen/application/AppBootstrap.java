@@ -2,12 +2,12 @@ package com.example.exergen.application;
 
 import android.app.Application;
 
-import com.example.exergen.persistence.repository.ExerciseRepositoryStub;
-import com.example.exergen.persistence.repository.WorkoutRepositoryStub;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.WorkoutUseCase;
-import com.example.exergen.persistence.repository.ExerciseRepository;
-import com.example.exergen.persistence.repository.WorkoutRepository;
+import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.business.repository.IWorkoutRepository;
+import com.example.exergen.persistence.ExerciseRepositorySQLite;
+import com.example.exergen.persistence.WorkoutRepositorySQLite;
 
 public final class AppBootstrap {
 
@@ -30,12 +30,14 @@ public final class AppBootstrap {
     public final ExerciseService exerciseService;
 
     private AppBootstrap(Application app) {
-        // Stub persistence for Iteration 1
-        WorkoutRepository workoutRepository = new WorkoutRepositoryStub();
-        ExerciseRepository exerciseRepository = new ExerciseRepositoryStub();
+        IWorkoutRepository workoutRepository = new WorkoutRepositorySQLite(app);
+        IExerciseRepository exerciseRepository = new ExerciseRepositorySQLite(app);
 
-        // Business use case
-        this.workoutUseCase = new WorkoutUseCase(workoutRepository);
+        // Seed data for workout and exercise repositories
+        workoutRepository.seedData();
+        exerciseRepository.seedData();
+
         this.exerciseService = new ExerciseService(exerciseRepository);
+        this.workoutUseCase = new WorkoutUseCase(workoutRepository, exerciseService);
     }
 }
