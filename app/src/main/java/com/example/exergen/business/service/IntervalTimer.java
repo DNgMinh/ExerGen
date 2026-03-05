@@ -35,8 +35,7 @@ public class IntervalTimer {
             observer.onTick(remainingSeconds);
         }
 
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
+        timer.schedule(new TimerTask() {
             public void run() {
                 tick();
             }
@@ -71,10 +70,12 @@ public class IntervalTimer {
                 isWorkPhase = false;
                 remainingSeconds = restDurationSeconds;
                 if (observer != null) observer.onPhaseChange(false);
-            } else {
+            }
+            else {
                 startNextSet();
             }
-        } else {
+        }
+        else {
             startNextSet();
         }
     }
@@ -83,7 +84,8 @@ public class IntervalTimer {
         currentSet++;
         if (currentSet > totalSets) {
             finish();
-        } else {
+        }
+        else {
             isWorkPhase = true;
             remainingSeconds = workDurationSeconds;
             if (observer != null) observer.onPhaseChange(true);

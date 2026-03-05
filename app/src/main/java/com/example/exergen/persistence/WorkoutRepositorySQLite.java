@@ -9,10 +9,6 @@ import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.Workout;
 import com.example.exergen.business.repository.IWorkoutRepository;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +64,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
         Cursor cursor = db.query(DatabaseHelper.TABLE_WORKOUT, null, "id = ?",
                 new String[]{workoutId}, null, null, null);
 
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             workout = parseCursorToWorkout(cursor);
             cursor.close();
         }
@@ -81,7 +77,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query(DatabaseHelper.TABLE_WORKOUT, null, null, null, null, null, null);
 
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 workouts.add(parseCursorToWorkout(cursor));
             }
@@ -126,39 +122,31 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
 
     private List<Workout> loadWorkoutsFromAssets() {
         List<Workout> list = new ArrayList<>();
-        try (InputStream is = context.getAssets().open("workouts.csv");
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        List<String[]> rows = CSVParser.parseAssetCSV(context, "workouts.csv");
 
-            String line;
-            reader.readLine(); // Skip header
+        for (String[] tokens : rows) {
+            if (tokens.length >= 6) {
+                String id = tokens[0].trim();
+                String name = tokens[1].trim();
+                int rounds = Integer.parseInt(tokens[2].trim());
 
-            while ((line = reader.readLine()) != null) {
-                String[] tokens = line.split(",");
-                if (tokens.length >= 6) {
-                    List<String> exIds = Arrays.asList(tokens[3].split("\\|"));
+                // Parse Exercise IDs
+                List<String> exerciseIds = Arrays.asList(tokens[3].split("\\|"));
 
-                    // Work seconds
-                    List<Integer> workSecs = new ArrayList<>();
-                    for (String s : tokens[4].split("\\|")) {
-                        workSecs.add(Integer.parseInt(s));
-                    }
-
-                    // Rest seconds
-                    List<Integer> restSecs = new ArrayList<>();
-                    for (String s : tokens[5].split("\\|")) {
-                        restSecs.add(Integer.parseInt(s));
-                    }
-
-                    // Add the workout to the list
-                    list.add(new Workout(
-                            tokens[0], tokens[1], Integer.parseInt(tokens[2]),
-                            exIds, workSecs, restSecs
-                    ));
+                // Parse Work Seconds
+                List<Integer> workSecs = new ArrayList<>();
+                for (String s : tokens[4].split("\\|")) {
+                    workSecs.add(Integer.parseInt(s.trim()));
                 }
+
+                // Parse Rest Seconds
+                List<Integer> restSecs = new ArrayList<>();
+                for (String s : tokens[5].split("\\|")) {
+                    restSecs.add(Integer.parseInt(s.trim()));
+                }
+
+                list.add(new Workout(id, name, rounds, exerciseIds, workSecs, restSecs));
             }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
         }
         return list;
     }

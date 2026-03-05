@@ -1,5 +1,7 @@
 package com.example.exergen.business.service;
 
+import android.util.Log;
+
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 import com.example.exergen.business.repository.IExerciseRepository;
@@ -24,12 +26,15 @@ public class SessionManager {
     }
 
     public Exercise getCurrentExercise() {
-        if (isFinished()) {
-            return null;
-        }
+        if (isFinished()) return null;
 
         String id = workout.getExerciseIds().get(currentStep);
-        return exerciseRepository.getExerciseById(id);
+        Exercise ex = exerciseRepository.getExerciseById(id);
+
+        if (ex == null) {
+            Log.e("SessionManager", "Exercise ID " + id + " not found in DB!");
+        }
+        return ex;
     }
 
     public void next() {

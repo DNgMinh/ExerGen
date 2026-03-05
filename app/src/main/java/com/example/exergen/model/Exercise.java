@@ -38,8 +38,8 @@ public class Exercise {
 
         this.id = id;
         this.name = name;
-        this.muscleGroups = Collections.unmodifiableList(new ArrayList<>(muscleGroups));
-        this.equipment = Collections.unmodifiableList(new ArrayList<>(equipment));
+        this.muscleGroups = List.copyOf(muscleGroups);
+        this.equipment = List.copyOf(equipment);
         this.instructions = instructions;
         this.intensity = intensity;
         this.imageName = imageName;

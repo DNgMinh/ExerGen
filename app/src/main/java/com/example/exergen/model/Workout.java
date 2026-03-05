@@ -1,7 +1,5 @@
 package com.example.exergen.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Workout {
@@ -37,9 +35,9 @@ public class Workout {
         this.id = id;
         this.name = name;
         this.rounds = rounds;
-        this.exerciseIds = Collections.unmodifiableList(new ArrayList<>(exerciseIds));
-        this.workSeconds = Collections.unmodifiableList(new ArrayList<>(workSeconds));
-        this.restSeconds = Collections.unmodifiableList(new ArrayList<>(restSeconds));
+        this.exerciseIds = List.copyOf(exerciseIds);
+        this.workSeconds = List.copyOf(workSeconds);
+        this.restSeconds = List.copyOf(restSeconds);
     }
 
     public String getId() {

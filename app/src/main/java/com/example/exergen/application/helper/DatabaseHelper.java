@@ -19,12 +19,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /*
-    * Yes, I know that technically these tables are in first normal form (Sorry Adam Pazdor!),
-    * but I decided on simply keeping the list of exercise_ids as a list for simplicity. Also,
-    * the id "should" be of INTEGER type, but using UUIDs solved the problem of closing the app
-    * and losing track of what the last ID was.
-    */
-
+    Yes, I know that technically these tables are in first normal form (Sorry Adam Pazdor!),
+    but I decided on simply keeping the list of exercise_ids as a list for simplicity. Also,
+    the id "should" be of INTEGER type, but using UUIDs solved the problem of closing the app
+    and losing track of what the last ID was.
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_EXERCISE + " (" +

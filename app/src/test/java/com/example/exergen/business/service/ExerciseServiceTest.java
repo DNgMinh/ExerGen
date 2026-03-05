@@ -1,10 +1,9 @@
-package com.example.exergen.business;
+package com.example.exergen.business.service;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.persistence.ExerciseRepositoryStub;
 import com.example.exergen.model.Exercise;
 import java.util.List;

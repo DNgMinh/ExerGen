@@ -2,6 +2,8 @@ package com.example.exergen.persistence;
 
 import static org.junit.Assert.*;
 import android.content.Context;
+import android.os.Build;
+
 import androidx.test.core.app.ApplicationProvider;
 import com.example.exergen.model.Workout;
 import org.junit.Before;
@@ -12,7 +14,7 @@ import org.robolectric.annotation.Config;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = {33})
+@Config(sdk = {Build.VERSION_CODES.P}, manifest = Config.NONE)
 public class WorkoutRepositorySQLiteTest {
 
     private WorkoutRepositorySQLite repository;

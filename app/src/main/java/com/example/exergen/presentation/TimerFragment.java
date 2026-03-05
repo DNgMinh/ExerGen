@@ -89,17 +89,6 @@ public class TimerFragment extends Fragment implements TimerObserver {
         btnStart.setText(getString(R.string.btn_resume));
     }
 
-    private void createNewTimer() {
-        int work = npWork.getValue();
-        int rest = npRest.getValue();
-        int sets = npSets.getValue();
-
-        intervalTimer = new IntervalTimer(work, rest, sets, this);
-        intervalTimer.start();
-
-        setSetupModeVisible(false);
-    }
-
     private void pauseTimer() {
         if (intervalTimer != null) {
             intervalTimer.pause();
@@ -128,7 +117,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     private void updateTimerText(long secondsRemaining) {
-        String timeString = String.format("%02d:%02d", secondsRemaining / 60, secondsRemaining % 60);
+        String timeString = String.format(java.util.Locale.getDefault(), "%02d:%02d",
+                secondsRemaining / 60, secondsRemaining % 60);
         tvTimer.setText(timeString);
     }
 

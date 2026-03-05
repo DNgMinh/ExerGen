@@ -9,11 +9,6 @@ import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.repository.IExerciseRepository;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +29,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, null, null, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 do {
                     String id = cursor.getString(cursor.getColumnIndexOrThrow("id"));
                     String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
@@ -63,7 +58,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "id = ?",
                 new String[]{id}, null, null, null)) {
 
-            if (cursor != null && cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
                 String muscleGroupStr = cursor.getString(cursor.getColumnIndexOrThrow("muscle_groups"));
                 String equipmentStr = cursor.getString(cursor.getColumnIndexOrThrow("equipment"));
@@ -107,11 +102,13 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
     @Override
     public void seedData() {
-        if (getAllExercises().isEmpty()) {
-            List<Exercise> defaultExercises = loadExercisesFromAssets();
-            for (Exercise ex : defaultExercises) {
-                insertExercise(ex);
-            }
+        // FOR DEVELOPMENT: Clear existing data so the new CSV is always loaded
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete(DatabaseHelper.TABLE_EXERCISE, null, null);
+
+        List<Exercise> defaultExercises = loadExercisesFromAssets();
+        for (Exercise ex : defaultExercises) {
+            insertExercise(ex);
         }
     }
 
@@ -119,26 +116,20 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     private List<Exercise> loadExercisesFromAssets() {
         List<Exercise> list = new ArrayList<>();
 
-        try (InputStream is = context.getAssets().open("exercises.csv");
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        List<String[]> csvRows = CSVParser.parseAssetCSV(context, "exercises.csv");
 
-            String line;
-            reader.readLine();
+        for (String[] tokens : csvRows) {
+            if (tokens.length >= 7) {
+                List<String> muscles = Arrays.asList(tokens[2].split("\\|"));
+                List<String> equipment = Arrays.asList(tokens[3].split("\\|"));
 
-            while ((line = reader.readLine()) != null) {
-                String[] tokens = line.split(",");
-                if (tokens.length >= 7) {
-                    List<String> muscles = Arrays.asList(tokens[2].split("\\|"));
-                    List<String> equipment = Arrays.asList(tokens[3].split("\\|"));
+                String instructions = tokens[4].replaceAll("^\"|\"$", "");
 
-                    list.add(new Exercise(
-                            tokens[0], tokens[1], muscles, equipment, tokens[4], Integer.parseInt(tokens[5]), tokens[6]
-                    ));
-                }
+                list.add(new Exercise(
+                        tokens[0], tokens[1], muscles, equipment, instructions,
+                        Integer.parseInt(tokens[5]), tokens[6]
+                ));
             }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
         }
         return list;
     }

@@ -23,8 +23,11 @@ public class CSVParser {
             reader.readLine(); // Skip the header row
 
             while ((line = reader.readLine()) != null) {
-                // Split the row into pieces and add it to our list
-                rows.add(line.split(","));
+                /*
+                Black magic regex to split the row into pieces and add it to our list.
+                This allows us to handle commas inside the instructions field of an exercise
+                 */
+                rows.add(line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"));
             }
 
         }
