@@ -1,5 +1,6 @@
 package com.example.exergen.business.usecase;
 
+import com.example.exergen.business.exception.DuplicateExerciseException;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.repository.IExerciseRepository;
@@ -37,16 +38,19 @@ public class ExerciseAddTest {
         }
 
         @Override
-        public void deleteExercise(String id) {}
+        public void deleteExercise(String id) {
+        }
 
         @Override
-        public void seedData() {}
+        public void seedData() {
+        }
     }
 
     @Test
     public void addExerciseMakesExerciseRetrievable() {
         ExerciseService service = new ExerciseService(new FakeExerciseRepository());
-        Exercise added = new Exercise("ex-99", "Burpee", List.of("Full Body"), List.of("Bodyweight"), "", 3, "placeholder");
+        Exercise added = new Exercise("ex-99", "Burpee", List.of("Full Body"), List.of("Bodyweight"), "", 3,
+                "placeholder");
 
         service.addExercise(added);
 
@@ -61,15 +65,17 @@ public class ExerciseAddTest {
         service.addExercise(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DuplicateExerciseException.class)
     public void addExerciseRejectsDuplicateId() {
         IExerciseRepository fakeRepository = new FakeExerciseRepository();
         ExerciseService service = new ExerciseService(fakeRepository);
-        Exercise existingExercise = new Exercise("ex-100", "Push-up", List.of("Chest"), List.of("Bodyweight"), "", 3, "placeholder");
+        Exercise existingExercise = new Exercise("ex-100", "Push-up", List.of("Chest"), List.of("Bodyweight"), "", 3,
+                "placeholder");
 
         fakeRepository.insertExercise(existingExercise);
 
-        Exercise duplicateExercise = new Exercise("ex-100", "Diamond Push-up", List.of("Triceps"), List.of("Bodyweight"), "", 4, "placeholder");
+        Exercise duplicateExercise = new Exercise("ex-100", "Diamond Push-up", List.of("Triceps"),
+                List.of("Bodyweight"), "", 4, "placeholder");
         service.addExercise(duplicateExercise);
     }
 }

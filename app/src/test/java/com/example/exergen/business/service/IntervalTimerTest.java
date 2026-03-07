@@ -1,6 +1,7 @@
 package com.example.exergen.business.service;
 
 import static org.junit.Assert.*;
+import com.example.exergen.business.exception.TimerAlreadyRunningException;
 import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -8,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 public class IntervalTimerTest {
 
     private long lastTickValue;
-    private boolean isWorkPhase;
+    private TimerPhase phase;
     private boolean isFinished;
 
     @Test
@@ -23,8 +24,8 @@ public class IntervalTimerTest {
             }
 
             @Override
-            public void onPhaseChange(boolean work) {
-                isWorkPhase = work;
+            public void onPhaseChange(TimerPhase timerPhase) {
+                phase = timerPhase;
             }
 
             @Override
@@ -43,6 +44,7 @@ public class IntervalTimerTest {
         assertTrue("Timer should have completed within 3 seconds", completed);
         assertTrue("onFinish should have been called", isFinished);
         assertEquals("Final tick should be 0", 0, lastTickValue);
+        assertEquals(TimerPhase.WORK, phase);
     }
 
     @Test
@@ -54,5 +56,12 @@ public class IntervalTimerTest {
 
         timer.cancel();
         assertNotNull(timer);
+    }
+
+    @Test(expected = TimerAlreadyRunningException.class)
+    public void startWhileRunningThrowsDomainException() {
+        IntervalTimer timer = new IntervalTimer(2, 1, 1, null);
+        timer.start();
+        timer.start();
     }
 }

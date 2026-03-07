@@ -1,6 +1,7 @@
 package com.example.exergen.business.model;
 
 import com.example.exergen.model.Exercise;
+import com.example.exergen.business.exception.SessionCompletedException;
 import com.example.exergen.business.service.SessionManager;
 import com.example.exergen.model.Workout;
 import com.example.exergen.business.repository.IExerciseRepository;
@@ -36,19 +37,22 @@ public class SessionManagerTest {
         }
 
         @Override
-        public void insertExercise(Exercise exercise) {}
+        public void insertExercise(Exercise exercise) {
+        }
 
         @Override
-        public void deleteExercise(String id) {}
+        public void deleteExercise(String id) {
+        }
 
         @Override
-        public void seedData() {}
+        public void seedData() {
+        }
     }
 
     @Test
     public void testNextMovesToNextExercise() {
-        Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "", 1, "placeholder");
-        Exercise e2 = new Exercise("e2", "Second", List.of(), List.of(), "", 1, "placeholder");
+        Exercise e1 = new Exercise("e1", "First", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
+        Exercise e2 = new Exercise("e2", "Second", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
         FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1, e2));
 
         Workout w = new Workout(
@@ -64,5 +68,16 @@ public class SessionManagerTest {
         manager.next();
 
         assertEquals("Second", manager.getCurrentExercise().getName());
+    }
+
+    @Test(expected = SessionCompletedException.class)
+    public void getCurrentExerciseThrowsWhenSessionFinished() {
+        Exercise e1 = new Exercise("e1", "Only", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
+        FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
+        Workout workout = new Workout("w1", "Test", 1, List.of("e1"), List.of(10), List.of(5));
+        SessionManager manager = new SessionManager(workout, repo);
+
+        manager.next();
+        manager.getCurrentExercise();
     }
 }
