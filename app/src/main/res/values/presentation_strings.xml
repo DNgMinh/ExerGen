@@ -3,6 +3,12 @@
     <string name="workouts_empty">No workouts found</string>
     <string name="workout_list_title">Your Workouts</string>
     <string name="workout_details_format">%1$d exercises | %2$d min</string>
+    <string name="workout_detail_title">Workout Details</string>
+    <string name="workout_detail_body_format">Name: %1$s\nRounds: %2$d\nExercises: %3$d\nTotal Duration: %4$d sec\nExercise Names: %5$s</string>
+    <string name="workout_detail_none">No exercise details available</string>
+    <string name="workout_delete_title">Delete Workout</string>
+    <string name="workout_delete_message">Delete %1$s?</string>
+    <string name="workout_delete_action">Delete</string>
 
     <!-- Add exercise related strings -->
     <string name="exercises_empty">No exercises found</string>

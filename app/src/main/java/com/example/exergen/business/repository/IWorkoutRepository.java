@@ -11,5 +11,7 @@ public interface IWorkoutRepository {
 
     List<Workout> getAllWorkouts();
 
+    void deleteWorkout(String workoutId);
+
     void seedData();
 }

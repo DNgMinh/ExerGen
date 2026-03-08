@@ -15,22 +15,20 @@ public class WorkoutRepositoryStub implements IWorkoutRepository {
     public WorkoutRepositoryStub() {
         // Hardcode some sample workouts here
         Workout w1 = new Workout(
-            "w1",
-            "Beginner Full Body",
-            2,
-            List.of("pushups", "squats", "plank"),
-            List.of(30, 30, 30),
-            List.of(15, 15, 15)
-        );
+                "w1",
+                "Beginner Full Body",
+                2,
+                List.of("pushups", "squats", "plank"),
+                List.of(30, 30, 30),
+                List.of(15, 15, 15));
 
         Workout w2 = new Workout(
-            "w2",
-            "Upper Body Blast",
-            3,
-            List.of("pushups", "triceps_dips", "shoulder_taps"),
-            List.of(20, 25, 20),
-            List.of(10, 10, 10)
-        );
+                "w2",
+                "Upper Body Blast",
+                3,
+                List.of("pushups", "triceps_dips", "shoulder_taps"),
+                List.of(20, 25, 20),
+                List.of(10, 10, 10));
 
         store.put(w1.getId(), w1);
         store.put(w2.getId(), w2);
@@ -51,8 +49,15 @@ public class WorkoutRepositoryStub implements IWorkoutRepository {
         return new ArrayList<>(store.values());
     }
 
+    @Override
+    public void deleteWorkout(String workoutId) {
+        if (workoutId == null || workoutId.trim().isEmpty()) {
+            return;
+        }
+        store.remove(workoutId);
+    }
+
     public void seedData() {
         // Left empty intentionally, stub automatically seeds data in constructor
     }
 }
-
