@@ -53,8 +53,9 @@ public class WorkoutBuilderUseCase {
             restSeconds.add(DEFAULT_REST_SECONDS);
         }
 
+        String generatedId = "generated-" + System.currentTimeMillis();
         return new Workout(
-                "generated-workout",
+                generatedId,
                 "Generated Workout",
                 1,
                 exerciseIds,

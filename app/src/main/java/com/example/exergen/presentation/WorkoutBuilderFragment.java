@@ -21,6 +21,7 @@ import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
+import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -41,7 +42,9 @@ public class WorkoutBuilderFragment extends Fragment {
     private static final String KEY_PREVIEW_MODE = "builder_preview_mode";
 
     private WorkoutBuilderUseCase workoutBuilderUseCase;
+    private WorkoutUseCase workoutUseCase;
     private ExerciseService exerciseService;
+    private Workout lastGeneratedWorkout;
 
     private EditText etDurationMinutes;
     private CheckBox cbMuscleChest;
@@ -62,6 +65,7 @@ public class WorkoutBuilderFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         workoutBuilderUseCase = AppBootstrap.get().workoutBuilderUseCase;
+        workoutUseCase = AppBootstrap.get().workoutUseCase;
         exerciseService = AppBootstrap.get().exerciseService;
     }
 
@@ -168,10 +172,12 @@ public class WorkoutBuilderFragment extends Fragment {
 
         try {
             Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(constraints);
+            lastGeneratedWorkout = generatedWorkout;
             tvBuilderSummary.setText(summaryText);
             tvBuilderPreview.setText(buildPreviewText(generatedWorkout));
             setPreviewMode(true);
         } catch (IllegalArgumentException ex) {
+            lastGeneratedWorkout = null;
             tvBuilderPreview.setText("");
             setPreviewMode(false);
             showToast(ex.getMessage());
@@ -195,6 +201,13 @@ public class WorkoutBuilderFragment extends Fragment {
     }
 
     private void openTimer() {
+        if (lastGeneratedWorkout == null) {
+            showToast(getString(R.string.workout_builder_error_generate_first));
+            return;
+        }
+        workoutUseCase.saveWorkout(lastGeneratedWorkout);
+        showToast(getString(R.string.workout_builder_saved_message));
+
         if (getActivity() == null) {
             return;
         }

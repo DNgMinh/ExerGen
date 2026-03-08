@@ -24,6 +24,8 @@
     <string name="workout_builder_error_duration_required">Please enter duration in minutes.</string>
     <string name="workout_builder_error_duration_invalid">Duration must be a valid positive number.</string>
     <string name="workout_builder_error_muscle_required">Select at least one target muscle group.</string>
+    <string name="workout_builder_error_generate_first">Generate a workout before starting.</string>
+    <string name="workout_builder_saved_message">Workout saved to Workouts.</string>
     <string name="muscle_chest">Chest</string>
     <string name="muscle_legs">Legs</string>
     <string name="muscle_back">Back</string>
