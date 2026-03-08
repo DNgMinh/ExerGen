@@ -1,6 +1,7 @@
 package com.example.exergen.business.model;
 
 import com.example.exergen.model.Exercise;
+import com.example.exergen.business.exception.ExerciseNotFoundException;
 import com.example.exergen.business.exception.SessionCompletedException;
 import com.example.exergen.business.service.SessionManager;
 import com.example.exergen.model.Workout;
@@ -79,5 +80,27 @@ public class SessionManagerTest {
 
         manager.next();
         manager.getCurrentExercise();
+    }
+
+    @Test(expected = ExerciseNotFoundException.class)
+    public void getCurrentExerciseThrowsWhenExerciseMissingFromRepository() {
+        FakeExerciseRepository repo = new FakeExerciseRepository(List.of());
+        Workout workout = new Workout("w1", "Missing Exercise", 1, List.of("ghost-id"), List.of(10), List.of(5));
+        SessionManager manager = new SessionManager(workout, repo);
+
+        manager.getCurrentExercise();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsNullWorkout() {
+        Exercise e1 = new Exercise("e1", "Only", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
+        FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
+        new SessionManager(null, repo);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsNullRepository() {
+        Workout workout = new Workout("w1", "Test", 1, List.of("e1"), List.of(10), List.of(5));
+        new SessionManager(workout, null);
     }
 }

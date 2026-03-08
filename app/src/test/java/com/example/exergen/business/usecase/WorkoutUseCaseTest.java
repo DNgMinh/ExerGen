@@ -46,6 +46,13 @@ public class WorkoutUseCaseTest {
     }
 
     @Test
+    public void testGetAllWorkouts_ReturnsSeededWorkouts() {
+        List<Workout> workouts = workoutUseCase.getAllWorkouts();
+        assertNotNull(workouts);
+        assertFalse(workouts.isEmpty());
+    }
+
+    @Test
     public void testGetExercisesForWorkout_ResolvesCorrectly() {
         Workout workout = workoutUseCase.getWorkoutById("w1");
         List<Exercise> exercises = workoutUseCase.getExercisesForWorkout(workout);
@@ -67,6 +74,13 @@ public class WorkoutUseCaseTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSaveWorkout_ThrowsOnNull() {
         workoutUseCase.saveWorkout(null);
+    }
+
+    @Test
+    public void testSaveWorkout_PersistsWorkout() {
+        Workout workout = new Workout("w-new", "New Workout", 1, List.of("pushups"), List.of(20), List.of(10));
+        workoutUseCase.saveWorkout(workout);
+        assertNotNull(workoutUseCase.getWorkoutById("w-new"));
     }
 
     @Test
@@ -104,6 +118,13 @@ public class WorkoutUseCaseTest {
         // Verify it returns an empty list
         assertNotNull(results);
         assertTrue("Should be empty because the ID wasn't found", results.isEmpty());
+    }
+
+    @Test
+    public void testGetExercisesForWorkout_NullWorkoutReturnsEmptyList() {
+        List<Exercise> results = workoutUseCase.getExercisesForWorkout(null);
+        assertNotNull(results);
+        assertTrue(results.isEmpty());
     }
 
     private static class LocalFakeExerciseRepo implements IExerciseRepository {
