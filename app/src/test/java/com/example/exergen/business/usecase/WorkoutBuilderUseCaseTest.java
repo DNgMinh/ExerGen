@@ -2,6 +2,7 @@ package com.example.exergen.business.usecase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 import com.example.exergen.business.repository.IExerciseRepository;
 import com.example.exergen.business.service.ExerciseService;
@@ -69,6 +70,31 @@ public class WorkoutBuilderUseCaseTest {
         Workout result = workoutBuilderUseCase.generateWorkout(constraints);
 
         assertEquals(2, result.getExerciseIds().size());
+        assertTrue(result.getExerciseIds().contains("ex-legs-bw"));
+    }
+
+    @Test
+    public void generateWorkoutAssignsUniqueIdsAcrossGenerations() {
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"),
+                List.of("Chest"), 2);
+
+        Workout first = workoutBuilderUseCase.generateWorkout(constraints);
+        Workout second = workoutBuilderUseCase.generateWorkout(constraints);
+
+        assertTrue(first.getId().startsWith("generated-"));
+        assertTrue(second.getId().startsWith("generated-"));
+        assertNotEquals(first.getId(), second.getId());
+    }
+
+    @Test
+    public void generateWorkoutCyclesMatchingExercisesWhenDurationRequiresMoreSlots() {
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(),
+                List.of("Chest", "Legs"), 5);
+
+        Workout result = workoutBuilderUseCase.generateWorkout(constraints);
+
+        assertEquals(5, result.getExerciseIds().size());
+        assertTrue(result.getExerciseIds().contains("ex-chest-db"));
         assertTrue(result.getExerciseIds().contains("ex-legs-bw"));
     }
 

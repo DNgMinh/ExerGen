@@ -7,6 +7,7 @@ import com.example.exergen.model.Workout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class WorkoutBuilderUseCase {
     private static final int DEFAULT_WORK_SECONDS = 45;
@@ -53,7 +54,7 @@ public class WorkoutBuilderUseCase {
             restSeconds.add(DEFAULT_REST_SECONDS);
         }
 
-        String generatedId = "generated-" + System.currentTimeMillis();
+        String generatedId = "generated-" + UUID.randomUUID();
         return new Workout(
                 generatedId,
                 "Generated Workout",
