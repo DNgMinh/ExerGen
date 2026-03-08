@@ -73,6 +73,25 @@ public class WorkoutBuilderIntegrationTest {
         assertEquals(loaded.getExerciseIds().size(), loaded.getRestSeconds().size());
     }
 
+    @Test
+    public void multipleGeneratedWorkoutsAreSavedWithoutOverwrite() {
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"),
+                List.of("Chest"), 2);
+
+        Workout generatedOne = workoutBuilderUseCase.generateWorkout(constraints);
+        Workout generatedTwo = workoutBuilderUseCase.generateWorkout(constraints);
+
+        workoutUseCase.saveWorkout(generatedOne);
+        workoutUseCase.saveWorkout(generatedTwo);
+
+        Workout loadedOne = workoutUseCase.getWorkoutById(generatedOne.getId());
+        Workout loadedTwo = workoutUseCase.getWorkoutById(generatedTwo.getId());
+
+        assertNotNull(loadedOne);
+        assertNotNull(loadedTwo);
+        assertTrue(!generatedOne.getId().equals(generatedTwo.getId()));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void generationThrowsWhenNoExerciseMatchesSQLiteData() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Barbell"),
