@@ -83,6 +83,38 @@
             android:layout_marginTop="20dp"
             android:text="@string/workout_builder_generate_button" />
 
+        <LinearLayout
+            android:id="@+id/preview_action_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btn_start_workout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/workout_builder_start_button" />
+
+            <Button
+                android:id="@+id/btn_regenerate_workout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/workout_builder_regenerate_button" />
+
+            <Button
+                android:id="@+id/btn_edit_constraints"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/workout_builder_edit_button" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tv_builder_summary"
             android:layout_width="match_parent"

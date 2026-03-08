@@ -14,6 +14,9 @@
     <string name="workout_builder_muscle_label">Target Muscle Groups</string>
     <string name="workout_builder_equipment_label">Available Equipment (optional)</string>
     <string name="workout_builder_generate_button">Generate Workout</string>
+    <string name="workout_builder_start_button">Start</string>
+    <string name="workout_builder_regenerate_button">Regenerate</string>
+    <string name="workout_builder_edit_button">Edit</string>
     <string name="workout_builder_summary_format">Duration: %1$d min\nMuscles: %2$s\nEquipment: %3$s</string>
     <string name="workout_builder_equipment_any">Any</string>
     <string name="workout_builder_preview_header">Generated Workout Preview</string>

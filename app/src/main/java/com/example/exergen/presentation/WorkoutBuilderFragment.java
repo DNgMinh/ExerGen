@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.example.exergen.business.service.WorkoutGenerationConstraints;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,7 @@ public class WorkoutBuilderFragment extends Fragment {
     private static final String KEY_EQUIP_BARBELL = "builder_equipment_barbell";
     private static final String KEY_SUMMARY = "builder_summary";
     private static final String KEY_PREVIEW = "builder_preview";
+    private static final String KEY_PREVIEW_MODE = "builder_preview_mode";
 
     private WorkoutBuilderUseCase workoutBuilderUseCase;
     private ExerciseService exerciseService;
@@ -49,6 +52,11 @@ public class WorkoutBuilderFragment extends Fragment {
     private CheckBox cbEquipmentBarbell;
     private TextView tvBuilderSummary;
     private TextView tvBuilderPreview;
+    private Button btnGenerateWorkout;
+    private LinearLayout previewActionContainer;
+    private Button btnStartWorkout;
+    private Button btnRegenerateWorkout;
+    private Button btnEditConstraints;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,8 +79,10 @@ public class WorkoutBuilderFragment extends Fragment {
         bindViews(view);
         restoreState(savedInstanceState);
 
-        Button btnGenerate = view.findViewById(R.id.btn_generate_workout);
-        btnGenerate.setOnClickListener(v -> generateAndPreviewWorkout());
+        btnGenerateWorkout.setOnClickListener(v -> generateAndPreviewWorkout());
+        btnRegenerateWorkout.setOnClickListener(v -> generateAndPreviewWorkout());
+        btnEditConstraints.setOnClickListener(v -> setPreviewMode(false));
+        btnStartWorkout.setOnClickListener(v -> openTimer());
     }
 
     @Override
@@ -87,6 +97,7 @@ public class WorkoutBuilderFragment extends Fragment {
         outState.putBoolean(KEY_EQUIP_BARBELL, cbEquipmentBarbell.isChecked());
         outState.putString(KEY_SUMMARY, tvBuilderSummary.getText().toString());
         outState.putString(KEY_PREVIEW, tvBuilderPreview.getText().toString());
+        outState.putBoolean(KEY_PREVIEW_MODE, previewActionContainer.getVisibility() == View.VISIBLE);
     }
 
     private void bindViews(View view) {
@@ -99,6 +110,11 @@ public class WorkoutBuilderFragment extends Fragment {
         cbEquipmentBarbell = view.findViewById(R.id.cb_equipment_barbell);
         tvBuilderSummary = view.findViewById(R.id.tv_builder_summary);
         tvBuilderPreview = view.findViewById(R.id.tv_builder_preview);
+        btnGenerateWorkout = view.findViewById(R.id.btn_generate_workout);
+        previewActionContainer = view.findViewById(R.id.preview_action_container);
+        btnStartWorkout = view.findViewById(R.id.btn_start_workout);
+        btnRegenerateWorkout = view.findViewById(R.id.btn_regenerate_workout);
+        btnEditConstraints = view.findViewById(R.id.btn_edit_constraints);
     }
 
     private void restoreState(@Nullable Bundle state) {
@@ -114,6 +130,7 @@ public class WorkoutBuilderFragment extends Fragment {
         cbEquipmentBarbell.setChecked(state.getBoolean(KEY_EQUIP_BARBELL, false));
         tvBuilderSummary.setText(state.getString(KEY_SUMMARY, ""));
         tvBuilderPreview.setText(state.getString(KEY_PREVIEW, ""));
+        setPreviewMode(state.getBoolean(KEY_PREVIEW_MODE, false));
     }
 
     private void generateAndPreviewWorkout() {
@@ -153,10 +170,44 @@ public class WorkoutBuilderFragment extends Fragment {
             Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(constraints);
             tvBuilderSummary.setText(summaryText);
             tvBuilderPreview.setText(buildPreviewText(generatedWorkout));
+            setPreviewMode(true);
         } catch (IllegalArgumentException ex) {
             tvBuilderPreview.setText("");
+            setPreviewMode(false);
             showToast(ex.getMessage());
         }
+    }
+
+    private void setPreviewMode(boolean enabled) {
+        previewActionContainer.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        btnGenerateWorkout.setVisibility(enabled ? View.GONE : View.VISIBLE);
+        setInputsEnabled(!enabled);
+    }
+
+    private void setInputsEnabled(boolean enabled) {
+        etDurationMinutes.setEnabled(enabled);
+        cbMuscleChest.setEnabled(enabled);
+        cbMuscleLegs.setEnabled(enabled);
+        cbMuscleBack.setEnabled(enabled);
+        cbEquipmentBodyweight.setEnabled(enabled);
+        cbEquipmentDumbbells.setEnabled(enabled);
+        cbEquipmentBarbell.setEnabled(enabled);
+    }
+
+    private void openTimer() {
+        if (getActivity() == null) {
+            return;
+        }
+        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_timer);
+            return;
+        }
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new TimerFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     private String buildPreviewText(Workout workout) {
