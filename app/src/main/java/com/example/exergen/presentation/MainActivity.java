@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new WorkoutsFragment();
             } else if (itemId == R.id.nav_add) {
                 selectedFragment = new WorkoutBuilderFragment();
+            } else if (itemId == R.id.nav_exercises) {
+                selectedFragment = new AddFragment();
             } else if (itemId == R.id.nav_stats) {
                 selectedFragment = new StatsFragment();
             }

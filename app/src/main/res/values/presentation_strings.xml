@@ -16,6 +16,8 @@
     <string name="workout_builder_generate_button">Generate Workout</string>
     <string name="workout_builder_summary_format">Duration: %1$d min\nMuscles: %2$s\nEquipment: %3$s</string>
     <string name="workout_builder_equipment_any">Any</string>
+    <string name="workout_builder_preview_header">Generated Workout Preview</string>
+    <string name="workout_builder_preview_count_format">Exercises: %1$d</string>
     <string name="workout_builder_error_duration_required">Please enter duration in minutes.</string>
     <string name="workout_builder_error_duration_invalid">Duration must be a valid positive number.</string>
     <string name="workout_builder_error_muscle_required">Select at least one target muscle group.</string>
@@ -25,6 +27,11 @@
     <string name="equipment_bodyweight">Bodyweight</string>
     <string name="equipment_dumbbells">Dumbbells</string>
     <string name="equipment_barbell">Barbell</string>
+    <string name="nav_workouts">Workouts</string>
+    <string name="nav_add">Add</string>
+    <string name="nav_exercises">Exercises</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_timer">Timer</string>
 
     <!-- Exercise Detail strings -->
     <string name="exercise_not_found">Exercise not found</string>

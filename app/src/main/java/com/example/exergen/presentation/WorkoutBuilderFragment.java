@@ -16,7 +16,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.exergen.R;
+import com.example.exergen.application.AppBootstrap;
+import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
+import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
+import com.example.exergen.model.Exercise;
+import com.example.exergen.model.Workout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +35,10 @@ public class WorkoutBuilderFragment extends Fragment {
     private static final String KEY_EQUIP_DUMBBELLS = "builder_equipment_dumbbells";
     private static final String KEY_EQUIP_BARBELL = "builder_equipment_barbell";
     private static final String KEY_SUMMARY = "builder_summary";
+    private static final String KEY_PREVIEW = "builder_preview";
+
+    private WorkoutBuilderUseCase workoutBuilderUseCase;
+    private ExerciseService exerciseService;
 
     private EditText etDurationMinutes;
     private CheckBox cbMuscleChest;
@@ -39,6 +48,14 @@ public class WorkoutBuilderFragment extends Fragment {
     private CheckBox cbEquipmentDumbbells;
     private CheckBox cbEquipmentBarbell;
     private TextView tvBuilderSummary;
+    private TextView tvBuilderPreview;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        workoutBuilderUseCase = AppBootstrap.get().workoutBuilderUseCase;
+        exerciseService = AppBootstrap.get().exerciseService;
+    }
 
     @Nullable
     @Override
@@ -55,7 +72,7 @@ public class WorkoutBuilderFragment extends Fragment {
         restoreState(savedInstanceState);
 
         Button btnGenerate = view.findViewById(R.id.btn_generate_workout);
-        btnGenerate.setOnClickListener(v -> validateInputsAndShowSummary());
+        btnGenerate.setOnClickListener(v -> generateAndPreviewWorkout());
     }
 
     @Override
@@ -69,6 +86,7 @@ public class WorkoutBuilderFragment extends Fragment {
         outState.putBoolean(KEY_EQUIP_DUMBBELLS, cbEquipmentDumbbells.isChecked());
         outState.putBoolean(KEY_EQUIP_BARBELL, cbEquipmentBarbell.isChecked());
         outState.putString(KEY_SUMMARY, tvBuilderSummary.getText().toString());
+        outState.putString(KEY_PREVIEW, tvBuilderPreview.getText().toString());
     }
 
     private void bindViews(View view) {
@@ -80,6 +98,7 @@ public class WorkoutBuilderFragment extends Fragment {
         cbEquipmentDumbbells = view.findViewById(R.id.cb_equipment_dumbbells);
         cbEquipmentBarbell = view.findViewById(R.id.cb_equipment_barbell);
         tvBuilderSummary = view.findViewById(R.id.tv_builder_summary);
+        tvBuilderPreview = view.findViewById(R.id.tv_builder_preview);
     }
 
     private void restoreState(@Nullable Bundle state) {
@@ -94,9 +113,10 @@ public class WorkoutBuilderFragment extends Fragment {
         cbEquipmentDumbbells.setChecked(state.getBoolean(KEY_EQUIP_DUMBBELLS, false));
         cbEquipmentBarbell.setChecked(state.getBoolean(KEY_EQUIP_BARBELL, false));
         tvBuilderSummary.setText(state.getString(KEY_SUMMARY, ""));
+        tvBuilderPreview.setText(state.getString(KEY_PREVIEW, ""));
     }
 
-    private void validateInputsAndShowSummary() {
+    private void generateAndPreviewWorkout() {
         String durationText = etDurationMinutes.getText().toString().trim();
         if (TextUtils.isEmpty(durationText)) {
             showToast(getString(R.string.workout_builder_error_duration_required));
@@ -121,7 +141,7 @@ public class WorkoutBuilderFragment extends Fragment {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(selectedEquipment, targetMuscles,
                 durationMinutes);
 
-        String summary = getString(
+        String summaryText = getString(
                 R.string.workout_builder_summary_format,
                 constraints.getDesiredDurationMinutes(),
                 String.join(", ", constraints.getTargetMuscleGroups()),
@@ -129,7 +149,38 @@ public class WorkoutBuilderFragment extends Fragment {
                         ? getString(R.string.workout_builder_equipment_any)
                         : String.join(", ", constraints.getSelectedEquipment()));
 
-        tvBuilderSummary.setText(summary);
+        try {
+            Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(constraints);
+            tvBuilderSummary.setText(summaryText);
+            tvBuilderPreview.setText(buildPreviewText(generatedWorkout));
+        } catch (IllegalArgumentException ex) {
+            tvBuilderPreview.setText("");
+            showToast(ex.getMessage());
+        }
+    }
+
+    private String buildPreviewText(Workout workout) {
+        StringBuilder preview = new StringBuilder();
+        preview.append(getString(R.string.workout_builder_preview_header)).append('\n');
+        preview.append(getString(R.string.workout_builder_preview_count_format, workout.getExerciseIds().size()));
+        preview.append('\n');
+
+        List<String> exerciseIds = workout.getExerciseIds();
+        for (int i = 0; i < exerciseIds.size(); i++) {
+            String id = exerciseIds.get(i);
+            Exercise exercise = exerciseService.getExerciseById(id);
+            String name = exercise != null ? exercise.getName() : id;
+            preview.append(i + 1)
+                    .append(". ")
+                    .append(name)
+                    .append(" (")
+                    .append(workout.getWorkSeconds().get(i))
+                    .append("s work / ")
+                    .append(workout.getRestSeconds().get(i))
+                    .append("s rest)")
+                    .append('\n');
+        }
+        return preview.toString().trim();
     }
 
     private List<String> getSelectedMuscles() {
