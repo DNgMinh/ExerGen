@@ -62,7 +62,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
         Workout workout = null;
 
         Cursor cursor = db.query(DatabaseHelper.TABLE_WORKOUT, null, "id = ?",
-                new String[]{workoutId}, null, null, null);
+                new String[] { workoutId }, null, null, null);
 
         if (cursor.moveToFirst()) {
             workout = parseCursorToWorkout(cursor);
@@ -80,10 +80,18 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
         if (cursor.moveToFirst()) {
             do {
                 workouts.add(parseCursorToWorkout(cursor));
-            }
-            while (cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         return workouts;
+    }
+
+    @Override
+    public void deleteWorkout(String workoutId) {
+        if (workoutId == null || workoutId.trim().isEmpty()) {
+            return;
+        }
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete(DatabaseHelper.TABLE_WORKOUT, "id = ?", new String[] { workoutId });
     }
 
     // Helper method to keep parsing logic clean
@@ -99,12 +107,14 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
 
         List<Integer> workSeconds = new ArrayList<>();
         for (String s : workSecStr.split(",")) {
-            if (!s.trim().isEmpty()) workSeconds.add(Integer.parseInt(s.trim()));
+            if (!s.trim().isEmpty())
+                workSeconds.add(Integer.parseInt(s.trim()));
         }
 
         List<Integer> restSeconds = new ArrayList<>();
         for (String s : restSecStr.split(",")) {
-            if (!s.trim().isEmpty()) restSeconds.add(Integer.parseInt(s.trim()));
+            if (!s.trim().isEmpty())
+                restSeconds.add(Integer.parseInt(s.trim()));
         }
 
         return new Workout(id, name, rounds, exerciseIds, workSeconds, restSeconds);

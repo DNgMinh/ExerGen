@@ -35,6 +35,13 @@ public class WorkoutUseCase {
         workoutRepository.saveWorkout(workout);
     }
 
+    public void deleteWorkout(String workoutId) {
+        if (workoutId == null || workoutId.trim().isEmpty()) {
+            throw new IllegalArgumentException("workoutId required");
+        }
+        workoutRepository.deleteWorkout(workoutId);
+    }
+
     public List<Exercise> getExercisesForWorkout(Workout workout) {
         List<Exercise> exercises = new ArrayList<>();
         if (workout != null && workout.getExerciseIds() != null) {

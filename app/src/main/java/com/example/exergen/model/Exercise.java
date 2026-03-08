@@ -1,7 +1,5 @@
 package com.example.exergen.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Exercise {
@@ -14,35 +12,25 @@ public class Exercise {
     private final int intensity; // 1-5 scale
     private final String imageName; // Corresponding image in /res/drawable
 
-
     public Exercise(String id,
-                    String name,
-                    List<String> muscleGroups,
-                    List<String> equipment,
-                    String instructions,
-                    int intensity,
-                    String imageName) {
-
-        if (id == null || id.isEmpty())
-            throw new IllegalArgumentException("ID required");
-        if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("Name required");
-        if (muscleGroups == null)
-            throw new IllegalArgumentException("muscleGroups required");
-        if (equipment == null)
-            throw new IllegalArgumentException("Equipment required");
+            String name,
+            List<String> muscleGroups,
+            List<String> equipment,
+            String instructions,
+            int intensity,
+            String imageName) {
+        this.id = ModelValidation.requireNonBlank(id, "ID required");
+        this.name = ModelValidation.requireNonBlank(name, "Name required");
+        ModelValidation.requireNonEmptyList(muscleGroups, "muscleGroups required");
+        ModelValidation.requireNonEmptyList(equipment, "Equipment required");
         if (intensity < 0)
             throw new IllegalArgumentException("Intensity must be >= 0");
-        if (imageName == null || imageName.trim().isEmpty())
-            throw new IllegalArgumentException("Image name required");
+        this.imageName = ModelValidation.requireNonBlank(imageName, "Image name required");
 
-        this.id = id;
-        this.name = name;
         this.muscleGroups = List.copyOf(muscleGroups);
         this.equipment = List.copyOf(equipment);
         this.instructions = instructions;
         this.intensity = intensity;
-        this.imageName = imageName;
     }
 
     // Getters

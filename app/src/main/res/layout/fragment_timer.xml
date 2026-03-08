@@ -47,7 +47,7 @@
             android:orientation="vertical"
             android:gravity="center"
             android:layout_marginEnd="16dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Work (s)" android:textStyle="bold"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/timer_label_work" android:textStyle="bold"/>
             <NumberPicker android:id="@+id/np_work" android:layout_width="wrap_content" android:layout_height="120dp"/>
         </LinearLayout>
 
@@ -57,7 +57,7 @@
             android:orientation="vertical"
             android:gravity="center"
             android:layout_marginEnd="16dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rest (s)" android:textStyle="bold"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/timer_label_rest" android:textStyle="bold"/>
             <NumberPicker android:id="@+id/np_rest" android:layout_width="wrap_content" android:layout_height="120dp"/>
         </LinearLayout>
 
@@ -66,7 +66,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sets" android:textStyle="bold"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/timer_label_sets" android:textStyle="bold"/>
             <NumberPicker android:id="@+id/np_sets" android:layout_width="wrap_content" android:layout_height="120dp"/>
         </LinearLayout>
     </LinearLayout>
@@ -84,7 +84,7 @@
             android:id="@+id/btn_stop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="End Timer"
+            android:text="@string/btn_end_timer"
             android:backgroundTint="#D32F2F"
             android:layout_marginEnd="16dp"/>
 
@@ -92,7 +92,7 @@
             android:id="@+id/btn_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pause"
+            android:text="@string/btn_pause"
             android:backgroundTint="#FF5722"
             android:layout_marginEnd="16dp"/>
 

@@ -16,9 +16,21 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
 import com.example.exergen.business.service.IntervalTimer;
+import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.business.service.TimerObserver;
 
 public class TimerFragment extends Fragment implements TimerObserver {
+    private static final String KEY_WORK = "key_work";
+    private static final String KEY_REST = "key_rest";
+    private static final String KEY_SETS = "key_sets";
+    private static final String KEY_HAS_TIMER = "key_has_timer";
+    private static final String KEY_RUNNING = "key_running";
+    private static final String KEY_TIMER_WORK = "key_timer_work";
+    private static final String KEY_TIMER_REST = "key_timer_rest";
+    private static final String KEY_TIMER_SETS = "key_timer_sets";
+    private static final String KEY_TIMER_CURRENT_SET = "key_timer_current_set";
+    private static final String KEY_TIMER_PHASE = "key_timer_phase";
+    private static final String KEY_TIMER_REMAINING = "key_timer_remaining";
 
     private TextView tvTimer, tvPhase;
     private Button btnStart, btnPause, btnStop;
@@ -27,23 +39,26 @@ public class TimerFragment extends Fragment implements TimerObserver {
 
     private IntervalTimer intervalTimer;
     private ToneGenerator toneGenerator;
-    private boolean isTimerActive = false;
+    private boolean isTimerActive;
+    private Bundle savedState;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Initialize tone generator for audio cues
         toneGenerator = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
+        savedState = savedInstanceState;
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
         initializeViews(view);
         setupPickers();
         setupButtons();
-        setSetupModeVisible(true);
+        restoreUiState(savedState);
 
         return view;
     }
@@ -61,20 +76,25 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     private void setupPickers() {
-        npWork.setMinValue(5); npWork.setMaxValue(60); npWork.setValue(30);
-        npRest.setMinValue(5); npRest.setMaxValue(60); npRest.setValue(10);
-        npSets.setMinValue(1); npSets.setMaxValue(20); npSets.setValue(3);
+        npWork.setMinValue(5);
+        npWork.setMaxValue(60);
+        npWork.setValue(30);
+        npRest.setMinValue(5);
+        npRest.setMaxValue(60);
+        npRest.setValue(10);
+        npSets.setMinValue(1);
+        npSets.setMaxValue(20);
+        npSets.setValue(3);
     }
 
     private void setupButtons() {
         btnStart.setOnClickListener(v -> startOrResumeTimer());
         btnPause.setOnClickListener(v -> pauseTimer());
         btnStop.setOnClickListener(v -> stopTimer());
+        updateButtonStates();
     }
 
     private void startOrResumeTimer() {
-        isTimerActive = true;
-
         if (intervalTimer == null) {
             int work = npWork.getValue();
             int rest = npRest.getValue();
@@ -85,6 +105,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
         }
 
         intervalTimer.start();
+        isTimerActive = true;
+        updateButtonStates();
 
         btnStart.setText(getString(R.string.btn_resume));
     }
@@ -92,6 +114,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
     private void pauseTimer() {
         if (intervalTimer != null) {
             intervalTimer.pause();
+            isTimerActive = false;
+            updateButtonStates();
             tvPhase.setText(getString(R.string.timer_paused));
         }
     }
@@ -103,6 +127,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
             intervalTimer = null;
         }
         resetToDefaultState();
+        updateButtonStates();
     }
 
     private void setSetupModeVisible(boolean isVisible) {
@@ -116,18 +141,22 @@ public class TimerFragment extends Fragment implements TimerObserver {
         }
     }
 
+    private void updateButtonStates() {
+        btnPause.setEnabled(isTimerActive);
+        btnStop.setEnabled(isTimerActive);
+    }
+
     private void updateTimerText(long secondsRemaining) {
         String timeString = String.format(java.util.Locale.getDefault(), "%02d:%02d",
                 secondsRemaining / 60, secondsRemaining % 60);
         tvTimer.setText(timeString);
     }
 
-    private void updatePhaseText(boolean isWorkPhase) {
-        if (isWorkPhase) {
+    private void updatePhaseText(TimerPhase phase) {
+        if (phase == TimerPhase.WORK) {
             tvPhase.setText(getString(R.string.timer_work));
             tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-        }
-        else {
+        } else {
             tvPhase.setText(getString(R.string.timer_rest));
             tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
         }
@@ -139,6 +168,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
             tvPhase.setText(getString(R.string.timer_ready));
             setSetupModeVisible(true);
             intervalTimer = null;
+            isTimerActive = false;
+            updateButtonStates();
         });
     }
 
@@ -154,9 +185,9 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     @Override
-    public void onPhaseChange(boolean isWorkPhase) {
+    public void onPhaseChange(TimerPhase phase) {
         safeRunOnUiThread(() -> {
-            updatePhaseText(isWorkPhase);
+            updatePhaseText(phase);
             // Transition beep
             if (isTimerActive) {
                 toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 500);
@@ -179,6 +210,72 @@ public class TimerFragment extends Fragment implements TimerObserver {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (toneGenerator != null) toneGenerator.release();
+        if (toneGenerator != null)
+            toneGenerator.release();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_WORK, npWork.getValue());
+        outState.putInt(KEY_REST, npRest.getValue());
+        outState.putInt(KEY_SETS, npSets.getValue());
+
+        boolean hasTimer = intervalTimer != null;
+        outState.putBoolean(KEY_HAS_TIMER, hasTimer);
+        if (hasTimer) {
+            outState.putBoolean(KEY_RUNNING, intervalTimer.isRunning());
+            outState.putInt(KEY_TIMER_WORK, intervalTimer.getWorkDurationSeconds());
+            outState.putInt(KEY_TIMER_REST, intervalTimer.getRestDurationSeconds());
+            outState.putInt(KEY_TIMER_SETS, intervalTimer.getTotalSets());
+            outState.putInt(KEY_TIMER_CURRENT_SET, intervalTimer.getCurrentSet());
+            outState.putString(KEY_TIMER_PHASE, intervalTimer.getCurrentPhase().name());
+            outState.putInt(KEY_TIMER_REMAINING, intervalTimer.getRemainingSeconds());
+            intervalTimer.pause();
+        }
+    }
+
+    private void restoreUiState(@Nullable Bundle state) {
+        if (state == null) {
+            setSetupModeVisible(true);
+            updateButtonStates();
+            return;
+        }
+
+        npWork.setValue(state.getInt(KEY_WORK, npWork.getValue()));
+        npRest.setValue(state.getInt(KEY_REST, npRest.getValue()));
+        npSets.setValue(state.getInt(KEY_SETS, npSets.getValue()));
+
+        boolean hasTimer = state.getBoolean(KEY_HAS_TIMER, false);
+        if (!hasTimer) {
+            setSetupModeVisible(true);
+            updateButtonStates();
+            return;
+        }
+
+        intervalTimer = new IntervalTimer(
+                state.getInt(KEY_TIMER_WORK, npWork.getValue()),
+                state.getInt(KEY_TIMER_REST, npRest.getValue()),
+                state.getInt(KEY_TIMER_SETS, npSets.getValue()),
+                this);
+
+        TimerPhase phase = TimerPhase.valueOf(state.getString(KEY_TIMER_PHASE, TimerPhase.WORK.name()));
+        intervalTimer.restoreState(
+                state.getInt(KEY_TIMER_CURRENT_SET, 1),
+                phase,
+                state.getInt(KEY_TIMER_REMAINING, intervalTimer.getRemainingSeconds()));
+
+        setSetupModeVisible(false);
+        updateTimerText(intervalTimer.getRemainingSeconds());
+        updatePhaseText(phase);
+
+        if (state.getBoolean(KEY_RUNNING, false)) {
+            isTimerActive = true;
+            intervalTimer.start();
+            btnStart.setText(getString(R.string.btn_resume));
+        } else {
+            isTimerActive = false;
+        }
+        updateButtonStates();
     }
 }

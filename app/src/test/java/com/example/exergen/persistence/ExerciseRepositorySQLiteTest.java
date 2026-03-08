@@ -14,12 +14,15 @@ import org.robolectric.annotation.Config;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = {Build.VERSION_CODES.P}, manifest = Config.NONE)
+@Config(sdk = { Build.VERSION_CODES.O_MR1 }, manifest = Config.NONE)
 
 /*
-Note! Robolectric opens a new database connection to test, but does not close it, leading to
-a string of "errors" from CloseGuard that there is some sort of memory leak. This is expected,
-and can be ignored since the database is properly maintained during regular app use.
+ * Note! Robolectric opens a new database connection to test, but does not close
+ * it, leading to
+ * a string of "errors" from CloseGuard that there is some sort of memory leak.
+ * This is expected,
+ * and can be ignored since the database is properly maintained during regular
+ * app use.
  */
 public class ExerciseRepositorySQLiteTest {
 

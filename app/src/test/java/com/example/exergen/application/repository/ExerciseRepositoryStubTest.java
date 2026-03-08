@@ -1,5 +1,7 @@
 package com.example.exergen.application.repository;
 
+import com.example.exergen.business.exception.DuplicateExerciseException;
+import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.persistence.ExerciseRepositoryStub;
 
@@ -37,5 +39,25 @@ public class ExerciseRepositoryStubTest {
         Exercise result = stub.getExerciseById("missing");
 
         assertNull(result);
+    }
+
+    @Test(expected = DuplicateExerciseException.class)
+    public void insertExerciseThrowsOnDuplicateId() {
+        ExerciseRepositoryStub stub = new ExerciseRepositoryStub();
+        Exercise duplicate = new Exercise(
+                "ex-1",
+                "Duplicate Pushup",
+                List.of("Chest"),
+                List.of("Bodyweight"),
+                "desc",
+                2,
+                "placeholder.png");
+        stub.insertExercise(duplicate);
+    }
+
+    @Test(expected = InvalidFilterException.class)
+    public void filterByEquipmentRejectsEmptyFilter() {
+        ExerciseRepositoryStub stub = new ExerciseRepositoryStub();
+        stub.filterByEquipment("");
     }
 }
