@@ -36,13 +36,26 @@ public class SessionManagerTest {
         }
 
         @Override
-        public void insertExercise(Exercise exercise) {}
+        public List<Exercise> filterByEquipment(String equipment) {
+            return List.of();
+        }
 
         @Override
-        public void deleteExercise(String id) {}
+        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+            return List.of();
+        }
 
         @Override
-        public void seedData() {}
+        public void insertExercise(Exercise exercise) {
+        }
+
+        @Override
+        public void deleteExercise(String id) {
+        }
+
+        @Override
+        public void seedData() {
+        }
     }
 
     @Test

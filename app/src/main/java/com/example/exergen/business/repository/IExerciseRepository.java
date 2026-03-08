@@ -6,6 +6,10 @@ import java.util.List;
 public interface IExerciseRepository {
     List<Exercise> getAllExercises();
 
+    List<Exercise> filterByEquipment(String equipment);
+
+    List<Exercise> filterByMuscleGroup(String muscleGroup);
+
     void insertExercise(Exercise exercise);
 
     // Get a single exercise by its database ID

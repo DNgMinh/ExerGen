@@ -31,22 +31,35 @@ public class ExerciseAddTest {
         }
 
         @Override
+        public List<Exercise> filterByEquipment(String equipment) {
+            return List.of();
+        }
+
+        @Override
+        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+            return List.of();
+        }
+
+        @Override
         public void insertExercise(Exercise exercise) {
             exercises.removeIf(e -> e.getId().equals(exercise.getId()));
             exercises.add(exercise);
         }
 
         @Override
-        public void deleteExercise(String id) {}
+        public void deleteExercise(String id) {
+        }
 
         @Override
-        public void seedData() {}
+        public void seedData() {
+        }
     }
 
     @Test
     public void addExerciseMakesExerciseRetrievable() {
         ExerciseService service = new ExerciseService(new FakeExerciseRepository());
-        Exercise added = new Exercise("ex-99", "Burpee", List.of("Full Body"), List.of("Bodyweight"), "", 3, "placeholder");
+        Exercise added = new Exercise("ex-99", "Burpee", List.of("Full Body"), List.of("Bodyweight"), "", 3,
+                "placeholder");
 
         service.addExercise(added);
 
@@ -65,11 +78,13 @@ public class ExerciseAddTest {
     public void addExerciseRejectsDuplicateId() {
         IExerciseRepository fakeRepository = new FakeExerciseRepository();
         ExerciseService service = new ExerciseService(fakeRepository);
-        Exercise existingExercise = new Exercise("ex-100", "Push-up", List.of("Chest"), List.of("Bodyweight"), "", 3, "placeholder");
+        Exercise existingExercise = new Exercise("ex-100", "Push-up", List.of("Chest"), List.of("Bodyweight"), "", 3,
+                "placeholder");
 
         fakeRepository.insertExercise(existingExercise);
 
-        Exercise duplicateExercise = new Exercise("ex-100", "Diamond Push-up", List.of("Triceps"), List.of("Bodyweight"), "", 4, "placeholder");
+        Exercise duplicateExercise = new Exercise("ex-100", "Diamond Push-up", List.of("Triceps"),
+                List.of("Bodyweight"), "", 4, "placeholder");
         service.addExercise(duplicateExercise);
     }
 }

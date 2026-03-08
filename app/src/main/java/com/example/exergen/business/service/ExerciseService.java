@@ -3,7 +3,6 @@ package com.example.exergen.business.service;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.repository.IExerciseRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseService {
@@ -40,32 +39,16 @@ public class ExerciseService {
     }
 
     public List<Exercise> filterByEquipment(String equipment) {
-        if (equipment == null || equipment.isEmpty()) {
+        if (equipment == null || equipment.trim().isEmpty()) {
             throw new IllegalArgumentException("Equipment required.");
         }
-
-        List<Exercise> all = exerciseRepository.getAllExercises();
-        List<Exercise> result = new ArrayList<>();
-        for (Exercise ex : all) {
-            if (ex.getEquipment().contains(equipment)) {
-                result.add(ex);
-            }
-        }
-        return result;
+        return exerciseRepository.filterByEquipment(equipment.trim());
     }
 
     public List<Exercise> filterByMuscleGroup(String muscle) {
-        if (muscle == null || muscle.isEmpty()) {
+        if (muscle == null || muscle.trim().isEmpty()) {
             throw new IllegalArgumentException("Muscle required.");
         }
-
-        List<Exercise> all = exerciseRepository.getAllExercises();
-        List<Exercise> result = new ArrayList<>();
-        for (Exercise ex : all) {
-            if (ex.getMuscleGroups().contains(muscle)) {
-                result.add(ex);
-            }
-        }
-        return result;
+        return exerciseRepository.filterByMuscleGroup(muscle.trim());
     }
 }

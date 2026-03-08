@@ -34,13 +34,42 @@ public class ExerciseServiceTest {
         }
 
         @Override
-        public void insertExercise(Exercise exercise) {}
+        public List<Exercise> filterByEquipment(String equipment) {
+            if (equipment == null || equipment.trim().isEmpty()) {
+                throw new IllegalArgumentException("Equipment required.");
+            }
+
+            String normalizedEquipment = equipment.trim();
+            return exercises.stream()
+                    .filter(exercise -> exercise.getEquipment().stream()
+                            .anyMatch(currentEquipment -> currentEquipment.equalsIgnoreCase(normalizedEquipment)))
+                    .toList();
+        }
 
         @Override
-        public void deleteExercise(String id) {}
+        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+            if (muscleGroup == null || muscleGroup.trim().isEmpty()) {
+                throw new IllegalArgumentException("Muscle required.");
+            }
+
+            String normalizedMuscleGroup = muscleGroup.trim();
+            return exercises.stream()
+                    .filter(exercise -> exercise.getMuscleGroups().stream()
+                            .anyMatch(currentMuscleGroup -> currentMuscleGroup.equalsIgnoreCase(normalizedMuscleGroup)))
+                    .toList();
+        }
 
         @Override
-        public void seedData() {}
+        public void insertExercise(Exercise exercise) {
+        }
+
+        @Override
+        public void deleteExercise(String id) {
+        }
+
+        @Override
+        public void seedData() {
+        }
     }
 
     @Test
@@ -81,6 +110,34 @@ public class ExerciseServiceTest {
 
         assertEquals(1, result.size());
         assertEquals("Bench Press", result.get(0).getName());
+    }
+
+    @Test
+    public void filterByEquipmentReturnsEmptyWhenNoMatches() {
+        List<Exercise> seed = List.of(
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
+                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, "placeholder"));
+        ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
+
+        List<Exercise> result = service.filterByEquipment("Dumbbells");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void filterByEquipmentRejectsNullInput() {
+        List<Exercise> seed = List.of(
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"));
+        ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
+        service.filterByEquipment(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void filterByEquipmentRejectsBlankInput() {
+        List<Exercise> seed = List.of(
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"));
+        ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
+        service.filterByEquipment("   ");
     }
 
     @Test

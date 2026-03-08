@@ -64,9 +64,19 @@ public class WorkoutBuilderFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        workoutBuilderUseCase = AppBootstrap.get().workoutBuilderUseCase;
-        workoutUseCase = AppBootstrap.get().workoutUseCase;
-        exerciseService = AppBootstrap.get().exerciseService;
+        if (workoutBuilderUseCase == null || workoutUseCase == null || exerciseService == null) {
+            workoutBuilderUseCase = AppBootstrap.get().workoutBuilderUseCase;
+            workoutUseCase = AppBootstrap.get().workoutUseCase;
+            exerciseService = AppBootstrap.get().exerciseService;
+        }
+    }
+
+    public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
+            WorkoutUseCase workoutUseCase,
+            ExerciseService exerciseService) {
+        this.workoutBuilderUseCase = workoutBuilderUseCase;
+        this.workoutUseCase = workoutUseCase;
+        this.exerciseService = exerciseService;
     }
 
     @Nullable

@@ -1,4 +1,5 @@
 package com.example.exergen.persistence;
+
 import com.example.exergen.business.repository.IExerciseRepository;
 import com.example.exergen.model.Exercise;
 
@@ -132,29 +133,39 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
         exercises.add(exercise);
     }
 
+    @Override
     public List<Exercise> filterByEquipment(String equipment) {
-        if (equipment == null || equipment.isEmpty()) {
-            return getAllExercises();
+        if (equipment == null || equipment.trim().isEmpty()) {
+            throw new IllegalArgumentException("Equipment required.");
         }
 
+        String normalizedEquipment = equipment.trim();
         List<Exercise> result = new ArrayList<>();
         for (Exercise exercise : exercises) {
-            if (exercise.getEquipment().contains(equipment)) {
-                result.add(exercise);
+            for (String currentEquipment : exercise.getEquipment()) {
+                if (currentEquipment.equalsIgnoreCase(normalizedEquipment)) {
+                    result.add(exercise);
+                    break;
+                }
             }
         }
         return result;
     }
 
+    @Override
     public List<Exercise> filterByMuscleGroup(String muscle) {
-        if (muscle == null || muscle.isEmpty()) {
-            return getAllExercises();
+        if (muscle == null || muscle.trim().isEmpty()) {
+            throw new IllegalArgumentException("Muscle required.");
         }
 
+        String normalizedMuscle = muscle.trim();
         List<Exercise> result = new ArrayList<>();
         for (Exercise exercise : exercises) {
-            if (exercise.getMuscleGroups().contains(muscle)) {
-                result.add(exercise);
+            for (String currentMuscle : exercise.getMuscleGroups()) {
+                if (currentMuscle.equalsIgnoreCase(normalizedMuscle)) {
+                    result.add(exercise);
+                    break;
+                }
             }
         }
         return result;
