@@ -135,29 +135,39 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
         exercises.add(exercise);
     }
 
+    @Override
     public List<Exercise> filterByEquipment(String equipment) {
-        if (equipment == null || equipment.isEmpty()) {
+        if (equipment == null || equipment.trim().isEmpty()) {
             throw new InvalidFilterException("Equipment filter must be non-empty.");
         }
 
+        String normalizedEquipment = equipment.trim();
         List<Exercise> result = new ArrayList<>();
         for (Exercise exercise : exercises) {
-            if (exercise.getEquipment().contains(equipment)) {
-                result.add(exercise);
+            for (String currentEquipment : exercise.getEquipment()) {
+                if (currentEquipment.equalsIgnoreCase(normalizedEquipment)) {
+                    result.add(exercise);
+                    break;
+                }
             }
         }
         return result;
     }
 
+    @Override
     public List<Exercise> filterByMuscleGroup(String muscle) {
-        if (muscle == null || muscle.isEmpty()) {
+        if (muscle == null || muscle.trim().isEmpty()) {
             throw new InvalidFilterException("Muscle group filter must be non-empty.");
         }
 
+        String normalizedMuscle = muscle.trim();
         List<Exercise> result = new ArrayList<>();
         for (Exercise exercise : exercises) {
-            if (exercise.getMuscleGroups().contains(muscle)) {
-                result.add(exercise);
+            for (String currentMuscle : exercise.getMuscleGroups()) {
+                if (currentMuscle.equalsIgnoreCase(normalizedMuscle)) {
+                    result.add(exercise);
+                    break;
+                }
             }
         }
         return result;

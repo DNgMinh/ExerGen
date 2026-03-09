@@ -1,18 +1,18 @@
 package com.example.exergen.business.model;
 
-import com.example.exergen.model.Exercise;
 import com.example.exergen.business.exception.ExerciseNotFoundException;
 import com.example.exergen.business.exception.SessionCompletedException;
-import com.example.exergen.business.service.SessionManager;
-import com.example.exergen.model.Workout;
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.business.service.SessionManager;
+import com.example.exergen.model.Exercise;
+import com.example.exergen.model.Workout;
 
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SessionManagerTest {
 
@@ -38,6 +38,16 @@ public class SessionManagerTest {
         }
 
         @Override
+        public List<Exercise> filterByEquipment(String equipment) {
+            return List.of();
+        }
+
+        @Override
+        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+            return List.of();
+        }
+
+        @Override
         public void insertExercise(Exercise exercise) {
         }
 
@@ -56,18 +66,10 @@ public class SessionManagerTest {
         Exercise e2 = new Exercise("e2", "Second", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
         FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1, e2));
 
-        Workout w = new Workout(
-                "w1",
-                "Test Workout",
-                1,
-                List.of("e1", "e2"),
-                List.of(0, 0),
-                List.of(0, 0));
-
-        SessionManager manager = new SessionManager(w, repo);
+        Workout workout = new Workout("w1", "Test Workout", 1, List.of("e1", "e2"), List.of(0, 0), List.of(0, 0));
+        SessionManager manager = new SessionManager(workout, repo);
 
         manager.next();
-
         assertEquals("Second", manager.getCurrentExercise().getName());
     }
 
@@ -102,5 +104,19 @@ public class SessionManagerTest {
     public void constructorRejectsNullRepository() {
         Workout workout = new Workout("w1", "Test", 1, List.of("e1"), List.of(10), List.of(5));
         new SessionManager(workout, null);
+    }
+
+    @Test
+    public void nextDoesNotAdvancePastFinished() {
+        Exercise e1 = new Exercise("e1", "First", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
+        FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
+        Workout workout = new Workout("w1", "Test", 1, List.of("e1"), List.of(10), List.of(5));
+
+        SessionManager manager = new SessionManager(workout, repo);
+        manager.next();
+        assertEquals(1, manager.getCurrentStepIndex());
+
+        manager.next();
+        assertEquals(1, manager.getCurrentStepIndex());
     }
 }

@@ -40,18 +40,17 @@ public class MainActivity extends AppCompatActivity {
             // non-final :/
             if (itemId == R.id.nav_timer) {
                 selectedFragment = new TimerFragment();
-            }
-            else if (itemId == R.id.nav_workouts) {
+            } else if (itemId == R.id.nav_workouts) {
                 selectedFragment = new WorkoutsFragment();
-            }
-            else if (itemId == R.id.nav_add) {
+            } else if (itemId == R.id.nav_add) {
+                selectedFragment = new WorkoutBuilderFragment();
+            } else if (itemId == R.id.nav_exercises) {
                 selectedFragment = new AddFragment();
-            }
-            else if (itemId == R.id.nav_stats) {
+            } else if (itemId == R.id.nav_stats) {
                 selectedFragment = new StatsFragment();
             }
 
-            //Load the fragment if a valid one was selected
+            // Load the fragment if a valid one was selected
             if (selectedFragment != null) {
                 loadFragment(selectedFragment);
                 return true;

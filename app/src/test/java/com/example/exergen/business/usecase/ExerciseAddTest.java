@@ -32,6 +32,16 @@ public class ExerciseAddTest {
         }
 
         @Override
+        public List<Exercise> filterByEquipment(String equipment) {
+            return List.of();
+        }
+
+        @Override
+        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+            return List.of();
+        }
+
+        @Override
         public void insertExercise(Exercise exercise) {
             exercises.removeIf(e -> e.getId().equals(exercise.getId()));
             exercises.add(exercise);
