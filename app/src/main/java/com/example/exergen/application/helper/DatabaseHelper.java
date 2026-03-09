@@ -9,7 +9,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ExerGen.db";
     // FYI: We can change the DB version during testing if we add/remove from exercises.csv.
     // Just increment version # and restart emulator
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public static final String TABLE_EXERCISE = "Exercise";
     public static final String TABLE_WORKOUT = "Workout";
@@ -33,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "equipment TEXT, " +
                 "instructions TEXT, " +
                 "intensity INTEGER, " +
-                "image_name TEXT)");
+                "image_paths TEXT)");
 
         db.execSQL("CREATE TABLE " + TABLE_WORKOUT + " (" +
                 "id TEXT PRIMARY KEY, " +

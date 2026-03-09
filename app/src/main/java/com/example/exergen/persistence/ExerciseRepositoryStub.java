@@ -19,7 +19,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Bodyweight"),
                 "Keep a straight line from head to heels and lower with control.",
                 3,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-2",
                 "Squat",
@@ -27,7 +27,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Bodyweight"),
                 "Sit back with your hips and keep your chest upright.",
                 3,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-3",
                 "Plank",
@@ -35,7 +35,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Bodyweight"),
                 "Maintain a straight line from shoulders to heels.",
                 2,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-4",
                 "Dumbbell Row",
@@ -43,7 +43,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Dumbbells"),
                 "Pull the dumbbell toward your hip with a flat back.",
                 3,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-5",
                 "Bicep Curl",
@@ -51,7 +51,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Dumbbells"),
                 "Keep elbows tucked and curl the weight with control.",
                 2,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-6",
                 "Lunge",
@@ -59,7 +59,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Bodyweight"),
                 "Step forward and lower until both knees are bent.",
                 3,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-7",
                 "Bench Press",
@@ -67,7 +67,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Barbell"),
                 "Lower the bar to your mid-chest and press upward.",
                 4,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-8",
                 "Shoulder Press",
@@ -75,7 +75,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Dumbbells"),
                 "Press the weights overhead without arching your back.",
                 3,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-9",
                 "Jumping Jacks",
@@ -83,7 +83,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Bodyweight"),
                 "Jump feet out while raising arms overhead.",
                 2,
-                "placeholder.png"));
+                List.of("placeholder.png")));
         exercises.add(new Exercise(
                 "ex-10",
                 "Mountain Climbers",
@@ -91,7 +91,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
                 List.of("Bodyweight"),
                 "Drive knees toward your chest in a plank position.",
                 3,
-                "placeholder.png"));
+                List.of("placeholder.png")));
     }
 
     @Override
