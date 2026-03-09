@@ -3,6 +3,7 @@ package com.example.exergen.application;
 import android.app.Application;
 
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.business.repository.IExerciseRepository;
 import com.example.exergen.business.repository.IWorkoutRepository;
@@ -14,19 +15,22 @@ public final class AppBootstrap {
     private static AppBootstrap instance;
 
     public static void init(Application app) {
-        if (instance != null) return;
+        if (instance != null)
+            return;
         instance = new AppBootstrap(app);
     }
 
     public static AppBootstrap get() {
         if (instance == null) {
-            throw new IllegalStateException("AppBootstrap not initialized. Call AppBootstrap.init(...) in Application.onCreate().");
+            throw new IllegalStateException(
+                    "AppBootstrap not initialized. Call AppBootstrap.init(...) in Application.onCreate().");
         }
         return instance;
     }
 
     // Expose use cases to presentation
     public final WorkoutUseCase workoutUseCase;
+    public final WorkoutBuilderUseCase workoutBuilderUseCase;
     public final ExerciseService exerciseService;
 
     private AppBootstrap(Application app) {
@@ -39,5 +43,6 @@ public final class AppBootstrap {
 
         this.exerciseService = new ExerciseService(exerciseRepository);
         this.workoutUseCase = new WorkoutUseCase(workoutRepository, exerciseService);
+        this.workoutBuilderUseCase = new WorkoutBuilderUseCase(exerciseService);
     }
 }

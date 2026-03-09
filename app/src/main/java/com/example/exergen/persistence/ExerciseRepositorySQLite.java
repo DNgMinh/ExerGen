@@ -22,7 +22,6 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         this.dbHelper = new DatabaseHelper(context);
     }
 
-
     @Override
     public List<Exercise> getAllExercises() {
         List<Exercise> exercises = new ArrayList<>();
@@ -50,13 +49,51 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     }
 
     @Override
+    public List<Exercise> filterByEquipment(String equipment) {
+        if (equipment == null || equipment.trim().isEmpty()) {
+            throw new IllegalArgumentException("Equipment required.");
+        }
+
+        String normalizedEquipment = equipment.trim();
+        List<Exercise> result = new ArrayList<>();
+        for (Exercise exercise : getAllExercises()) {
+            for (String currentEquipment : exercise.getEquipment()) {
+                if (currentEquipment.equalsIgnoreCase(normalizedEquipment)) {
+                    result.add(exercise);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+        if (muscleGroup == null || muscleGroup.trim().isEmpty()) {
+            throw new IllegalArgumentException("Muscle required.");
+        }
+
+        String normalizedMuscleGroup = muscleGroup.trim();
+        List<Exercise> result = new ArrayList<>();
+        for (Exercise exercise : getAllExercises()) {
+            for (String currentMuscleGroup : exercise.getMuscleGroups()) {
+                if (currentMuscleGroup.equalsIgnoreCase(normalizedMuscleGroup)) {
+                    result.add(exercise);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
     public Exercise getExerciseById(String id) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Exercise exercise = null;
 
         // Use try-with-resources to ensure the cursor closes automatically
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "id = ?",
-                new String[]{id}, null, null, null)) {
+                new String[] { id }, null, null, null)) {
 
             if (cursor.moveToFirst()) {
                 String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
@@ -97,7 +134,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     @Override
     public void deleteExercise(String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete(DatabaseHelper.TABLE_EXERCISE, "id = ?", new String[]{id});
+        db.delete(DatabaseHelper.TABLE_EXERCISE, "id = ?", new String[] { id });
     }
 
     @Override
@@ -127,8 +164,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
                 list.add(new Exercise(
                         tokens[0], tokens[1], muscles, equipment, instructions,
-                        Integer.parseInt(tokens[5]), tokens[6]
-                ));
+                        Integer.parseInt(tokens[5]), tokens[6]));
             }
         }
         return list;

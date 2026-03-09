@@ -14,6 +14,35 @@
     <string name="exercises_empty">No exercises found</string>
     <string name="add_exercise_title">Select Exercise</string>
     <string name="exercise_attributes_format">Muscles: %1$s | Equipment: %2$s</string>
+    <string name="workout_builder_title">Workout Builder</string>
+    <string name="workout_builder_duration_label">Desired Duration (minutes)</string>
+    <string name="workout_builder_duration_hint">e.g. 20</string>
+    <string name="workout_builder_muscle_label">Target Muscle Groups</string>
+    <string name="workout_builder_equipment_label">Available Equipment (optional)</string>
+    <string name="workout_builder_generate_button">Generate Workout</string>
+    <string name="workout_builder_start_button">Start</string>
+    <string name="workout_builder_regenerate_button">Regenerate</string>
+    <string name="workout_builder_edit_button">Edit</string>
+    <string name="workout_builder_summary_format">Duration: %1$d min\nMuscles: %2$s\nEquipment: %3$s</string>
+    <string name="workout_builder_equipment_any">Any</string>
+    <string name="workout_builder_preview_header">Generated Workout Preview</string>
+    <string name="workout_builder_preview_count_format">Exercises: %1$d</string>
+    <string name="workout_builder_error_duration_required">Please enter duration in minutes.</string>
+    <string name="workout_builder_error_duration_invalid">Duration must be a valid positive number.</string>
+    <string name="workout_builder_error_muscle_required">Select at least one target muscle group.</string>
+    <string name="workout_builder_error_generate_first">Generate a workout before starting.</string>
+    <string name="workout_builder_saved_message">Workout saved to Workouts.</string>
+    <string name="muscle_chest">Chest</string>
+    <string name="muscle_legs">Legs</string>
+    <string name="muscle_back">Back</string>
+    <string name="equipment_bodyweight">Bodyweight</string>
+    <string name="equipment_dumbbells">Dumbbells</string>
+    <string name="equipment_barbell">Barbell</string>
+    <string name="nav_workouts">Workouts</string>
+    <string name="nav_add">Add</string>
+    <string name="nav_exercises">Exercises</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_timer">Timer</string>
 
     <!-- Exercise Detail strings -->
     <string name="exercise_not_found">Exercise not found</string>
@@ -34,11 +63,6 @@
     <string name="btn_back">Back</string>
     <string name="stats_title">Stats Coming Soon!</string>
     <string name="stats_subtitle">We are currently lifting some heavy code. Stay tuned.</string>
-    <string name="nav_workouts">Workouts</string>
-    <string name="nav_add">Add</string>
-    <string name="nav_stats">Stats</string>
-    <string name="nav_timer">Timer</string>
-
     <!-- Generic presentation strings -->
     <string name="loading">Loading...</string>
     <string name="error_loading_data">Error loading data. Please try again.</string>
