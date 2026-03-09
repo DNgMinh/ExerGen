@@ -14,7 +14,7 @@ import org.robolectric.annotation.Config;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = {Build.VERSION_CODES.P}, manifest = Config.NONE)
+@Config(sdk = {Build.VERSION_CODES.O_MR1}, manifest = Config.NONE)
 
 /*
 Note! Robolectric opens a new database connection to test, but does not close it, leading to

@@ -45,6 +45,21 @@ public class WorkoutTest {
         new Workout("w1", "Name", 3, null, List.of(30), List.of(10));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void blankName_throwsException() {
+        new Workout("w1", "   ", 3, List.of("e1"), List.of(30), List.of(10));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void workSecondsMismatch_throwsException() {
+        new Workout("w1", "Name", 3, List.of("e1", "e2"), List.of(30), List.of(10, 10));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void restSecondsMismatch_throwsException() {
+        new Workout("w1", "Name", 3, List.of("e1", "e2"), List.of(30, 30), List.of(10));
+    }
+
     @Test(expected = UnsupportedOperationException.class)
     public void listEncapsulation_preventsModification() {
         Workout workout = new Workout(

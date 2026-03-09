@@ -78,4 +78,62 @@ public class SessionManagerTest {
 
         assertEquals("Second", manager.getCurrentExercise().getName());
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsNullWorkout() {
+        Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "", 1, "placeholder");
+        FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
+        new SessionManager(null, repo);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsNullRepository() {
+        Workout w = new Workout(
+                "w1",
+                "Test Workout",
+                1,
+                List.of("e1"),
+                List.of(0),
+                List.of(0));
+        new SessionManager(w, null);
+    }
+
+    @Test
+    public void getCurrentExerciseReturnsNullWhenFinished() {
+        Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "", 1, "placeholder");
+        FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
+        Workout w = new Workout(
+                "w1",
+                "Test Workout",
+                1,
+                List.of("e1"),
+                List.of(0),
+                List.of(0));
+
+        SessionManager manager = new SessionManager(w, repo);
+        manager.next();
+
+        assertTrue(manager.isFinished());
+        assertNull(manager.getCurrentExercise());
+    }
+
+    @Test
+    public void nextDoesNotAdvancePastFinished() {
+        Exercise e1 = new Exercise("e1", "First", List.of(), List.of(), "", 1, "placeholder");
+        FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
+        Workout w = new Workout(
+                "w1",
+                "Test Workout",
+                1,
+                List.of("e1"),
+                List.of(0),
+                List.of(0));
+
+        SessionManager manager = new SessionManager(w, repo);
+        manager.next();
+        assertEquals(1, manager.getCurrentStepIndex());
+
+        manager.next();
+        assertEquals(1, manager.getCurrentStepIndex());
+    }
 }

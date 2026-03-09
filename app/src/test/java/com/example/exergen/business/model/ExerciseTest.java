@@ -59,6 +59,21 @@ public class ExerciseTest {
         new Exercise("id_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyId_throwsException() {
+        new Exercise("", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "placeholder");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullName_throwsException() {
+        new Exercise("id_1", null, List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "placeholder");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void blankImageName_throwsException() {
+        new Exercise("id_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "   ");
+    }
+
     @Test(expected = UnsupportedOperationException.class)
     public void listEncapsulation_preventsModification() {
         Exercise exercise = new Exercise(
