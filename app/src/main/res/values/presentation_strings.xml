@@ -47,6 +47,9 @@
     <!-- Exercise Detail strings -->
     <string name="exercise_not_found">Exercise not found</string>
     <string name="instructions_fallback">No instructions available.</string>
+    <string name="label_instructions">Instructions</string>
+    <string name="label_equipment_header">Equipment</string>
+    <string name="label_target_muscles_header">Target Muscles</string>
     <string name="label_equipment">Equipment: %s</string>
     <string name="label_muscles">Muscles: %s</string>
     <string name="label_intensity">Intensity: %s</string>
