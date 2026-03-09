@@ -20,9 +20,11 @@ import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
+import com.example.exergen.business.service.WorkoutPreviewData;
+import com.example.exergen.business.service.WorkoutPreviewItem;
+import com.example.exergen.business.service.WorkoutPreviewMapper;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
-import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -44,6 +46,7 @@ public class WorkoutBuilderFragment extends Fragment {
     private WorkoutBuilderUseCase workoutBuilderUseCase;
     private WorkoutUseCase workoutUseCase;
     private ExerciseService exerciseService;
+    private WorkoutPreviewMapper workoutPreviewMapper;
     private Workout lastGeneratedWorkout;
 
     private EditText etDurationMinutes;
@@ -69,14 +72,25 @@ public class WorkoutBuilderFragment extends Fragment {
             workoutUseCase = AppBootstrap.get().workoutUseCase;
             exerciseService = AppBootstrap.get().exerciseService;
         }
+        if (workoutPreviewMapper == null) {
+            workoutPreviewMapper = new WorkoutPreviewMapper();
+        }
     }
 
     public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
             WorkoutUseCase workoutUseCase,
             ExerciseService exerciseService) {
+        setDependenciesForTesting(workoutBuilderUseCase, workoutUseCase, exerciseService, new WorkoutPreviewMapper());
+    }
+
+    public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
+            WorkoutUseCase workoutUseCase,
+            ExerciseService exerciseService,
+            WorkoutPreviewMapper workoutPreviewMapper) {
         this.workoutBuilderUseCase = workoutBuilderUseCase;
         this.workoutUseCase = workoutUseCase;
         this.exerciseService = exerciseService;
+        this.workoutPreviewMapper = workoutPreviewMapper;
     }
 
     @Nullable
@@ -235,22 +249,19 @@ public class WorkoutBuilderFragment extends Fragment {
 
     private String buildPreviewText(Workout workout) {
         StringBuilder preview = new StringBuilder();
+        WorkoutPreviewData previewData = workoutPreviewMapper.map(workout, exerciseService);
         preview.append(getString(R.string.workout_builder_preview_header)).append('\n');
-        preview.append(getString(R.string.workout_builder_preview_count_format, workout.getExerciseIds().size()));
+        preview.append(getString(R.string.workout_builder_preview_count_format, previewData.getExerciseCount()));
         preview.append('\n');
 
-        List<String> exerciseIds = workout.getExerciseIds();
-        for (int i = 0; i < exerciseIds.size(); i++) {
-            String id = exerciseIds.get(i);
-            Exercise exercise = exerciseService.getExerciseById(id);
-            String name = exercise != null ? exercise.getName() : id;
-            preview.append(i + 1)
+        for (WorkoutPreviewItem item : previewData.getItems()) {
+            preview.append(item.getSequence())
                     .append(". ")
-                    .append(name)
+                    .append(item.getExerciseName())
                     .append(" (")
-                    .append(workout.getWorkSeconds().get(i))
+                    .append(item.getWorkSeconds())
                     .append("s work / ")
-                    .append(workout.getRestSeconds().get(i))
+                    .append(item.getRestSeconds())
                     .append("s rest)")
                     .append('\n');
         }
