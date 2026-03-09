@@ -1,5 +1,6 @@
 package com.example.exergen.business.usecase;
 
+import com.example.exergen.business.exception.DuplicateExerciseException;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.repository.IExerciseRepository;
@@ -74,7 +75,7 @@ public class ExerciseAddTest {
         service.addExercise(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DuplicateExerciseException.class)
     public void addExerciseRejectsDuplicateId() {
         IExerciseRepository fakeRepository = new FakeExerciseRepository();
         ExerciseService service = new ExerciseService(fakeRepository);

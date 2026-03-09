@@ -1,6 +1,8 @@
 package com.example.exergen.business.service;
 
 import static org.junit.Assert.*;
+import com.example.exergen.business.exception.DuplicateExerciseException;
+import com.example.exergen.business.exception.InvalidFilterException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +21,6 @@ public class ExerciseServiceTest {
         exerciseRepository = new ExerciseRepositoryStub();
         exerciseService = new ExerciseService(exerciseRepository);
     }
-
 
     @Test
     public void getAllExercises_returnsFullList() {
@@ -73,8 +74,7 @@ public class ExerciseServiceTest {
     public void serviceReflectsNewExercise() {
         Exercise newEx = new Exercise(
                 "new-01", "Handstand", List.of("Shoulders"),
-                List.of("Bodyweight"), "Balance on hands", 5, "placeholder"
-        );
+                List.of("Bodyweight"), "Balance on hands", 5, "placeholder");
 
         exerciseRepository.insertExercise(newEx);
 
@@ -94,5 +94,57 @@ public class ExerciseServiceTest {
         List<Exercise> results = exerciseService.getAllExercises();
         assertTrue(results.isEmpty());
         assertEquals(0, results.size());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsNullRepository() {
+        new ExerciseService(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void addExerciseRejectsNullExercise() {
+        exerciseService.addExercise(null);
+    }
+
+    @Test(expected = DuplicateExerciseException.class)
+    public void addExerciseRejectsDuplicateId() {
+        Exercise duplicate = new Exercise(
+                "ex-1", "Duplicate Pushup", List.of("Chest"),
+                List.of("Bodyweight"), "Duplicate", 2, "placeholder");
+        exerciseService.addExercise(duplicate);
+    }
+
+    @Test(expected = InvalidFilterException.class)
+    public void filterByEquipmentRejectsNullInput() {
+        exerciseService.filterByEquipment(null);
+    }
+
+    @Test(expected = InvalidFilterException.class)
+    public void filterByEquipmentRejectsEmptyInput() {
+        exerciseService.filterByEquipment("");
+    }
+
+    @Test(expected = InvalidFilterException.class)
+    public void filterByMuscleGroupRejectsNullInput() {
+        exerciseService.filterByMuscleGroup(null);
+    }
+
+    @Test(expected = InvalidFilterException.class)
+    public void filterByMuscleGroupRejectsEmptyInput() {
+        exerciseService.filterByMuscleGroup("");
+    }
+
+    @Test
+    public void filterByEquipmentReturnsEmptyWhenNoMatches() {
+        List<Exercise> results = exerciseService.filterByEquipment("Kettlebell");
+        assertNotNull(results);
+        assertTrue(results.isEmpty());
+    }
+
+    @Test
+    public void filterByMuscleGroupReturnsEmptyWhenNoMatches() {
+        List<Exercise> results = exerciseService.filterByMuscleGroup("Forearms");
+        assertNotNull(results);
+        assertTrue(results.isEmpty());
     }
 }

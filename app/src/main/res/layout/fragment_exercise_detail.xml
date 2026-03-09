@@ -14,7 +14,7 @@
             android:id="@+id/btn_exercise_detail_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back" />
+            android:text="@string/btn_back" />
 
         <TextView
             android:id="@+id/exercise_detail_name"

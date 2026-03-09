@@ -1,6 +1,7 @@
 package com.example.exergen.business.usecase;
 
 import com.example.exergen.model.Exercise;
+import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.repository.IExerciseRepository;
 
@@ -124,7 +125,7 @@ public class ExerciseServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidFilterException.class)
     public void filterByEquipmentRejectsNullInput() {
         List<Exercise> seed = List.of(
                 new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"));
@@ -132,7 +133,7 @@ public class ExerciseServiceTest {
         service.filterByEquipment(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidFilterException.class)
     public void filterByEquipmentRejectsBlankInput() {
         List<Exercise> seed = List.of(
                 new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"));

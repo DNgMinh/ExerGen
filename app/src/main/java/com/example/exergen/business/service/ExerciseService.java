@@ -1,6 +1,8 @@
 package com.example.exergen.business.service;
 
 import com.example.exergen.model.Exercise;
+import com.example.exergen.business.exception.DuplicateExerciseException;
+import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.repository.IExerciseRepository;
 
 import java.util.List;
@@ -32,7 +34,7 @@ public class ExerciseService {
         }
 
         if (exerciseRepository.getExerciseById(exercise.getId()) != null) {
-            throw new IllegalArgumentException("Duplicate exercise id detected.");
+            throw new DuplicateExerciseException(exercise.getId());
         }
 
         exerciseRepository.insertExercise(exercise);
@@ -40,14 +42,14 @@ public class ExerciseService {
 
     public List<Exercise> filterByEquipment(String equipment) {
         if (equipment == null || equipment.trim().isEmpty()) {
-            throw new IllegalArgumentException("Equipment required.");
+            throw new InvalidFilterException("Equipment required.");
         }
         return exerciseRepository.filterByEquipment(equipment.trim());
     }
 
     public List<Exercise> filterByMuscleGroup(String muscle) {
         if (muscle == null || muscle.trim().isEmpty()) {
-            throw new IllegalArgumentException("Muscle required.");
+            throw new InvalidFilterException("Muscle group required.");
         }
         return exerciseRepository.filterByMuscleGroup(muscle.trim());
     }

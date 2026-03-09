@@ -30,8 +30,7 @@ public class WorkoutRepositorySQLiteTest {
                 2,
                 List.of("pushups", "squats", "plank"),
                 List.of(30, 45, 60),
-                List.of(15, 20, 25)
-        );
+                List.of(15, 20, 25));
         repository.saveWorkout(initial);
     }
 
@@ -67,8 +66,7 @@ public class WorkoutRepositorySQLiteTest {
                 5,
                 List.of("pushups"),
                 List.of(10),
-                List.of(5)
-        );
+                List.of(5));
         repository.saveWorkout(updated);
 
         Workout result = repository.getWorkoutById("w1");

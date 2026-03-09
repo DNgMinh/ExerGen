@@ -1,6 +1,8 @@
 package com.example.exergen.persistence;
 
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.business.exception.DuplicateExerciseException;
+import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.model.Exercise;
 
 import java.util.ArrayList;
@@ -126,7 +128,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
 
         for (Exercise existing : exercises) {
             if (existing.getId().equals(exercise.getId())) {
-                return;
+                throw new DuplicateExerciseException(exercise.getId());
             }
         }
 
@@ -136,7 +138,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
     @Override
     public List<Exercise> filterByEquipment(String equipment) {
         if (equipment == null || equipment.trim().isEmpty()) {
-            throw new IllegalArgumentException("Equipment required.");
+            throw new InvalidFilterException("Equipment filter must be non-empty.");
         }
 
         String normalizedEquipment = equipment.trim();
@@ -155,7 +157,7 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
     @Override
     public List<Exercise> filterByMuscleGroup(String muscle) {
         if (muscle == null || muscle.trim().isEmpty()) {
-            throw new IllegalArgumentException("Muscle required.");
+            throw new InvalidFilterException("Muscle group filter must be non-empty.");
         }
 
         String normalizedMuscle = muscle.trim();
@@ -172,16 +174,6 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
     }
 
     public void addExercise(Exercise exercise) {
-        if (exercise == null) {
-            throw new IllegalArgumentException("exercise required");
-        }
-
-        for (Exercise existing : exercises) {
-            if (existing.getId().equals(exercise.getId())) {
-                return;
-            }
-        }
-
-        exercises.add(exercise);
+        insertExercise(exercise);
     }
 }

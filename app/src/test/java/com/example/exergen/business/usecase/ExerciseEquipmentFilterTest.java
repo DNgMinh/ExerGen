@@ -3,6 +3,7 @@ package com.example.exergen.business.usecase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.repository.IExerciseRepository;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.model.Exercise;
@@ -44,7 +45,7 @@ public class ExerciseEquipmentFilterTest {
         assertTrue(result.isEmpty());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidFilterException.class)
     public void filterByEquipmentRejectsBlankInput() {
         service.filterByEquipment(" ");
     }

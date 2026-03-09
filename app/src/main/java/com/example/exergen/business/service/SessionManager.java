@@ -1,7 +1,7 @@
 package com.example.exergen.business.service;
 
-import android.util.Log;
-
+import com.example.exergen.business.exception.ExerciseNotFoundException;
+import com.example.exergen.business.exception.SessionCompletedException;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 import com.example.exergen.business.repository.IExerciseRepository;
@@ -26,13 +26,15 @@ public class SessionManager {
     }
 
     public Exercise getCurrentExercise() {
-        if (isFinished()) return null;
+        if (isFinished()) {
+            throw new SessionCompletedException();
+        }
 
         String id = workout.getExerciseIds().get(currentStep);
         Exercise ex = exerciseRepository.getExerciseById(id);
 
         if (ex == null) {
-            Log.e("SessionManager", "Exercise ID " + id + " not found in DB!");
+            throw new ExerciseNotFoundException(id);
         }
         return ex;
     }

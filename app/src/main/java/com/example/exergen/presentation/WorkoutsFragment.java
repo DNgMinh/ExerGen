@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -12,8 +13,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
+import com.example.exergen.business.service.WorkoutMetricsService;
+import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 import com.example.exergen.business.usecase.WorkoutUseCase;
+import java.util.ArrayList;
 import java.util.List;
 
 // Fragment responsible for displaying the user's saved workouts,
@@ -44,19 +48,65 @@ public class WorkoutsFragment extends Fragment {
         emptyStateText.setText(getString(R.string.workouts_empty));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        refreshWorkoutList();
+    }
 
-        // Fetch the list of workouts from the business layer
+    private void refreshWorkoutList() {
         List<Workout> workouts = workoutUseCase.getAllWorkouts();
 
-        // Toggle visibility based on whether data exists
         if (workouts == null || workouts.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyStateText.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
-            recyclerView.setAdapter(new WorkoutAdapter(workouts));
+            recyclerView.setAdapter(new WorkoutAdapter(workouts, this::showWorkoutDetails, this::confirmDeleteWorkout));
         }
+    }
+
+    private void showWorkoutDetails(Workout workout) {
+        if (workout == null || getContext() == null) {
+            return;
+        }
+
+        List<Exercise> exercises = workoutUseCase.getExercisesForWorkout(workout);
+        List<String> names = new ArrayList<>();
+        for (Exercise exercise : exercises) {
+            names.add(exercise.getName());
+        }
+        if (names.isEmpty()) {
+            names.add(getString(R.string.workout_detail_none));
+        }
+
+        int totalSeconds = WorkoutMetricsService.calculateTotalDurationSeconds(workout);
+        String detailText = getString(
+                R.string.workout_detail_body_format,
+                workout.getName(),
+                workout.getRounds(),
+                workout.getExerciseIds().size(),
+                totalSeconds,
+                String.join(", ", names));
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.workout_detail_title)
+                .setMessage(detailText)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    private void confirmDeleteWorkout(Workout workout) {
+        if (workout == null || getContext() == null) {
+            return;
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.workout_delete_title)
+                .setMessage(getString(R.string.workout_delete_message, workout.getName()))
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.workout_delete_action, (dialog, which) -> {
+                    workoutUseCase.deleteWorkout(workout.getId());
+                    refreshWorkoutList();
+                })
+                .show();
     }
 }
