@@ -149,7 +149,12 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
                 List<String> muscles = Arrays.asList(tokens[2].split("\\|"));
                 List<String> equipment = Arrays.asList(tokens[3].split("\\|"));
                 
-                String imageFolder = tokens[6];
+
+                String imageFolder = tokens[1].toLowerCase().replaceAll("[^a-z0-9]+", "_");
+                if (imageFolder.endsWith("_")) {
+                    imageFolder = imageFolder.substring(0, imageFolder.length() - 1);
+                }
+
                 List<String> imagePaths = new ArrayList<>();
                 
                 try {
