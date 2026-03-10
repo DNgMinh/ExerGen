@@ -1,6 +1,8 @@
 package com.example.exergen.presentation;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
@@ -115,10 +118,31 @@ public class ExerciseDetailFragment extends Fragment {
         instructionsText.setText(normalizeOrFallback(exercise.getInstructions(), getString(R.string.instructions_fallback)));
         equipmentText.setText(TextUtils.join(", ", exercise.getEquipment()));
         musclesText.setText(TextUtils.join(", ", exercise.getMuscleGroups()));
-        intensityText.setText(getString(R.string.label_intensity, String.valueOf(exercise.getIntensity())));
+        
+        setupIntensityTag(exercise.getIntensity());
 
         loadImages(exercise.getImagePaths());
         startAnimation();
+    }
+
+    private void setupIntensityTag(int intensity) {
+        String label = getString(R.string.label_intensity, String.valueOf(intensity));
+        intensityText.setText(label.toUpperCase());
+        
+        GradientDrawable background = (GradientDrawable) ContextCompat.getDrawable(requireContext(), R.drawable.bg_intensity_tag);
+        if (background != null) {
+            background = (GradientDrawable) background.mutate();
+            int color;
+            if (intensity <= 2) {
+                color = Color.parseColor("#4CAF50"); // Green
+            } else if (intensity <= 3) {
+                color = Color.parseColor("#FF9800"); // Orange
+            } else {
+                color = Color.parseColor("#F44336"); // Red
+            }
+            background.setColor(color);
+            intensityText.setBackground(background);
+        }
     }
 
     private void loadImages(List<String> paths) {
@@ -160,7 +184,7 @@ public class ExerciseDetailFragment extends Fragment {
         instructionsText.setText(getString(R.string.instructions_fallback));
         equipmentText.setText(getString(R.string.label_na));
         musclesText.setText(getString(R.string.label_na));
-        intensityText.setText(getString(R.string.label_intensity, getString(R.string.label_na)));
+        intensityText.setVisibility(View.GONE);
     }
 
     private String normalizeOrFallback(String value, String fallback) {
