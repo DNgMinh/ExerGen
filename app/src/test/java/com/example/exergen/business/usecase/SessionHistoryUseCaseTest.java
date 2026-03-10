@@ -2,6 +2,7 @@ package com.example.exergen.business.usecase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.example.exergen.business.repository.ISessionHistoryRepository;
@@ -68,6 +69,24 @@ public class SessionHistoryUseCaseTest {
 
         assertNotNull(results);
         assertTrue(results.isEmpty());
+    }
+
+    @Test
+    public void getSessionByIdReturnsMatchingSession() {
+        SessionRecord record = createRecord("lookup-id", 1700000000000L);
+        repository.saveSession(record);
+
+        SessionRecord result = useCase.getSessionById("lookup-id");
+
+        assertNotNull(result);
+        assertEquals("lookup-id", result.getId());
+    }
+
+    @Test
+    public void getSessionByIdReturnsNullForBlankId() {
+        SessionRecord result = useCase.getSessionById("   ");
+
+        assertNull(result);
     }
 
     private static SessionRecord createRecord(String id, long completedAtEpochMs) {

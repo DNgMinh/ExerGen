@@ -47,4 +47,21 @@ public class SessionHistoryRepositoryStubTest {
         assertEquals("s2", sessions.get(0).getId());
         assertEquals("s1", sessions.get(1).getId());
     }
+
+    @Test
+    public void saveSessionWithExistingIdReplacesRecord() {
+        SessionHistoryRepositoryStub repository = new SessionHistoryRepositoryStub();
+        SessionRecord original = new SessionRecord(
+                "same-id", "w1", "Workout A", 1700000000000L, 900, 5, 3, 2);
+        SessionRecord updated = new SessionRecord(
+                "same-id", "w1", "Workout A", 1700000000100L, 950, 5, 3, 3);
+
+        repository.saveSession(original);
+        repository.saveSession(updated);
+
+        SessionRecord retrieved = repository.getSessionById("same-id");
+        assertNotNull(retrieved);
+        assertEquals(950, retrieved.getTotalDurationSeconds());
+        assertEquals(3, retrieved.getRoundsCompleted());
+    }
 }

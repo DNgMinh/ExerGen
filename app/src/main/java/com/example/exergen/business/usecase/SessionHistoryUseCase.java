@@ -34,4 +34,11 @@ public class SessionHistoryUseCase {
         orderedSessions.sort(Comparator.comparingLong(SessionRecord::getCompletedAtEpochMs).reversed());
         return orderedSessions;
     }
+
+    public SessionRecord getSessionById(String sessionId) {
+        if (sessionId == null || sessionId.trim().isEmpty()) {
+            return null;
+        }
+        return sessionHistoryRepository.getSessionById(sessionId.trim());
+    }
 }

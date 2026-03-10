@@ -15,9 +15,13 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
+import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.IntervalTimer;
 import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.business.service.TimerObserver;
+import com.example.exergen.model.SessionRecord;
+
+import java.util.UUID;
 
 public class TimerFragment extends Fragment implements TimerObserver {
     private static final String KEY_WORK = "key_work";
@@ -197,8 +201,41 @@ public class TimerFragment extends Fragment implements TimerObserver {
 
     @Override
     public void onFinish() {
+        saveCompletedTimerSession();
         isTimerActive = false;
         resetToDefaultState();
+    }
+
+    private void saveCompletedTimerSession() {
+        if (intervalTimer == null) {
+            return;
+        }
+
+        SessionRecord sessionRecord = buildSessionRecordForCompletedTimer(
+                intervalTimer.getWorkDurationSeconds(),
+                intervalTimer.getRestDurationSeconds(),
+                intervalTimer.getTotalSets(),
+                System.currentTimeMillis(),
+                "session-" + UUID.randomUUID());
+        AppBootstrap.get().sessionHistoryUseCase.saveCompletedSession(sessionRecord);
+    }
+
+    static SessionRecord buildSessionRecordForCompletedTimer(
+            int workSeconds,
+            int restSeconds,
+            int totalSets,
+            long completedAtEpochMs,
+            String sessionId) {
+        int totalDurationSeconds = totalSets * (workSeconds + restSeconds);
+        return new SessionRecord(
+                sessionId,
+                "manual-timer",
+                "Manual Interval Timer",
+                completedAtEpochMs,
+                totalDurationSeconds,
+                1,
+                totalSets,
+                totalSets);
     }
 
     private void safeRunOnUiThread(Runnable action) {
