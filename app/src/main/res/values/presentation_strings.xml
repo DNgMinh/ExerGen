@@ -6,6 +6,7 @@
     <string name="workout_detail_title">Workout Details</string>
     <string name="workout_detail_body_format">Name: %1$s\nRounds: %2$d\nExercises: %3$d\nTotal Duration: %4$d sec\nExercise Names: %5$s</string>
     <string name="workout_detail_none">No exercise details available</string>
+    <string name="workout_detail_title_prefix">Workout: </string>
     <string name="workout_delete_title">Delete Workout</string>
     <string name="workout_delete_message">Delete %1$s?</string>
     <string name="workout_delete_action">Delete</string>
@@ -32,11 +33,16 @@
     <string name="workout_builder_error_muscle_required">Select at least one target muscle group.</string>
     <string name="workout_builder_error_generate_first">Generate a workout before starting.</string>
     <string name="workout_builder_saved_message">Workout saved to Workouts.</string>
+
     <string name="muscle_chest">Chest</string>
     <string name="muscle_legs">Legs</string>
     <string name="muscle_back">Back</string>
+    <string name="muscle_shoulders">Shoulders</string>
+    <string name="muscle_biceps">Biceps</string>
+    <string name="muscle_triceps">Triceps</string>
+
     <string name="equipment_bodyweight">Bodyweight</string>
-    <string name="equipment_dumbbells">Dumbbells</string>
+    <string name="equipment_dumbbells">Dumbbell</string>
     <string name="equipment_barbell">Barbell</string>
     <string name="nav_workouts">Workouts</string>
     <string name="nav_add">Add</string>

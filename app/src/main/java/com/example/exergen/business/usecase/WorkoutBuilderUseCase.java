@@ -6,6 +6,7 @@ import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +40,9 @@ public class WorkoutBuilderUseCase {
             throw new IllegalArgumentException("No exercises match the selected constraints.");
         }
 
+        // Shuffle to avoid always picking the same exercises in the same order
+        Collections.shuffle(matchingExercises);
+
         int targetSeconds = constraints.getDesiredDurationMinutes() * SECONDS_PER_MINUTE;
         int slotSeconds = DEFAULT_WORK_SECONDS + DEFAULT_REST_SECONDS;
         int exerciseCount = Math.max(1, targetSeconds / slotSeconds);
@@ -48,6 +52,7 @@ public class WorkoutBuilderUseCase {
         List<Integer> restSeconds = new ArrayList<>();
 
         for (int i = 0; i < exerciseCount; i++) {
+            // Cycle through matching exercises if we need more than available
             Exercise selected = matchingExercises.get(i % matchingExercises.size());
             exerciseIds.add(selected.getId());
             workSeconds.add(DEFAULT_WORK_SECONDS);

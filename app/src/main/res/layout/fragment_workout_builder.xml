@@ -34,23 +34,47 @@
             android:layout_marginTop="16dp"
             android:text="@string/workout_builder_muscle_label" />
 
-        <CheckBox
-            android:id="@+id/cb_muscle_chest"
-            android:layout_width="wrap_content"
+        <GridLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/muscle_chest" />
+            android:columnCount="2">
 
-        <CheckBox
-            android:id="@+id/cb_muscle_legs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/muscle_legs" />
+            <CheckBox
+                android:id="@+id/cb_muscle_chest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/muscle_chest" />
 
-        <CheckBox
-            android:id="@+id/cb_muscle_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/muscle_back" />
+            <CheckBox
+                android:id="@+id/cb_muscle_legs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/muscle_legs" />
+
+            <CheckBox
+                android:id="@+id/cb_muscle_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/muscle_back" />
+
+            <CheckBox
+                android:id="@+id/cb_muscle_shoulders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/muscle_shoulders" />
+
+            <CheckBox
+                android:id="@+id/cb_muscle_biceps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/muscle_biceps" />
+
+            <CheckBox
+                android:id="@+id/cb_muscle_triceps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/muscle_triceps" />
+        </GridLayout>
 
         <TextView
             android:layout_width="wrap_content"
