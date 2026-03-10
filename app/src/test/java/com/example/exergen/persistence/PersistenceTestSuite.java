@@ -14,7 +14,8 @@ ExerciseRepositorySQLiteTest and WorkoutRepositorySQLiteTest cover all cases.
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         ExerciseRepositorySQLiteTest.class,
-        WorkoutRepositorySQLiteTest.class
+        WorkoutRepositorySQLiteTest.class,
+        SessionHistoryRepositorySQLiteTest.class
 })
 public class PersistenceTestSuite {
     // Just a holder for the annotations above
