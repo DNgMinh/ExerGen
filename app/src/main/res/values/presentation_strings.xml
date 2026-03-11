@@ -70,8 +70,13 @@
     <string name="btn_end_timer">End Timer</string>
     <string name="btn_pause">Pause</string>
     <string name="btn_back">Back</string>
-    <string name="stats_title">Stats Coming Soon!</string>
-    <string name="stats_subtitle">We are currently lifting some heavy code. Stay tuned.</string>
+    <string name="stats_title">Session History</string>
+    <string name="stats_subtitle">Completed sessions</string>
+    <string name="session_history_title">Session History</string>
+    <string name="session_history_empty">No completed sessions yet.</string>
+    <string name="session_history_item_summary_format">%1$s\nDuration: %2$d sec | Rounds: %3$d/%4$d</string>
+    <string name="session_history_detail_title">Session Details</string>
+    <string name="session_history_detail_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nRounds: %5$d/%6$d</string>
     <!-- Generic presentation strings -->
     <string name="loading">Loading...</string>
     <string name="error_loading_data">Error loading data. Please try again.</string>
