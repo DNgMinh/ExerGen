@@ -58,7 +58,7 @@ public class ExerciseDetailLookupTest {
 
     @Test
     public void getExerciseByIdReturnsExerciseWhenPresent() {
-        Exercise target = new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder");
+        Exercise target = new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder"));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(List.of(target)));
 
         Exercise result = service.getExerciseById("e1");

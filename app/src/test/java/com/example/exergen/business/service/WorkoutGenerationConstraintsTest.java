@@ -58,7 +58,7 @@ public class WorkoutGenerationConstraintsTest {
                 List.of("Dumbbells"),
                 "Press dumbbells",
                 3,
-                "img");
+                List.of("img"));
 
         assertTrue(constraints.matchesExercise(exercise));
     }
@@ -74,7 +74,7 @@ public class WorkoutGenerationConstraintsTest {
                 List.of("Dumbbells"),
                 "Press dumbbells",
                 3,
-                "img");
+                List.of("img"));
 
         assertFalse(constraints.matchesExercise(exercise));
     }
@@ -90,7 +90,7 @@ public class WorkoutGenerationConstraintsTest {
                 List.of("Dumbbells"),
                 "Press dumbbells",
                 3,
-                "img");
+                List.of("img"));
 
         assertFalse(constraints.matchesExercise(exercise));
     }
@@ -105,7 +105,7 @@ public class WorkoutGenerationConstraintsTest {
                 List.of("Bodyweight"),
                 "Pushup",
                 2,
-                "img");
+                List.of("img"));
 
         assertTrue(constraints.matchesExercise(exercise));
     }

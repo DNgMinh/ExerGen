@@ -58,7 +58,7 @@ public class WorkoutBuilderIntegrationTest {
 
     @Test
     public void generatedWorkoutCanBeSavedAndLoadedFromSQLite() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"),
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbell"),
                 List.of("Chest"), 3);
 
         Workout generated = workoutBuilderUseCase.generateWorkout(constraints);
@@ -75,7 +75,7 @@ public class WorkoutBuilderIntegrationTest {
 
     @Test
     public void multipleGeneratedWorkoutsAreSavedWithoutOverwrite() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"),
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbell"),
                 List.of("Chest"), 2);
 
         Workout generatedOne = workoutBuilderUseCase.generateWorkout(constraints);
@@ -101,8 +101,8 @@ public class WorkoutBuilderIntegrationTest {
 
     private void seedExerciseData(ExerciseRepositorySQLite exerciseRepository) {
         exerciseRepository.insertExercise(new Exercise(
-                "it2-ex-1", "Dumbbell Press", List.of("Chest"), List.of("Dumbbells"), "", 3, "img"));
+                "it2-ex-1", "Dumbbell Press", List.of("Chest"), List.of("Dumbbell"), "", 3, List.of("img")));
         exerciseRepository.insertExercise(new Exercise(
-                "it2-ex-2", "Bodyweight Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "img"));
+                "it2-ex-2", "Bodyweight Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("img")));
     }
 }

@@ -22,9 +22,9 @@ public class WorkoutBuilderUseCaseTest {
     @Before
     public void setUp() {
         List<Exercise> exercises = List.of(
-                new Exercise("ex-chest-db", "Dumbbell Press", List.of("Chest"), List.of("Dumbbells"), "", 3, "img"),
-                new Exercise("ex-legs-bw", "Air Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "img"),
-                new Exercise("ex-back-bar", "Barbell Row", List.of("Back"), List.of("Barbell"), "", 3, "img"));
+                new Exercise("ex-chest-db", "Dumbbell Press", List.of("Chest"), List.of("Dumbbells"), "", 3, List.of("img")),
+                new Exercise("ex-legs-bw", "Air Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("img")),
+                new Exercise("ex-back-bar", "Barbell Row", List.of("Back"), List.of("Barbell"), "", 3, List.of("img")));
 
         ExerciseService exerciseService = new ExerciseService(new FakeExerciseRepository(exercises));
         workoutBuilderUseCase = new WorkoutBuilderUseCase(exerciseService);

@@ -31,6 +31,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 
+import java.util.List;
+
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = { Build.VERSION_CODES.O_MR1 })
 public class WorkoutBuilderPreviewInteractionTest {
@@ -108,27 +110,27 @@ public class WorkoutBuilderPreviewInteractionTest {
     }
 
     private static class LocalExerciseRepository implements IExerciseRepository {
-        private final java.util.List<Exercise> exercises = java.util.List.of(
-                new Exercise("it-preview-1", "Pushup", java.util.List.of("Chest"), java.util.List.of("Bodyweight"), "",
+        private final List<Exercise> exercises = List.of(
+                new Exercise("it-preview-1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "",
                         2,
-                        "img"),
-                new Exercise("it-preview-2", "Air Squat", java.util.List.of("Legs"), java.util.List.of("Bodyweight"),
+                        List.of("img")),
+                new Exercise("it-preview-2", "Air Squat", List.of("Legs"), List.of("Bodyweight"),
                         "", 2,
-                        "img"));
+                        List.of("img")));
 
         @Override
-        public java.util.List<Exercise> getAllExercises() {
+        public List<Exercise> getAllExercises() {
             return exercises;
         }
 
         @Override
-        public java.util.List<Exercise> filterByEquipment(String equipment) {
-            return java.util.List.of();
+        public List<Exercise> filterByEquipment(String equipment) {
+            return List.of();
         }
 
         @Override
-        public java.util.List<Exercise> filterByMuscleGroup(String muscleGroup) {
-            return java.util.List.of();
+        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+            return List.of();
         }
 
         @Override

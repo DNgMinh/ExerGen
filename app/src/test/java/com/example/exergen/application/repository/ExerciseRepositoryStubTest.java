@@ -26,10 +26,10 @@ public class ExerciseRepositoryStubTest {
     public void getExerciseByIdReturnsCorrectExercise() {
         ExerciseRepositoryStub stub = new ExerciseRepositoryStub();
 
-        Exercise result = stub.getExerciseById("ex-1");
+        Exercise result = stub.getExerciseById("ex_1");
 
         assertNotNull(result);
-        assertEquals("Pushup", result.getName());
+        assertEquals("Pushups", result.getName());
     }
 
     @Test
@@ -45,13 +45,13 @@ public class ExerciseRepositoryStubTest {
     public void insertExerciseThrowsOnDuplicateId() {
         ExerciseRepositoryStub stub = new ExerciseRepositoryStub();
         Exercise duplicate = new Exercise(
-                "ex-1",
+                "ex_1",
                 "Duplicate Pushup",
                 List.of("Chest"),
                 List.of("Bodyweight"),
                 "desc",
                 2,
-                "placeholder.png");
+                List.of("placeholder.png"));
         stub.insertExercise(duplicate);
     }
 

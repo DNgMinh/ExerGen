@@ -4,16 +4,19 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.repository.IExerciseRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ExerciseRepositorySQLite implements IExerciseRepository {
+    private static final String TAG = "ExerciseRepoSQLite";
     private final DatabaseHelper dbHelper;
     private final Context context;
 
@@ -30,18 +33,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, null, null, null, null, null)) {
             if (cursor.moveToFirst()) {
                 do {
-                    String id = cursor.getString(cursor.getColumnIndexOrThrow("id"));
-                    String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
-                    String muscleGroupStr = cursor.getString(cursor.getColumnIndexOrThrow("muscle_groups"));
-                    String equipmentStr = cursor.getString(cursor.getColumnIndexOrThrow("equipment"));
-                    String instructions = cursor.getString(cursor.getColumnIndexOrThrow("instructions"));
-                    int intensity = cursor.getInt(cursor.getColumnIndexOrThrow("intensity"));
-                    String imgName = cursor.getString(cursor.getColumnIndexOrThrow("image_name"));
-
-                    List<String> muscleGroups = Arrays.asList(muscleGroupStr.split(","));
-                    List<String> equipment = Arrays.asList(equipmentStr.split(","));
-
-                    exercises.add(new Exercise(id, name, muscleGroups, equipment, instructions, intensity, imgName));
+                    exercises.add(mapCursorToExercise(cursor));
                 } while (cursor.moveToNext());
             }
         }
@@ -49,67 +41,50 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     }
 
     @Override
-    public List<Exercise> filterByEquipment(String equipment) {
-        if (equipment == null || equipment.trim().isEmpty()) {
-            throw new IllegalArgumentException("Equipment required.");
-        }
-
-        String normalizedEquipment = equipment.trim();
-        List<Exercise> result = new ArrayList<>();
-        for (Exercise exercise : getAllExercises()) {
-            for (String currentEquipment : exercise.getEquipment()) {
-                if (currentEquipment.equalsIgnoreCase(normalizedEquipment)) {
-                    result.add(exercise);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public List<Exercise> filterByMuscleGroup(String muscleGroup) {
-        if (muscleGroup == null || muscleGroup.trim().isEmpty()) {
-            throw new IllegalArgumentException("Muscle required.");
-        }
-
-        String normalizedMuscleGroup = muscleGroup.trim();
-        List<Exercise> result = new ArrayList<>();
-        for (Exercise exercise : getAllExercises()) {
-            for (String currentMuscleGroup : exercise.getMuscleGroups()) {
-                if (currentMuscleGroup.equalsIgnoreCase(normalizedMuscleGroup)) {
-                    result.add(exercise);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    @Override
     public Exercise getExerciseById(String id) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Exercise exercise = null;
 
-        // Use try-with-resources to ensure the cursor closes automatically
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "id = ?",
-                new String[] { id }, null, null, null)) {
+                new String[]{id}, null, null, null)) {
 
             if (cursor.moveToFirst()) {
-                String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
-                String muscleGroupStr = cursor.getString(cursor.getColumnIndexOrThrow("muscle_groups"));
-                String equipmentStr = cursor.getString(cursor.getColumnIndexOrThrow("equipment"));
-                String instructions = cursor.getString(cursor.getColumnIndexOrThrow("instructions"));
-                int intensity = cursor.getInt(cursor.getColumnIndexOrThrow("intensity"));
-                String imgName = cursor.getString(cursor.getColumnIndexOrThrow("image_name"));
-
-                List<String> muscleGroups = Arrays.asList(muscleGroupStr.split(","));
-                List<String> equipment = Arrays.asList(equipmentStr.split(","));
-
-                exercise = new Exercise(id, name, muscleGroups, equipment, instructions, intensity, imgName);
+                exercise = mapCursorToExercise(cursor);
             }
         }
         return exercise;
+    }
+
+    @Override
+    public List<Exercise> filterByEquipment(String equipment) {
+        List<Exercise> exercises = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "equipment LIKE ?",
+                new String[]{"%" + equipment + "%"}, null, null, null)) {
+            if (cursor.moveToFirst()) {
+                do {
+                    exercises.add(mapCursorToExercise(cursor));
+                } while (cursor.moveToNext());
+            }
+        }
+        return exercises;
+    }
+
+    @Override
+    public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+        List<Exercise> exercises = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "muscle_groups LIKE ?",
+                new String[]{"%" + muscleGroup + "%"}, null, null, null)) {
+            if (cursor.moveToFirst()) {
+                do {
+                    exercises.add(mapCursorToExercise(cursor));
+                } while (cursor.moveToNext());
+            }
+        }
+        return exercises;
     }
 
     @Override
@@ -119,6 +94,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
         String muscleGroupsStr = String.join(",", exercise.getMuscleGroups());
         String equipmentStr = String.join(",", exercise.getEquipment());
+        String imagePathsStr = String.join(",", exercise.getImagePaths());
 
         values.put("id", exercise.getId());
         values.put("name", exercise.getName());
@@ -126,7 +102,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         values.put("equipment", equipmentStr);
         values.put("instructions", exercise.getInstructions());
         values.put("intensity", exercise.getIntensity());
-        values.put("image_name", exercise.getImageName());
+        values.put("image_paths", imagePathsStr);
 
         db.insert(DatabaseHelper.TABLE_EXERCISE, null, values);
     }
@@ -134,12 +110,11 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     @Override
     public void deleteExercise(String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete(DatabaseHelper.TABLE_EXERCISE, "id = ?", new String[] { id });
+        db.delete(DatabaseHelper.TABLE_EXERCISE, "id = ?", new String[]{id});
     }
 
     @Override
     public void seedData() {
-        // FOR DEVELOPMENT: Clear existing data so the new CSV is always loaded
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete(DatabaseHelper.TABLE_EXERCISE, null, null);
 
@@ -149,22 +124,64 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         }
     }
 
-    // Load exercises from assets (app/assets/exercises.csv)
+    private Exercise mapCursorToExercise(Cursor cursor) {
+        String id = cursor.getString(cursor.getColumnIndexOrThrow("id"));
+        String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+        String muscleGroupStr = cursor.getString(cursor.getColumnIndexOrThrow("muscle_groups"));
+        String equipmentStr = cursor.getString(cursor.getColumnIndexOrThrow("equipment"));
+        String instructions = cursor.getString(cursor.getColumnIndexOrThrow("instructions"));
+        int intensity = cursor.getInt(cursor.getColumnIndexOrThrow("intensity"));
+        String imagePathsStr = cursor.getString(cursor.getColumnIndexOrThrow("image_paths"));
+
+        List<String> muscleGroups = Arrays.asList(muscleGroupStr.split(","));
+        List<String> equipment = Arrays.asList(equipmentStr.split(","));
+        List<String> imagePaths = Arrays.asList(imagePathsStr.split(","));
+
+        return new Exercise(id, name, muscleGroups, equipment, instructions, intensity, imagePaths);
+    }
+
     private List<Exercise> loadExercisesFromAssets() {
         List<Exercise> list = new ArrayList<>();
-
         List<String[]> csvRows = CSVParser.parseAssetCSV(context, "exercises.csv");
 
         for (String[] tokens : csvRows) {
             if (tokens.length >= 7) {
                 List<String> muscles = Arrays.asList(tokens[2].split("\\|"));
                 List<String> equipment = Arrays.asList(tokens[3].split("\\|"));
+                
+
+                String imageFolder = tokens[1].toLowerCase().replaceAll("[^a-z0-9]+", "_");
+                if (imageFolder.endsWith("_")) {
+                    imageFolder = imageFolder.substring(0, imageFolder.length() - 1);
+                }
+
+                List<String> imagePaths = new ArrayList<>();
+                
+                try {
+                    String assetsPath = "exercise/" + imageFolder;
+                    String[] files = context.getAssets().list(assetsPath);
+                    if (files != null) {
+                        for (String file : files) {
+                            if (file.endsWith(".jpg") || file.endsWith(".png")) {
+                                imagePaths.add(assetsPath + "/" + file);
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Could not list images for folder: " + imageFolder, e);
+                }
+
+                // Fallback if no images found
+                if (imagePaths.isEmpty()) {
+                    imagePaths.add("placeholder.png");
+                }
 
                 String instructions = tokens[4].replaceAll("^\"|\"$", "");
 
                 list.add(new Exercise(
                         tokens[0], tokens[1], muscles, equipment, instructions,
-                        Integer.parseInt(tokens[5]), tokens[6]));
+                        Integer.parseInt(tokens[5]), imagePaths
+                ));
             }
         }
         return list;

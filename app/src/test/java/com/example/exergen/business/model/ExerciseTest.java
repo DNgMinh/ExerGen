@@ -16,7 +16,7 @@ public class ExerciseTest {
                 List.of("Bodyweight"),
                 "Keep back straight",
                 3,
-                "ex_pushup"
+                List.of("ex_pushup/0.jpg", "ex_pushup/1.jpg")
         );
 
         // Asserts
@@ -26,58 +26,59 @@ public class ExerciseTest {
         assertEquals(1, exercise.getEquipment().size());
         assertEquals("Keep back straight", exercise.getInstructions());
         assertEquals(3, exercise.getIntensity());
-        assertEquals("ex_pushup", exercise.getImageName());
+        assertEquals(2, exercise.getImagePaths().size());
+        assertEquals("ex_pushup/0.jpg", exercise.getImagePaths().get(0));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullId_throwsException() {
-        new Exercise(null, "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "placeholder");
+        new Exercise(null, "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyName_throwsException() {
-        new Exercise("id_1", "", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "placeholder");
+        new Exercise("id_1", "", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullMuscleGroups_throwsException() {
-        new Exercise("id_1", "Name", null, List.of("Bodyweight"), "Inst", 1, "placeholder");
+        new Exercise("id_1", "Name", null, List.of("Bodyweight"), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullEquipment_throwsException() {
-        new Exercise("id_1", "Name", List.of("Chest"), null, "Inst", 1, "placeholder");
+        new Exercise("id_1", "Name", List.of("Chest"), null, "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void negativeIntensity_throwsException() {
-        new Exercise("id_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", -1, "placeholder");
+        new Exercise("id_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", -1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void emptyImageName_throwsException() {
-        new Exercise("id_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "");
+    public void nullImagePaths_throwsException() {
+        new Exercise("id_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyImagePaths_throwsException() {
+        new Exercise("id_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, List.of());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyId_throwsException() {
-        new Exercise("", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "placeholder");
+        new Exercise("", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullName_throwsException() {
-        new Exercise("id_1", null, List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "placeholder");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void blankImageName_throwsException() {
-        new Exercise("id_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "   ");
+        new Exercise("id_1", null, List.of("Chest"), List.of("Bodyweight"), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void listEncapsulation_preventsModification() {
         Exercise exercise = new Exercise(
-                "ex_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, "placeholder"
+                "ex_1", "Name", List.of("Chest"), List.of("Bodyweight"), "Inst", 1, List.of("placeholder")
         );
 
         exercise.getMuscleGroups().add("Shoulders");
