@@ -27,7 +27,7 @@ android {
     }
 
     testOptions {
-        unitTests.isIncludeAndroidResources = true
+        unitTests.isIncludeAndroidResources = false
     }
 
     compileOptions {
@@ -44,10 +44,14 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.sqlite)
     implementation(libs.androidx.core)
+    
+    // Pure JVM Unit Testing
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.test.core)
-    testImplementation(libs.androidx.test.junit)
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    
+    // Instrumented Integration Testing (Device/Emulator)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation("org.mockito:mockito-android:5.11.0")
 }
