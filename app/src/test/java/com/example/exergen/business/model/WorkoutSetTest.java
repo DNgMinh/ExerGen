@@ -1,12 +1,15 @@
 package com.example.exergen.business.model;
 
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.WorkoutSet;
 
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class WorkoutSetTest {
@@ -18,8 +21,8 @@ public class WorkoutSetTest {
         dummyExercise = new Exercise(
                 "ex_1",
                 "Bench Press",
-                List.of("Chest", "Triceps"),
-                List.of("Bodyweight"),
+                Arrays.asList(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
+                Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Keep back straight",
                 4,
                 "ex_pushup"

@@ -6,7 +6,6 @@ import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
