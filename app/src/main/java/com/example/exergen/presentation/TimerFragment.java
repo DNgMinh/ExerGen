@@ -108,6 +108,11 @@ public class TimerFragment extends Fragment implements TimerObserver {
             setSetupModeVisible(false);
         }
 
+        if (intervalTimer.isRunning()) {
+            // Ignore duplicate start/resume taps while already active.
+            return;
+        }
+
         intervalTimer.start();
         isTimerActive = true;
         updateButtonStates();

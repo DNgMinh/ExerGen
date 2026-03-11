@@ -30,7 +30,13 @@ public class StatsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
+        if (sessionHistoryUseCase == null) {
+            sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
+        }
+    }
+
+    public void setSessionHistoryUseCaseForTesting(SessionHistoryUseCase sessionHistoryUseCase) {
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
     }
 
     @Override
