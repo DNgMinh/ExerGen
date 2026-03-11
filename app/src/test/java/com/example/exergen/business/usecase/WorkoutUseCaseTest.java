@@ -10,24 +10,22 @@ import com.example.exergen.persistence.WorkoutRepositoryStub;
 import com.example.exergen.model.Workout;
 import com.example.exergen.model.Exercise;
 import java.util.List;
-import java.util.ArrayList;
 
 public class WorkoutUseCaseTest {
 
     private WorkoutUseCase workoutUseCase;
-    private WorkoutRepositoryStub workoutRepository;
 
     @Before
     public void setUp() {
-        // Create a list of exercises
+        // Create a list of exercises with List<String> for imagePaths
         List<Exercise> exercises = List.of(
-                new Exercise("pushups", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "img"),
-                new Exercise("squats", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "img"),
-                new Exercise("plank", "Plank", List.of("Core"), List.of("Bodyweight"), "", 2, "img"));
+                new Exercise("pushups", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("img")),
+                new Exercise("squats", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("img")),
+                new Exercise("plank", "Plank", List.of("Core"), List.of("Bodyweight"), "", 2, List.of("img")));
 
         ExerciseService exerciseService = new ExerciseService(new LocalFakeExerciseRepo(exercises));
 
-        workoutRepository = new WorkoutRepositoryStub();
+        WorkoutRepositoryStub workoutRepository = new WorkoutRepositoryStub();
         workoutUseCase = new WorkoutUseCase(workoutRepository, exerciseService);
     }
 

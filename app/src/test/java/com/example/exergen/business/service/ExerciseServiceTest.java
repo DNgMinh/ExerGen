@@ -25,16 +25,16 @@ public class ExerciseServiceTest {
     @Test
     public void getAllExercises_returnsFullList() {
         List<Exercise> results = exerciseService.getAllExercises();
-        // The stub starts with 10 exercises
-        assertEquals(10, results.size());
-        assertEquals("Pushup", results.get(0).getName());
+        // The stub now has 20 exercises from the CSV data
+        assertEquals(20, results.size());
+        assertEquals("Pushups", results.get(0).getName());
     }
 
     @Test
     public void getExerciseById_validId_returnsCorrectExercise() {
-        Exercise result = exerciseService.getExerciseById("ex-1");
+        Exercise result = exerciseService.getExerciseById("ex_1");
         assertNotNull(result);
-        assertEquals("Pushup", result.getName());
+        assertEquals("Pushups", result.getName());
     }
 
     @Test
@@ -60,21 +60,21 @@ public class ExerciseServiceTest {
     @Test
     public void serviceReflectsDeletedExercise() {
         // 1. Verify it exists
-        assertNotNull(exerciseService.getExerciseById("ex-1"));
+        assertNotNull(exerciseService.getExerciseById("ex_1"));
 
         // 2. Delete it through the repo
-        exerciseRepository.deleteExercise("ex-1");
+        exerciseRepository.deleteExercise("ex_1");
 
         // 3. Service should now return null
-        assertNull(exerciseService.getExerciseById("ex-1"));
-        assertEquals(9, exerciseService.getAllExercises().size());
+        assertNull(exerciseService.getExerciseById("ex_1"));
+        assertEquals(19, exerciseService.getAllExercises().size());
     }
 
     @Test
     public void serviceReflectsNewExercise() {
         Exercise newEx = new Exercise(
                 "new-01", "Handstand", List.of("Shoulders"),
-                List.of("Bodyweight"), "Balance on hands", 5, "placeholder");
+                List.of("Bodyweight"), "Balance on hands", 5, List.of("placeholder"));
 
         exerciseRepository.insertExercise(newEx);
 
@@ -109,8 +109,8 @@ public class ExerciseServiceTest {
     @Test(expected = DuplicateExerciseException.class)
     public void addExerciseRejectsDuplicateId() {
         Exercise duplicate = new Exercise(
-                "ex-1", "Duplicate Pushup", List.of("Chest"),
-                List.of("Bodyweight"), "Duplicate", 2, "placeholder");
+                "ex_1", "Duplicate Pushup", List.of("Chest"),
+                List.of("Bodyweight"), "Duplicate", 2, List.of("placeholder"));
         exerciseService.addExercise(duplicate);
     }
 
