@@ -104,13 +104,11 @@ public class TimerFragment extends Fragment implements TimerObserver {
             setSetupModeVisible(false);
         }
 
-        if (!intervalTimer.isRunning()) {
-            intervalTimer.start();
-            isTimerActive = true;
-            updateButtonStates();
+        intervalTimer.start();
+        isTimerActive = true;
+        updateButtonStates();
 
-            btnStart.setText(getString(R.string.btn_resume));
-        }
+        btnStart.setText(getString(R.string.btn_resume));
     }
 
     private void pauseTimer() {
@@ -144,13 +142,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     private void updateButtonStates() {
-        btnStart.setEnabled(true);
-        btnPause.setEnabled(true);
-        btnStop.setEnabled(true);
-
-        btnStart.setAlpha(isTimerActive ? 0.4f : 1.0f);
-        btnPause.setAlpha(isTimerActive ? 1.0f : 0.4f);
-        btnStop.setAlpha(intervalTimer != null ? 1.0f : 0.4f);
+        btnPause.setEnabled(isTimerActive);
+        btnStop.setEnabled(isTimerActive);
     }
 
     private void updateTimerText(long secondsRemaining) {
