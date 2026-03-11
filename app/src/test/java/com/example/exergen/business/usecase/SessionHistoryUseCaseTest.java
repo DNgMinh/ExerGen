@@ -4,24 +4,31 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 import com.example.exergen.business.repository.ISessionHistoryRepository;
 import com.example.exergen.model.SessionRecord;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SessionHistoryUseCaseTest {
-    private InMemorySessionHistoryRepository repository;
+
+    @Mock
+    private ISessionHistoryRepository mockRepository;
+
     private SessionHistoryUseCase useCase;
 
     @Before
     public void setUp() {
-        repository = new InMemorySessionHistoryRepository();
-        useCase = new SessionHistoryUseCase(repository);
+        MockitoAnnotations.openMocks(this);
+        useCase = new SessionHistoryUseCase(mockRepository);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -37,113 +44,54 @@ public class SessionHistoryUseCaseTest {
     @Test
     public void saveCompletedSessionPersistsRecord() {
         SessionRecord record = createRecord("s-1", 1700000000000L);
-
         useCase.saveCompletedSession(record);
-
-        assertEquals(record, repository.getSessionById("s-1"));
+        verify(mockRepository).saveSession(record);
     }
 
     @Test
     public void getSessionHistoryReturnsNewestFirst() {
-        SessionRecord older = createRecord("older", 1700000000000L);
-        SessionRecord newest = createRecord("newest", 1700000009000L);
-        SessionRecord middle = createRecord("middle", 1700000004000L);
+        SessionRecord older = createRecord("older", 1000L);
+        SessionRecord middle = createRecord("middle", 2000L);
+        SessionRecord newest = createRecord("newest", 3000L);
 
-        repository.saveSession(older);
-        repository.saveSession(newest);
-        repository.saveSession(middle);
+        // Repository returns unsorted list
+        when(mockRepository.getAllSessions()).thenReturn(Arrays.asList(older, newest, middle));
 
         List<SessionRecord> results = useCase.getSessionHistory();
 
         assertEquals(3, results.size());
-        assertEquals("newest", results.get(0).getId());
+        assertEquals("newest", results.get(0).getId()); // Logic: UseCase should sort them
         assertEquals("middle", results.get(1).getId());
         assertEquals("older", results.get(2).getId());
     }
 
     @Test
     public void getSessionHistoryReturnsEmptyListWhenRepositoryReturnsNull() {
-        SessionHistoryUseCase nullListUseCase = new SessionHistoryUseCase(new NullListSessionHistoryRepository());
-
-        List<SessionRecord> results = nullListUseCase.getSessionHistory();
-
+        when(mockRepository.getAllSessions()).thenReturn(null);
+        List<SessionRecord> results = useCase.getSessionHistory();
         assertNotNull(results);
         assertTrue(results.isEmpty());
     }
 
     @Test
     public void getSessionByIdReturnsMatchingSession() {
-        SessionRecord record = createRecord("lookup-id", 1700000000000L);
-        repository.saveSession(record);
+        SessionRecord record = createRecord("lookup-id", 1000L);
+        when(mockRepository.getSessionById("lookup-id")).thenReturn(record);
 
         SessionRecord result = useCase.getSessionById("lookup-id");
 
         assertNotNull(result);
         assertEquals("lookup-id", result.getId());
+        verify(mockRepository).getSessionById("lookup-id");
     }
 
     @Test
     public void getSessionByIdReturnsNullForBlankId() {
-        SessionRecord result = useCase.getSessionById("   ");
-
-        assertNull(result);
+        assertNull(useCase.getSessionById("   "));
+        verifyNoInteractions(mockRepository);
     }
 
     private static SessionRecord createRecord(String id, long completedAtEpochMs) {
-        return new SessionRecord(
-                id,
-                "workout-1",
-                "Workout A",
-                completedAtEpochMs,
-                600,
-                5,
-                3,
-                3);
-    }
-
-    private static class InMemorySessionHistoryRepository implements ISessionHistoryRepository {
-        private final List<SessionRecord> store = new ArrayList<>();
-
-        @Override
-        public void saveSession(SessionRecord sessionRecord) {
-            for (int i = 0; i < store.size(); i++) {
-                if (store.get(i).getId().equals(sessionRecord.getId())) {
-                    store.set(i, sessionRecord);
-                    return;
-                }
-            }
-            store.add(sessionRecord);
-        }
-
-        @Override
-        public SessionRecord getSessionById(String sessionId) {
-            for (SessionRecord record : store) {
-                if (record.getId().equals(sessionId)) {
-                    return record;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public List<SessionRecord> getAllSessions() {
-            return new ArrayList<>(store);
-        }
-    }
-
-    private static class NullListSessionHistoryRepository implements ISessionHistoryRepository {
-        @Override
-        public void saveSession(SessionRecord sessionRecord) {
-        }
-
-        @Override
-        public SessionRecord getSessionById(String sessionId) {
-            return null;
-        }
-
-        @Override
-        public List<SessionRecord> getAllSessions() {
-            return null;
-        }
+        return new SessionRecord(id, "w1", "Workout A", completedAtEpochMs, 600, 5, 3, 3);
     }
 }

@@ -5,6 +5,7 @@ import com.example.exergen.business.exception.DuplicateExerciseException;
 import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.repository.IExerciseRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseService {
@@ -52,5 +53,43 @@ public class ExerciseService {
             throw new InvalidFilterException("Muscle group required.");
         }
         return exerciseRepository.filterByMuscleGroup(muscle.trim());
+    }
+
+    public List<Exercise> filterByConstraints(List<String> equipment, List<String> muscleGroups) {
+        List<Exercise> all = exerciseRepository.getAllExercises();
+        List<Exercise> filtered = new ArrayList<>();
+
+        for (Exercise exercise : all) {
+            if (matches(exercise, equipment, muscleGroups)) {
+                filtered.add(exercise);
+            }
+        }
+        return filtered;
+    }
+
+    private boolean matches(Exercise exercise, List<String> equipment, List<String> muscleGroups) {
+        boolean matchesMuscle = false;
+        for (String target : muscleGroups) {
+            for (String exerciseMuscle : exercise.getMuscleGroups()) {
+                if (target.equalsIgnoreCase(exerciseMuscle)) {
+                    matchesMuscle = true;
+                    break;
+                }
+            }
+            if (matchesMuscle) break;
+        }
+
+        if (!matchesMuscle) return false;
+
+        if (equipment == null || equipment.isEmpty()) return true;
+
+        for (String selected : equipment) {
+            for (String exerciseEquipment : exercise.getEquipment()) {
+                if (selected.equalsIgnoreCase(exerciseEquipment)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

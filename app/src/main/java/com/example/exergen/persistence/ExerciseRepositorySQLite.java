@@ -3,6 +3,7 @@ package com.example.exergen.persistence;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -115,12 +116,18 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
     @Override
     public void seedData() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete(DatabaseHelper.TABLE_EXERCISE, null, null);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        long count = DatabaseUtils.queryNumEntries(db, DatabaseHelper.TABLE_EXERCISE);
 
-        List<Exercise> defaultExercises = loadExercisesFromAssets();
-        for (Exercise ex : defaultExercises) {
-            insertExercise(ex);
+        // Only seed if the database is currently empty
+        if (count == 0) {
+            Log.d(TAG, "Database empty. Seeding exercises from assets...");
+            List<Exercise> defaultExercises = loadExercisesFromAssets();
+            for (Exercise ex : defaultExercises) {
+                insertExercise(ex);
+            }
+        } else {
+            Log.d(TAG, "Database already contains " + count + " exercises. Skipping seed.");
         }
     }
 

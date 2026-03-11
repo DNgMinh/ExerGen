@@ -147,4 +147,47 @@ public class ExerciseServiceTest {
         assertNotNull(results);
         assertTrue(results.isEmpty());
     }
+
+    @Test
+    public void filterByConstraints_matchesMuscleAndEquipment() {
+        List<Exercise> results = exerciseService.filterByConstraints(List.of("Bodyweight"), List.of("Chest"));
+        assertFalse(results.isEmpty());
+        for (Exercise e : results) {
+            assertTrue(e.getMuscleGroups().contains("Chest") || e.getMuscleGroups().contains("chest"));
+            assertTrue(e.getEquipment().contains("Bodyweight") || e.getEquipment().contains("bodyweight"));
+        }
+    }
+
+    @Test
+    public void filterByConstraints_matchesMultipleMuscles() {
+        List<Exercise> results = exerciseService.filterByConstraints(List.of("Bodyweight"), List.of("Chest", "Legs"));
+        assertFalse(results.isEmpty());
+        boolean foundChest = false;
+        boolean foundLegs = false;
+        for (Exercise e : results) {
+            if (e.getMuscleGroups().stream().anyMatch(m -> m.equalsIgnoreCase("Chest"))) foundChest = true;
+            if (e.getMuscleGroups().stream().anyMatch(m -> m.equalsIgnoreCase("Legs"))) foundLegs = true;
+        }
+        assertTrue("Should have found exercises for both chest and legs", foundChest && foundLegs);
+    }
+
+    @Test
+    public void filterByConstraints_noEquipmentMeansAnythingGoes() {
+        List<Exercise> results = exerciseService.filterByConstraints(List.of(), List.of("Chest"));
+        assertFalse(results.isEmpty());
+        // Should find bodyweight, bench press (if in stub), etc.
+        assertTrue(results.size() >= 1);
+    }
+
+    @Test
+    public void filterByConstraints_returnsEmptyWhenNoMuscleMatch() {
+        List<Exercise> results = exerciseService.filterByConstraints(List.of("Dumbbells"), List.of("NonExistentMuscle"));
+        assertTrue(results.isEmpty());
+    }
+
+    @Test
+    public void filterByConstraints_returnsEmptyWhenNoEquipmentMatch() {
+        List<Exercise> results = exerciseService.filterByConstraints(List.of("Spaceship"), List.of("Chest"));
+        assertTrue(results.isEmpty());
+    }
 }
