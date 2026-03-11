@@ -10,18 +10,31 @@ public class ActiveWorkoutSession {
     private long endTime;
 
     public ActiveWorkoutSession(String id, String templateName, List<WorkoutSet> sets, long startTime) {
-        this.id = id;
-        this.templateName = templateName;
+        this.id = ModelValidation.requireNonBlank(id, "ID required");
+        this.templateName = ModelValidation.requireNonBlank(templateName, "Template name required");
+        ModelValidation.requireNonEmptyList(sets, "Sets required");
+        if (startTime < 0)
+            throw new IllegalArgumentException("Start time must be >= 0");
         this.sets = sets;
         this.startTime = startTime;
         this.endTime = 0; // 0 indicates the session is still actively running
     }
 
-    public String getId() { return id; }
-    public String getTemplateName() { return templateName; }
-    public List<WorkoutSet> getSets() { return sets; }
-    public long getStartTime() { return startTime; }
-    public long getEndTime() { return endTime; }
+    public String getId() {
+        return id;
+    }
+    public String getTemplateName() {
+        return templateName;
+    }
+    public List<WorkoutSet> getSets() {
+        return sets;
+    }
+    public long getStartTime() {
+        return startTime;
+    }
+    public long getEndTime() {
+        return endTime;
+    }
 
     public void setEndTime(long endTime) {
         this.endTime = endTime;

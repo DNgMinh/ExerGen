@@ -1,6 +1,6 @@
 package com.example.exergen.model;
 
-public enum MuscleGroup {
+public enum MuscleGroup implements LabeledEnum{
     CHEST("Chest"),
     TRICEPS("Triceps"),
     LEGS("Legs"),
@@ -15,6 +15,11 @@ public enum MuscleGroup {
 
     MuscleGroup(String label) {
         this.label = label;
+    }
+
+    @Override
+    public String getLabel() {
+        return label;
     }
 
     public static boolean isValidLabel(String value) {

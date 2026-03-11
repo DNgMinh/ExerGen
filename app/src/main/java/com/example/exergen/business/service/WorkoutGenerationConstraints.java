@@ -1,6 +1,10 @@
 package com.example.exergen.business.service;
 
+import com.example.exergen.business.validation.ConstraintValidator;
+import com.example.exergen.model.EnumMapper;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,15 +15,26 @@ import java.util.List;
  * inputs.
  */
 public final class WorkoutGenerationConstraints {
-    private final List<String> selectedEquipment;
-    private final List<String> targetMuscleGroups;
+    private final List<EquipmentType> selectedEquipment;
+    private final List<MuscleGroup> targetMuscleGroups;
     private final int desiredDurationMinutes;
 
-    public WorkoutGenerationConstraints(List<String> selectedEquipment,
-            List<String> targetMuscleGroups,
+    public WorkoutGenerationConstraints(List<String> equipmentLabels,
+                                        List<String> muscleLabels,
+                                        int desiredDurationMinutes) {
+        this(new ConstraintValidator(), new EnumMapper(), equipmentLabels, muscleLabels, desiredDurationMinutes);
+    }
+    public WorkoutGenerationConstraints(
+            ConstraintValidator validator,
+            EnumMapper mapper,
+            List<String> equipmentLabels,
+            List<String> muscleLabels,
             int desiredDurationMinutes) {
-        this.selectedEquipment = normalizeListAllowEmpty(selectedEquipment, "selectedEquipment required");
-        this.targetMuscleGroups = normalizeListRequireAtLeastOne(targetMuscleGroups, "targetMuscleGroups required");
+        validator.validateMuscles(muscleLabels);
+        validator.validateEquipment(equipmentLabels);
+
+        this.selectedEquipment = Collections.unmodifiableList(mapper.toEquipmentEnums(equipmentLabels));
+        this.targetMuscleGroups = Collections.unmodifiableList(mapper.toMuscleEnums(muscleLabels));
 
         if (desiredDurationMinutes <= 0) {
             throw new IllegalArgumentException("desiredDurationMinutes must be > 0");
@@ -27,11 +42,11 @@ public final class WorkoutGenerationConstraints {
         this.desiredDurationMinutes = desiredDurationMinutes;
     }
 
-    public List<String> getSelectedEquipment() {
+    public List<EquipmentType> getSelectedEquipment() {
         return selectedEquipment;
     }
 
-    public List<String> getTargetMuscleGroups() {
+    public List<MuscleGroup> getTargetMuscleGroups() {
         return targetMuscleGroups;
     }
 
@@ -47,11 +62,9 @@ public final class WorkoutGenerationConstraints {
     }
 
     private boolean matchesMuscleGroup(Exercise exercise) {
-        for (String target : targetMuscleGroups) {
-            for (String exerciseMuscle : exercise.getMuscleGroups()) {
-                if (target.equalsIgnoreCase(exerciseMuscle)) {
-                    return true;
-                }
+        for (MuscleGroup exerciseMuscle : exercise.getMuscleGroups()) {
+            if (targetMuscleGroups.contains(exerciseMuscle)) {
+                return true;
             }
         }
         return false;
@@ -62,42 +75,12 @@ public final class WorkoutGenerationConstraints {
             return true;
         }
 
-        for (String selected : selectedEquipment) {
-            for (String exerciseEquipment : exercise.getEquipment()) {
-                if (selected.equalsIgnoreCase(exerciseEquipment)) {
-                    return true;
-                }
+        for (EquipmentType exerciseEquipment : exercise.getEquipment()) {
+            if (selectedEquipment.contains(exerciseEquipment)) {
+                return true;
             }
         }
         return false;
     }
 
-    private static List<String> normalizeListAllowEmpty(List<String> values, String nullMessage) {
-        if (values == null) {
-            throw new IllegalArgumentException(nullMessage);
-        }
-        return Collections.unmodifiableList(normalizeEntries(values));
-    }
-
-    private static List<String> normalizeListRequireAtLeastOne(List<String> values, String nullMessage) {
-        if (values == null) {
-            throw new IllegalArgumentException(nullMessage);
-        }
-        List<String> normalized = normalizeEntries(values);
-        if (normalized.isEmpty()) {
-            throw new IllegalArgumentException("targetMuscleGroups must contain at least one value");
-        }
-        return Collections.unmodifiableList(normalized);
-    }
-
-    private static List<String> normalizeEntries(List<String> values) {
-        List<String> result = new ArrayList<>();
-        for (String value : values) {
-            if (value == null || value.trim().isEmpty()) {
-                throw new IllegalArgumentException("Constraint values must be non-blank.");
-            }
-            result.add(value.trim());
-        }
-        return result;
-    }
 }

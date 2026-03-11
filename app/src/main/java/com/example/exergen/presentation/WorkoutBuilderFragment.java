@@ -25,11 +25,14 @@ import com.example.exergen.business.service.WorkoutPreviewItem;
 import com.example.exergen.business.service.WorkoutPreviewMapper;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
+import com.example.exergen.model.EquipmentType;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorkoutBuilderFragment extends Fragment {
     private static final String KEY_DURATION = "builder_duration";
@@ -189,10 +192,10 @@ public class WorkoutBuilderFragment extends Fragment {
         String summaryText = getString(
                 R.string.workout_builder_summary_format,
                 constraints.getDesiredDurationMinutes(),
-                String.join(", ", constraints.getTargetMuscleGroups()),
+                constraints.getTargetMuscleGroups().stream().map(MuscleGroup::name).collect(Collectors.joining(", ")),
                 constraints.getSelectedEquipment().isEmpty()
                         ? getString(R.string.workout_builder_equipment_any)
-                        : String.join(", ", constraints.getSelectedEquipment()));
+                        : constraints.getSelectedEquipment().stream().map(EquipmentType::name).collect(Collectors.joining(", ")));
 
         try {
             Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(constraints);

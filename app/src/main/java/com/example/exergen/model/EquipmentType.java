@@ -1,6 +1,6 @@
 package com.example.exergen.model;
 
-public enum EquipmentType {
+public enum EquipmentType implements LabeledEnum{
     BODYWEIGHT("Bodyweight"),
     DUMBBELLS("Dumbbells"),
     BARBELL("Barbell");
@@ -11,6 +11,10 @@ public enum EquipmentType {
         this.label = label;
     }
 
+    @Override
+    public String getLabel() {
+        return label;
+    }
     public static boolean isValidLabel(String value) {
         for (EquipmentType type : values()) {
             if (type.label.equalsIgnoreCase(value)) {
