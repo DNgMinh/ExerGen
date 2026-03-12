@@ -44,6 +44,9 @@
     <string name="equipment_bodyweight">Bodyweight</string>
     <string name="equipment_dumbbells">Dumbbell</string>
     <string name="equipment_barbell">Barbell</string>
+    <string name="equipment_ez_curl_bar">E-Z Curl Bar</string>
+    <string name="equipment_machine">Machine</string>
+    <string name="equipment_cable">Cable</string>
     <string name="nav_workouts">Workouts</string>
     <string name="nav_add">Add</string>
     <string name="nav_exercises">Exercises</string>

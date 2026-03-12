@@ -25,6 +25,7 @@ import com.example.exergen.business.service.WorkoutPreviewItem;
 import com.example.exergen.business.service.WorkoutPreviewMapper;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Workout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -42,6 +43,9 @@ public class WorkoutBuilderFragment extends Fragment {
     private static final String KEY_EQUIP_BODYWEIGHT = "builder_equipment_bodyweight";
     private static final String KEY_EQUIP_DUMBBELLS = "builder_equipment_dumbbells";
     private static final String KEY_EQUIP_BARBELL = "builder_equipment_barbell";
+    private static final String KEY_EQUIP_EZ_CURL_BAR = "builder_equipment_ez_curl_bar";
+    private static final String KEY_EQUIP_MACHINE = "builder_equipment_machine";
+    private static final String KEY_EQUIP_CABLE = "builder_equipment_cable";
     private static final String KEY_SUMMARY = "builder_summary";
     private static final String KEY_PREVIEW = "builder_preview";
     private static final String KEY_PREVIEW_MODE = "builder_preview_mode";
@@ -62,6 +66,9 @@ public class WorkoutBuilderFragment extends Fragment {
     private CheckBox cbEquipmentBodyweight;
     private CheckBox cbEquipmentDumbbells;
     private CheckBox cbEquipmentBarbell;
+    private CheckBox cbEquipmentEzCurlBar;
+    private CheckBox cbEquipmentMachine;
+    private CheckBox cbEquipmentCable;
     private TextView tvBuilderSummary;
     private TextView tvBuilderPreview;
     private Button btnGenerateWorkout;
@@ -132,6 +139,9 @@ public class WorkoutBuilderFragment extends Fragment {
         outState.putBoolean(KEY_EQUIP_BODYWEIGHT, cbEquipmentBodyweight.isChecked());
         outState.putBoolean(KEY_EQUIP_DUMBBELLS, cbEquipmentDumbbells.isChecked());
         outState.putBoolean(KEY_EQUIP_BARBELL, cbEquipmentBarbell.isChecked());
+        outState.putBoolean(KEY_EQUIP_EZ_CURL_BAR, cbEquipmentEzCurlBar.isChecked());
+        outState.putBoolean(KEY_EQUIP_MACHINE, cbEquipmentMachine.isChecked());
+        outState.putBoolean(KEY_EQUIP_CABLE, cbEquipmentCable.isChecked());
         outState.putString(KEY_SUMMARY, tvBuilderSummary.getText().toString());
         outState.putString(KEY_PREVIEW, tvBuilderPreview.getText().toString());
         outState.putBoolean(KEY_PREVIEW_MODE, previewActionContainer.getVisibility() == View.VISIBLE);
@@ -148,6 +158,9 @@ public class WorkoutBuilderFragment extends Fragment {
         cbEquipmentBodyweight = view.findViewById(R.id.cb_equipment_bodyweight);
         cbEquipmentDumbbells = view.findViewById(R.id.cb_equipment_dumbbells);
         cbEquipmentBarbell = view.findViewById(R.id.cb_equipment_barbell);
+        cbEquipmentEzCurlBar = view.findViewById(R.id.cb_equipment_ez_curl_bar);
+        cbEquipmentMachine = view.findViewById(R.id.cb_equipment_machine);
+        cbEquipmentCable = view.findViewById(R.id.cb_equipment_cable);
         tvBuilderSummary = view.findViewById(R.id.tv_builder_summary);
         tvBuilderPreview = view.findViewById(R.id.tv_builder_preview);
         btnGenerateWorkout = view.findViewById(R.id.btn_generate_workout);
@@ -171,6 +184,9 @@ public class WorkoutBuilderFragment extends Fragment {
         cbEquipmentBodyweight.setChecked(state.getBoolean(KEY_EQUIP_BODYWEIGHT, false));
         cbEquipmentDumbbells.setChecked(state.getBoolean(KEY_EQUIP_DUMBBELLS, false));
         cbEquipmentBarbell.setChecked(state.getBoolean(KEY_EQUIP_BARBELL, false));
+        cbEquipmentEzCurlBar.setChecked(state.getBoolean(KEY_EQUIP_EZ_CURL_BAR, false));
+        cbEquipmentMachine.setChecked(state.getBoolean(KEY_EQUIP_MACHINE, false));
+        cbEquipmentCable.setChecked(state.getBoolean(KEY_EQUIP_CABLE, false));
         tvBuilderSummary.setText(state.getString(KEY_SUMMARY, ""));
         tvBuilderPreview.setText(state.getString(KEY_PREVIEW, ""));
         setPreviewMode(state.getBoolean(KEY_PREVIEW_MODE, false));
@@ -240,6 +256,9 @@ public class WorkoutBuilderFragment extends Fragment {
         cbEquipmentBodyweight.setEnabled(enabled);
         cbEquipmentDumbbells.setEnabled(enabled);
         cbEquipmentBarbell.setEnabled(enabled);
+        cbEquipmentEzCurlBar.setEnabled(enabled);
+        cbEquipmentMachine.setEnabled(enabled);
+        cbEquipmentCable.setEnabled(enabled);
     }
 
     private void openTimer() {
@@ -312,13 +331,22 @@ public class WorkoutBuilderFragment extends Fragment {
     private List<String> getSelectedEquipment() {
         List<String> equipment = new ArrayList<>();
         if (cbEquipmentBodyweight.isChecked()) {
-            equipment.add("Bodyweight");
+            equipment.add(EquipmentType.BODYWEIGHT.getLabel());
         }
         if (cbEquipmentDumbbells.isChecked()) {
-            equipment.add("Dumbbell");
+            equipment.add(EquipmentType.DUMBBELLS.getLabel());
         }
         if (cbEquipmentBarbell.isChecked()) {
-            equipment.add("Barbell");
+            equipment.add(EquipmentType.BARBELL.getLabel());
+        }
+        if (cbEquipmentEzCurlBar.isChecked()) {
+            equipment.add(EquipmentType.EZ_CURL_BAR.getLabel());
+        }
+        if (cbEquipmentMachine.isChecked()) {
+            equipment.add(EquipmentType.MACHINE.getLabel());
+        }
+        if (cbEquipmentCable.isChecked()) {
+            equipment.add(EquipmentType.CABLE.getLabel());
         }
         return equipment;
     }

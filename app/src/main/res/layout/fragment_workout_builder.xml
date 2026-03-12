@@ -100,6 +100,24 @@
             android:layout_height="wrap_content"
             android:text="@string/equipment_barbell" />
 
+        <CheckBox
+            android:id="@+id/cb_equipment_ez_curl_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/equipment_ez_curl_bar" />
+
+        <CheckBox
+            android:id="@+id/cb_equipment_machine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/equipment_machine" />
+
+        <CheckBox
+            android:id="@+id/cb_equipment_cable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/equipment_cable" />
+
         <Button
             android:id="@+id/btn_generate_workout"
             android:layout_width="match_parent"
