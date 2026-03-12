@@ -22,6 +22,7 @@ import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.StatisticsSummary;
 import com.example.exergen.business.usecase.StatisticsTimeRange;
 import com.example.exergen.business.usecase.StatisticsUseCase;
+import com.example.exergen.business.usecase.WeeklyTrendPoint;
 import com.example.exergen.model.SessionRecord;
 
 import java.text.DateFormat;
@@ -38,6 +39,7 @@ public class StatsFragment extends Fragment {
     private TextView averageDurationValue;
     private TextView totalCaloriesValue;
     private TextView averageCaloriesValue;
+    private TextView trendValue;
     private Spinner timeRangeSpinner;
     private StatisticsTimeRange selectedTimeRange = StatisticsTimeRange.ALL_TIME;
 
@@ -76,6 +78,7 @@ public class StatsFragment extends Fragment {
         averageDurationValue = view.findViewById(R.id.stats_average_duration_value);
         totalCaloriesValue = view.findViewById(R.id.stats_total_calories_value);
         averageCaloriesValue = view.findViewById(R.id.stats_average_calories_value);
+        trendValue = view.findViewById(R.id.stats_trend_value);
         timeRangeSpinner = view.findViewById(R.id.stats_time_range_spinner);
         sessionHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -90,13 +93,13 @@ public class StatsFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedTimeRange = mapPositionToTimeRange(position);
-                refreshOverallSummary();
+                refreshStatisticsSection();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 selectedTimeRange = StatisticsTimeRange.ALL_TIME;
-                refreshOverallSummary();
+                refreshStatisticsSection();
             }
         });
     }
@@ -104,8 +107,13 @@ public class StatsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        refreshOverallSummary();
+        refreshStatisticsSection();
         refreshSessionHistory();
+    }
+
+    private void refreshStatisticsSection() {
+        refreshOverallSummary();
+        refreshTrendSection();
     }
 
     private void refreshOverallSummary() {
@@ -130,6 +138,36 @@ public class StatsFragment extends Fragment {
         averageCaloriesValue.setText(getString(
                 R.string.stats_average_calories_value_format,
                 summary.getAverageEstimatedCalories()));
+    }
+
+    private void refreshTrendSection() {
+        List<WeeklyTrendPoint> trendPoints = statisticsUseCase.getWeeklyTrendSeries(selectedTimeRange);
+        if (trendPoints == null || trendPoints.isEmpty()) {
+            trendValue.setText(R.string.stats_trend_empty);
+            return;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < trendPoints.size(); i++) {
+            WeeklyTrendPoint point = trendPoints.get(i);
+            int avgMinutes = point.getAverageDurationSeconds() / 60;
+            int avgSeconds = point.getAverageDurationSeconds() % 60;
+            String weekLabel = point.getWeekOffsetFromCurrent() == 0
+                    ? getString(R.string.stats_trend_week_current)
+                    : getString(R.string.stats_trend_week_ago_format, point.getWeekOffsetFromCurrent());
+
+            builder.append(getString(
+                    R.string.stats_trend_line_format,
+                    weekLabel,
+                    point.getSessionCount(),
+                    avgMinutes,
+                    avgSeconds));
+
+            if (i < trendPoints.size() - 1) {
+                builder.append('\n');
+            }
+        }
+        trendValue.setText(builder.toString());
     }
 
     private void refreshSessionHistory() {

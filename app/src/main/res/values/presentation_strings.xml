@@ -83,6 +83,11 @@
     <string name="stats_average_duration_value_format">Average Session: %1$d min %2$d sec</string>
     <string name="stats_total_calories_value_format">Estimated Calories: %1$d kcal</string>
     <string name="stats_average_calories_value_format">Avg Calories/Session: %1$d kcal</string>
+    <string name="stats_trend_title">Weekly Trends</string>
+    <string name="stats_trend_empty">No trend data available for this range.</string>
+    <string name="stats_trend_week_current">Current week</string>
+    <string name="stats_trend_week_ago_format">%1$d week(s) ago</string>
+    <string name="stats_trend_line_format">%1$s: %2$d sessions | Avg %3$d min %4$d sec</string>
     <string-array name="stats_time_range_options">
         <item>All-time</item>
         <item>Last 7 days</item>

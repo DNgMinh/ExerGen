@@ -1,6 +1,7 @@
 package com.example.exergen.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -88,6 +89,20 @@ public class SessionHistoryStatsInteractionTest {
     }
 
     @Test
+    public void trendSectionDisplaysWeeklyTrendLines() {
+        InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
+        repository.saveSession(createRecord("s-1", "Recent Session", System.currentTimeMillis()));
+
+        StatsFragment fragment = launchStatsFragment(repository);
+        View root = fragment.requireView();
+        TextView trendView = root.findViewById(R.id.stats_trend_value);
+        String trendText = trendView.getText().toString();
+
+        assertTrue(trendText.contains(fragment.getString(R.string.stats_trend_week_current)));
+        assertTrue(trendText.contains("1 sessions"));
+    }
+
+    @Test
     public void changingTimeRangeRebindsSummaryMetrics() {
         long now = System.currentTimeMillis();
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
@@ -98,15 +113,18 @@ public class SessionHistoryStatsInteractionTest {
         View root = fragment.requireView();
         Spinner timeRangeSpinner = root.findViewById(R.id.stats_time_range_spinner);
         TextView totalSessions = root.findViewById(R.id.stats_total_sessions_value);
+        TextView trendView = root.findViewById(R.id.stats_trend_value);
 
         String allTimeExpected = fragment.getString(R.string.stats_total_sessions_value_format, 2);
         assertEquals(allTimeExpected, totalSessions.getText().toString());
+        assertTrue(trendView.getText().toString().contains("5 week(s) ago: 1 sessions"));
 
         timeRangeSpinner.setSelection(1);
         Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();
 
         String lastSevenDaysExpected = fragment.getString(R.string.stats_total_sessions_value_format, 1);
         assertEquals(lastSevenDaysExpected, totalSessions.getText().toString());
+        assertFalse(trendView.getText().toString().contains("5 week(s) ago: 1 sessions"));
     }
 
     private static StatsFragment launchStatsFragment(ISessionHistoryRepository repository) {
