@@ -9,10 +9,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ExerGen.db";
     // FYI: We can change the DB version during testing if we add/remove from exercises.csv.
     // Just increment version # and restart emulator
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 5;
 
     public static final String TABLE_EXERCISE = "Exercise";
     public static final String TABLE_WORKOUT = "Workout";
+    public static final String TABLE_SESSION_HISTORY = "SessionHistory";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -33,7 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "equipment TEXT, " +
                 "instructions TEXT, " +
                 "intensity INTEGER, " +
-                "image_name TEXT)");
+                "image_paths TEXT)");
 
         db.execSQL("CREATE TABLE " + TABLE_WORKOUT + " (" +
                 "id TEXT PRIMARY KEY, " +
@@ -42,12 +43,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "exercise_ids TEXT, " +
                 "work_seconds TEXT, " +
                 "rest_seconds TEXT)");
+
+        db.execSQL("CREATE TABLE " + TABLE_SESSION_HISTORY + " (" +
+                "id TEXT PRIMARY KEY, " +
+                "workout_id TEXT NOT NULL, " +
+                "workout_name TEXT NOT NULL, " +
+                "completed_at_epoch_ms INTEGER NOT NULL, " +
+                "total_duration_seconds INTEGER NOT NULL, " +
+                "exercise_count INTEGER NOT NULL, " +
+                "rounds_planned INTEGER NOT NULL, " +
+                "rounds_completed INTEGER NOT NULL)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION_HISTORY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORKOUT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISE);
         onCreate(db);
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
     }
 }

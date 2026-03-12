@@ -76,8 +76,8 @@ public class ExerciseServiceTest {
     @Test
     public void getAllExercisesReturnsAllItems() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "placeholder"));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         List<Exercise> result = service.getAllExercises();
@@ -90,8 +90,8 @@ public class ExerciseServiceTest {
     @Test
     public void getExerciseByIdReturnsCorrectExercise() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "placeholder"));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         Exercise result = service.getExerciseById("e2");
@@ -103,8 +103,8 @@ public class ExerciseServiceTest {
     @Test
     public void filterByEquipmentReturnsMatchingExercises() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
-                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, "placeholder"));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         List<Exercise> result = service.filterByEquipment("Barbell");
@@ -116,8 +116,8 @@ public class ExerciseServiceTest {
     @Test
     public void filterByEquipmentReturnsEmptyWhenNoMatches() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
-                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, "placeholder"));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         List<Exercise> result = service.filterByEquipment("Dumbbells");
@@ -128,7 +128,7 @@ public class ExerciseServiceTest {
     @Test(expected = InvalidFilterException.class)
     public void filterByEquipmentRejectsNullInput() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
         service.filterByEquipment(null);
     }
@@ -136,7 +136,7 @@ public class ExerciseServiceTest {
     @Test(expected = InvalidFilterException.class)
     public void filterByEquipmentRejectsBlankInput() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
         service.filterByEquipment("   ");
     }
@@ -144,8 +144,8 @@ public class ExerciseServiceTest {
     @Test
     public void filterByMuscleGroupReturnsMatchingExercises() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "placeholder"));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         List<Exercise> result = service.filterByMuscleGroup("Legs");

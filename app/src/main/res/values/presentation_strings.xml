@@ -6,6 +6,7 @@
     <string name="workout_detail_title">Workout Details</string>
     <string name="workout_detail_body_format">Name: %1$s\nRounds: %2$d\nExercises: %3$d\nTotal Duration: %4$d sec\nExercise Names: %5$s</string>
     <string name="workout_detail_none">No exercise details available</string>
+    <string name="workout_detail_title_prefix">Workout: </string>
     <string name="workout_delete_title">Delete Workout</string>
     <string name="workout_delete_message">Delete %1$s?</string>
     <string name="workout_delete_action">Delete</string>
@@ -32,11 +33,16 @@
     <string name="workout_builder_error_muscle_required">Select at least one target muscle group.</string>
     <string name="workout_builder_error_generate_first">Generate a workout before starting.</string>
     <string name="workout_builder_saved_message">Workout saved to Workouts.</string>
+
     <string name="muscle_chest">Chest</string>
     <string name="muscle_legs">Legs</string>
     <string name="muscle_back">Back</string>
+    <string name="muscle_shoulders">Shoulders</string>
+    <string name="muscle_biceps">Biceps</string>
+    <string name="muscle_triceps">Triceps</string>
+
     <string name="equipment_bodyweight">Bodyweight</string>
-    <string name="equipment_dumbbells">Dumbbells</string>
+    <string name="equipment_dumbbells">Dumbbell</string>
     <string name="equipment_barbell">Barbell</string>
     <string name="nav_workouts">Workouts</string>
     <string name="nav_add">Add</string>
@@ -47,6 +53,9 @@
     <!-- Exercise Detail strings -->
     <string name="exercise_not_found">Exercise not found</string>
     <string name="instructions_fallback">No instructions available.</string>
+    <string name="label_instructions">Instructions</string>
+    <string name="label_equipment_header">Equipment</string>
+    <string name="label_target_muscles_header">Target Muscles</string>
     <string name="label_equipment">Equipment: %s</string>
     <string name="label_muscles">Muscles: %s</string>
     <string name="label_intensity">Intensity: %s</string>
@@ -61,8 +70,13 @@
     <string name="btn_end_timer">End Timer</string>
     <string name="btn_pause">Pause</string>
     <string name="btn_back">Back</string>
-    <string name="stats_title">Stats Coming Soon!</string>
-    <string name="stats_subtitle">We are currently lifting some heavy code. Stay tuned.</string>
+    <string name="stats_title">Session History</string>
+    <string name="stats_subtitle">Completed sessions</string>
+    <string name="session_history_title">Session History</string>
+    <string name="session_history_empty">No completed sessions yet.</string>
+    <string name="session_history_item_summary_format">%1$s\nDuration: %2$d sec | Rounds: %3$d/%4$d</string>
+    <string name="session_history_detail_title">Session Details</string>
+    <string name="session_history_detail_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nRounds: %5$d/%6$d</string>
     <!-- Generic presentation strings -->
     <string name="loading">Loading...</string>
     <string name="error_loading_data">Error loading data. Please try again.</string>

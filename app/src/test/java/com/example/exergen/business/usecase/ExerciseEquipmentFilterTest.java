@@ -19,9 +19,9 @@ public class ExerciseEquipmentFilterTest {
     @Before
     public void setUp() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "placeholder"),
-                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, "placeholder"),
-                new Exercise("e3", "Dumbbell Row", List.of("Back"), List.of("Dumbbells"), "", 3, "placeholder"));
+                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, List.of("placeholder")),
+                new Exercise("e3", "Dumbbell Row", List.of("Back"), List.of("Dumbbells"), "", 3, List.of("placeholder")));
         service = new ExerciseService(new FakeExerciseRepository(seed));
     }
 

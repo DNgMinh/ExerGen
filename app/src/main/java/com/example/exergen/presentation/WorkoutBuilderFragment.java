@@ -39,6 +39,9 @@ public class WorkoutBuilderFragment extends Fragment {
     private static final String KEY_MUSCLE_CHEST = "builder_muscle_chest";
     private static final String KEY_MUSCLE_LEGS = "builder_muscle_legs";
     private static final String KEY_MUSCLE_BACK = "builder_muscle_back";
+    private static final String KEY_MUSCLE_SHOULDERS = "builder_muscle_shoulders";
+    private static final String KEY_MUSCLE_BICEPS = "builder_muscle_biceps";
+    private static final String KEY_MUSCLE_TRICEPS = "builder_muscle_triceps";
     private static final String KEY_EQUIP_BODYWEIGHT = "builder_equipment_bodyweight";
     private static final String KEY_EQUIP_DUMBBELLS = "builder_equipment_dumbbells";
     private static final String KEY_EQUIP_BARBELL = "builder_equipment_barbell";
@@ -56,6 +59,9 @@ public class WorkoutBuilderFragment extends Fragment {
     private CheckBox cbMuscleChest;
     private CheckBox cbMuscleLegs;
     private CheckBox cbMuscleBack;
+    private CheckBox cbMuscleShoulders;
+    private CheckBox cbMuscleBiceps;
+    private CheckBox cbMuscleTriceps;
     private CheckBox cbEquipmentBodyweight;
     private CheckBox cbEquipmentDumbbells;
     private CheckBox cbEquipmentBarbell;
@@ -123,6 +129,9 @@ public class WorkoutBuilderFragment extends Fragment {
         outState.putBoolean(KEY_MUSCLE_CHEST, cbMuscleChest.isChecked());
         outState.putBoolean(KEY_MUSCLE_LEGS, cbMuscleLegs.isChecked());
         outState.putBoolean(KEY_MUSCLE_BACK, cbMuscleBack.isChecked());
+        outState.putBoolean(KEY_MUSCLE_SHOULDERS, cbMuscleShoulders.isChecked());
+        outState.putBoolean(KEY_MUSCLE_BICEPS, cbMuscleBiceps.isChecked());
+        outState.putBoolean(KEY_MUSCLE_TRICEPS, cbMuscleTriceps.isChecked());
         outState.putBoolean(KEY_EQUIP_BODYWEIGHT, cbEquipmentBodyweight.isChecked());
         outState.putBoolean(KEY_EQUIP_DUMBBELLS, cbEquipmentDumbbells.isChecked());
         outState.putBoolean(KEY_EQUIP_BARBELL, cbEquipmentBarbell.isChecked());
@@ -136,6 +145,9 @@ public class WorkoutBuilderFragment extends Fragment {
         cbMuscleChest = view.findViewById(R.id.cb_muscle_chest);
         cbMuscleLegs = view.findViewById(R.id.cb_muscle_legs);
         cbMuscleBack = view.findViewById(R.id.cb_muscle_back);
+        cbMuscleShoulders = view.findViewById(R.id.cb_muscle_shoulders);
+        cbMuscleBiceps = view.findViewById(R.id.cb_muscle_biceps);
+        cbMuscleTriceps = view.findViewById(R.id.cb_muscle_triceps);
         cbEquipmentBodyweight = view.findViewById(R.id.cb_equipment_bodyweight);
         cbEquipmentDumbbells = view.findViewById(R.id.cb_equipment_dumbbells);
         cbEquipmentBarbell = view.findViewById(R.id.cb_equipment_barbell);
@@ -156,6 +168,9 @@ public class WorkoutBuilderFragment extends Fragment {
         cbMuscleChest.setChecked(state.getBoolean(KEY_MUSCLE_CHEST, false));
         cbMuscleLegs.setChecked(state.getBoolean(KEY_MUSCLE_LEGS, false));
         cbMuscleBack.setChecked(state.getBoolean(KEY_MUSCLE_BACK, false));
+        cbMuscleShoulders.setChecked(state.getBoolean(KEY_MUSCLE_SHOULDERS, false));
+        cbMuscleBiceps.setChecked(state.getBoolean(KEY_MUSCLE_BICEPS, false));
+        cbMuscleTriceps.setChecked(state.getBoolean(KEY_MUSCLE_TRICEPS, false));
         cbEquipmentBodyweight.setChecked(state.getBoolean(KEY_EQUIP_BODYWEIGHT, false));
         cbEquipmentDumbbells.setChecked(state.getBoolean(KEY_EQUIP_DUMBBELLS, false));
         cbEquipmentBarbell.setChecked(state.getBoolean(KEY_EQUIP_BARBELL, false));
@@ -222,6 +237,9 @@ public class WorkoutBuilderFragment extends Fragment {
         cbMuscleChest.setEnabled(enabled);
         cbMuscleLegs.setEnabled(enabled);
         cbMuscleBack.setEnabled(enabled);
+        cbMuscleShoulders.setEnabled(enabled);
+        cbMuscleBiceps.setEnabled(enabled);
+        cbMuscleTriceps.setEnabled(enabled);
         cbEquipmentBodyweight.setEnabled(enabled);
         cbEquipmentDumbbells.setEnabled(enabled);
         cbEquipmentBarbell.setEnabled(enabled);
@@ -282,6 +300,15 @@ public class WorkoutBuilderFragment extends Fragment {
         if (cbMuscleBack.isChecked()) {
             muscles.add("Back");
         }
+        if (cbMuscleShoulders.isChecked()) {
+            muscles.add("Shoulders");
+        }
+        if (cbMuscleBiceps.isChecked()) {
+            muscles.add("Biceps");
+        }
+        if (cbMuscleTriceps.isChecked()) {
+            muscles.add("Triceps");
+        }
         return muscles;
     }
 
@@ -291,7 +318,7 @@ public class WorkoutBuilderFragment extends Fragment {
             equipment.add("Bodyweight");
         }
         if (cbEquipmentDumbbells.isChecked()) {
-            equipment.add("Dumbbells");
+            equipment.add("Dumbbell");
         }
         if (cbEquipmentBarbell.isChecked()) {
             equipment.add("Barbell");

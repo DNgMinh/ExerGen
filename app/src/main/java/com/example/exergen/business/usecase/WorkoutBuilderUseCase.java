@@ -6,6 +6,7 @@ import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,16 +29,18 @@ public class WorkoutBuilderUseCase {
             throw new IllegalArgumentException("constraints required.");
         }
 
-        List<Exercise> matchingExercises = new ArrayList<>();
-        for (Exercise exercise : exerciseService.getAllExercises()) {
-            if (constraints.matchesExercise(exercise)) {
-                matchingExercises.add(exercise);
-            }
-        }
+        List<Exercise> matchingExercises = exerciseService.filterByConstraints(
+                constraints.getSelectedEquipment(),
+                constraints.getTargetMuscleGroups()
+        );
 
         if (matchingExercises.isEmpty()) {
             throw new IllegalArgumentException("No exercises match the selected constraints.");
         }
+
+        // Shuffle to avoid always picking the same exercises in the same order
+        List<Exercise> shuffled = new ArrayList<>(matchingExercises);
+        Collections.shuffle(shuffled);
 
         int targetSeconds = constraints.getDesiredDurationMinutes() * SECONDS_PER_MINUTE;
         int slotSeconds = DEFAULT_WORK_SECONDS + DEFAULT_REST_SECONDS;
@@ -48,7 +51,8 @@ public class WorkoutBuilderUseCase {
         List<Integer> restSeconds = new ArrayList<>();
 
         for (int i = 0; i < exerciseCount; i++) {
-            Exercise selected = matchingExercises.get(i % matchingExercises.size());
+            // Cycle through matching exercises if we need more than available
+            Exercise selected = shuffled.get(i % shuffled.size());
             exerciseIds.add(selected.getId());
             workSeconds.add(DEFAULT_WORK_SECONDS);
             restSeconds.add(DEFAULT_REST_SECONDS);

@@ -60,7 +60,7 @@ public class ExerciseAddTest {
     public void addExerciseMakesExerciseRetrievable() {
         ExerciseService service = new ExerciseService(new FakeExerciseRepository());
         Exercise added = new Exercise("ex-99", "Burpee", List.of("Full Body"), List.of("Bodyweight"), "", 3,
-                "placeholder");
+                List.of("placeholder"));
 
         service.addExercise(added);
 
@@ -80,12 +80,12 @@ public class ExerciseAddTest {
         IExerciseRepository fakeRepository = new FakeExerciseRepository();
         ExerciseService service = new ExerciseService(fakeRepository);
         Exercise existingExercise = new Exercise("ex-100", "Push-up", List.of("Chest"), List.of("Bodyweight"), "", 3,
-                "placeholder");
+                List.of("placeholder"));
 
         fakeRepository.insertExercise(existingExercise);
 
         Exercise duplicateExercise = new Exercise("ex-100", "Diamond Push-up", List.of("Triceps"),
-                List.of("Bodyweight"), "", 4, "placeholder");
+                List.of("Bodyweight"), "", 4, List.of("placeholder"));
         service.addExercise(duplicateExercise);
     }
 }

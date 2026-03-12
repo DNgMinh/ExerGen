@@ -12,7 +12,7 @@ public class Exercise {
     private final List<EquipmentType> equipment; // e.g. ["dumbbells"] or ["bodyweight"]
     private final String instructions; // Instructions
     private final int intensity; // 1-5 scale
-    private final String imageName; // Corresponding image in /res/drawable
+    private final List<String> imagePaths; // e.g. ["exercises/planks/0.jpg", "exercises/planks/1.jpg"]
 
     public Exercise(String id,
             String name,
@@ -20,7 +20,13 @@ public class Exercise {
             List<EquipmentType> equipment,
             String instructions,
             int intensity,
-            String imageName) {
+            List<String> imagePaths) {
+        this.id = ModelValidation.requireNonBlank(id, "ID required");
+        this.name = ModelValidation.requireNonBlank(name, "Name required");
+        ModelValidation.requireNonEmptyList(muscleGroups, "Muscle groups required");
+        ModelValidation.requireNonEmptyList(equipment, "Equipment required");
+        ModelValidation.requireNonEmptyList(imagePaths, "Image paths required");
+
         this.id = ValidationHelper.requireNonBlank(id, "ID required");
         this.name = ValidationHelper.requireNonBlank(name, "Name required");
         ValidationHelper.requireNonEmptyList(muscleGroups, "muscleGroups required");
@@ -28,12 +34,12 @@ public class Exercise {
         if (intensity < 0){
             throw new IllegalArgumentException("Intensity must be >= 0");
             }
-        this.imageName = ValidationHelper.requireNonBlank(imageName, "Image name required");
 
         this.muscleGroups = List.copyOf(muscleGroups);
         this.equipment = List.copyOf(equipment);
         this.instructions = instructions;
         this.intensity = intensity;
+        this.imagePaths = List.copyOf(imagePaths);
     }
 
     // Getters
@@ -62,7 +68,7 @@ public class Exercise {
         return intensity;
     }
 
-    public String getImageName() {
-        return imageName;
+    public List<String> getImagePaths() {
+        return imagePaths;
     }
 }

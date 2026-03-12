@@ -20,8 +20,8 @@ public class WorkoutPreviewMapperTest {
     public void setUp() {
         mapper = new WorkoutPreviewMapper();
         exerciseService = new ExerciseService(new FakeExerciseRepository(List.of(
-                new Exercise("ex-1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, "img"),
-                new Exercise("ex-2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, "img"))));
+                new Exercise("ex-1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("img")),
+                new Exercise("ex-2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("img")))));
     }
 
     @Test

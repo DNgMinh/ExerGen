@@ -2,13 +2,15 @@ package com.example.exergen.application;
 
 import android.app.Application;
 
-import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.business.repository.ISessionHistoryRepository;
 import com.example.exergen.business.repository.IWorkoutRepository;
 import com.example.exergen.persistence.ExerciseRepositorySQLite;
+import com.example.exergen.persistence.SessionHistoryRepositorySQLite;
 import com.example.exergen.persistence.WorkoutRepositorySQLite;
 
 public final class AppBootstrap {
@@ -32,13 +34,13 @@ public final class AppBootstrap {
     // Expose use cases to presentation
     public final WorkoutUseCase workoutUseCase;
     public final WorkoutBuilderUseCase workoutBuilderUseCase;
+    public final SessionHistoryUseCase sessionHistoryUseCase;
     public final ExerciseService exerciseService;
     public final EnumMapper mapper;
 
     private AppBootstrap(Application app) {
         IWorkoutRepository workoutRepository = new WorkoutRepositorySQLite(app);
-        mapper = new EnumMapper();
-        IExerciseRepository exerciseRepository = new ExerciseRepositorySQLite(app, mapper);
+        IExerciseRepository exerciseRepository = new ExerciseRepositorySQLite(app);
 
         // Seed data for workout and exercise repositories
         workoutRepository.seedData();
@@ -47,5 +49,6 @@ public final class AppBootstrap {
         this.exerciseService = new ExerciseService(exerciseRepository);
         this.workoutUseCase = new WorkoutUseCase(workoutRepository, exerciseService);
         this.workoutBuilderUseCase = new WorkoutBuilderUseCase(exerciseService);
+        this.sessionHistoryUseCase = new SessionHistoryUseCase(sessionHistoryRepository);
     }
 }

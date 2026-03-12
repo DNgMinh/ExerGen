@@ -61,7 +61,7 @@ public class WorkoutGenerationConstraintsTest {
                 Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Press dumbbells",
                 3,
-                "img");
+                List.of("img"));
 
         assertTrue(constraints.matchesExercise(exercise));
     }
@@ -77,7 +77,7 @@ public class WorkoutGenerationConstraintsTest {
                 Arrays.asList(EquipmentType.DUMBBELLS),
                 "Press dumbbells",
                 3,
-                "img");
+                List.of("img"));
 
         assertFalse(constraints.matchesExercise(exercise));
     }
@@ -93,7 +93,7 @@ public class WorkoutGenerationConstraintsTest {
                 Arrays.asList(EquipmentType.DUMBBELLS),
                 "Press dumbbells",
                 3,
-                "img");
+                List.of("img"));
 
         assertFalse(constraints.matchesExercise(exercise));
     }
@@ -108,7 +108,7 @@ public class WorkoutGenerationConstraintsTest {
                 Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Pushup",
                 2,
-                "img");
+                List.of("img"));
 
         assertTrue(constraints.matchesExercise(exercise));
     }
