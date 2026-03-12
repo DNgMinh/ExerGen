@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.StatisticsSummary;
+import com.example.exergen.business.usecase.StatisticsUseCase;
 import com.example.exergen.model.SessionRecord;
 
 import java.text.DateFormat;
@@ -24,8 +26,14 @@ import java.util.List;
 
 public class StatsFragment extends Fragment {
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private StatisticsUseCase statisticsUseCase;
     private RecyclerView sessionHistoryRecyclerView;
     private TextView emptyStateText;
+    private TextView totalSessionsValue;
+    private TextView totalDurationValue;
+    private TextView averageDurationValue;
+    private TextView totalCaloriesValue;
+    private TextView averageCaloriesValue;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,10 +41,17 @@ public class StatsFragment extends Fragment {
         if (sessionHistoryUseCase == null) {
             sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
         }
+        if (statisticsUseCase == null) {
+            statisticsUseCase = AppBootstrap.get().statisticsUseCase;
+        }
     }
 
     public void setSessionHistoryUseCaseForTesting(SessionHistoryUseCase sessionHistoryUseCase) {
         this.sessionHistoryUseCase = sessionHistoryUseCase;
+    }
+
+    public void setStatisticsUseCaseForTesting(StatisticsUseCase statisticsUseCase) {
+        this.statisticsUseCase = statisticsUseCase;
     }
 
     @Override
@@ -50,13 +65,36 @@ public class StatsFragment extends Fragment {
 
         sessionHistoryRecyclerView = view.findViewById(R.id.session_history_recycler_view);
         emptyStateText = view.findViewById(R.id.session_history_empty_text);
+        totalSessionsValue = view.findViewById(R.id.stats_total_sessions_value);
+        totalDurationValue = view.findViewById(R.id.stats_total_duration_value);
+        averageDurationValue = view.findViewById(R.id.stats_average_duration_value);
+        totalCaloriesValue = view.findViewById(R.id.stats_total_calories_value);
+        averageCaloriesValue = view.findViewById(R.id.stats_average_calories_value);
         sessionHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        refreshOverallSummary();
         refreshSessionHistory();
+    }
+
+    private void refreshOverallSummary() {
+        StatisticsSummary summary = statisticsUseCase.getOverallSummary();
+        totalSessionsValue.setText(getString(R.string.stats_total_sessions_value_format, summary.getTotalSessions()));
+        totalDurationValue.setText(getString(
+                R.string.stats_total_duration_value_format,
+                summary.getCumulativeDurationSeconds() / 60));
+        averageDurationValue.setText(getString(
+                R.string.stats_average_duration_value_format,
+                summary.getAverageSessionLengthSeconds() / 60));
+        totalCaloriesValue.setText(getString(
+                R.string.stats_total_calories_value_format,
+                summary.getTotalEstimatedCalories()));
+        averageCaloriesValue.setText(getString(
+                R.string.stats_average_calories_value_format,
+                summary.getAverageEstimatedCalories()));
     }
 
     private void refreshSessionHistory() {

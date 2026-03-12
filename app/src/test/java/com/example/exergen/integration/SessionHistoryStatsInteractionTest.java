@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.business.repository.ISessionHistoryRepository;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.StatisticsUseCase;
 import com.example.exergen.model.SessionRecord;
 import com.example.exergen.presentation.StatsFragment;
 
@@ -74,9 +75,11 @@ public class SessionHistoryStatsInteractionTest {
     private static StatsFragment launchStatsFragment(ISessionHistoryRepository repository) {
         FragmentActivity activity = Robolectric.buildActivity(FragmentActivity.class).setup().get();
         SessionHistoryUseCase useCase = new SessionHistoryUseCase(repository);
+        StatisticsUseCase statisticsUseCase = new StatisticsUseCase(repository);
 
         StatsFragment fragment = new StatsFragment();
         fragment.setSessionHistoryUseCaseForTesting(useCase);
+        fragment.setStatisticsUseCaseForTesting(statisticsUseCase);
 
         activity.getSupportFragmentManager()
                 .beginTransaction()
