@@ -2,6 +2,7 @@ package com.example.exergen.business.usecase;
 
 import static org.junit.Assert.assertEquals;
 
+import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.repository.ISessionHistoryRepository;
 import com.example.exergen.model.SessionRecord;
 
@@ -59,6 +60,70 @@ public class StatisticsUseCaseTest {
         assertEquals(0, summary.getAverageSessionLengthSeconds());
         assertEquals(0, summary.getTotalEstimatedCalories());
         assertEquals(0, summary.getAverageEstimatedCalories());
+    }
+
+    @Test
+    public void getSummaryForTimeRangeIncludesOnlyLastSevenDays() {
+        long now = 2_000_000_000_000L;
+        InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
+        repository.saveSession(createRecord("in-7d", now - toMs(3), 600));
+        repository.saveSession(createRecord("out-7d", now - toMs(8), 300));
+
+        StatisticsUseCase useCase = new StatisticsUseCase(repository);
+        StatisticsSummary summary = useCase.getSummaryForTimeRange(StatisticsTimeRange.LAST_7_DAYS, now);
+
+        assertEquals(1, summary.getTotalSessions());
+        assertEquals(600, summary.getCumulativeDurationSeconds());
+        assertEquals(80, summary.getTotalEstimatedCalories());
+    }
+
+    @Test
+    public void getSummaryForTimeRangeIncludesOnlyLastThirtyDays() {
+        long now = 2_000_000_000_000L;
+        InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
+        repository.saveSession(createRecord("in-30d", now - toMs(15), 900));
+        repository.saveSession(createRecord("out-30d", now - toMs(31), 600));
+
+        StatisticsUseCase useCase = new StatisticsUseCase(repository);
+        StatisticsSummary summary = useCase.getSummaryForTimeRange(StatisticsTimeRange.LAST_30_DAYS, now);
+
+        assertEquals(1, summary.getTotalSessions());
+        assertEquals(900, summary.getCumulativeDurationSeconds());
+        assertEquals(120, summary.getTotalEstimatedCalories());
+    }
+
+    @Test
+    public void getSummaryForTimeRangeAllTimeMatchesOverallSummary() {
+        long now = 2_000_000_000_000L;
+        InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
+        repository.saveSession(createRecord("s-1", now - toMs(40), 600));
+        repository.saveSession(createRecord("s-2", now - toMs(1), 300));
+
+        StatisticsUseCase useCase = new StatisticsUseCase(repository);
+        StatisticsSummary allTimeSummary = useCase.getSummaryForTimeRange(StatisticsTimeRange.ALL_TIME, now);
+        StatisticsSummary overallSummary = useCase.getOverallSummary();
+
+        assertEquals(overallSummary.getTotalSessions(), allTimeSummary.getTotalSessions());
+        assertEquals(overallSummary.getCumulativeDurationSeconds(), allTimeSummary.getCumulativeDurationSeconds());
+        assertEquals(overallSummary.getAverageSessionLengthSeconds(), allTimeSummary.getAverageSessionLengthSeconds());
+        assertEquals(overallSummary.getTotalEstimatedCalories(), allTimeSummary.getTotalEstimatedCalories());
+        assertEquals(overallSummary.getAverageEstimatedCalories(), allTimeSummary.getAverageEstimatedCalories());
+    }
+
+    @Test(expected = InvalidFilterException.class)
+    public void getSummaryForTimeRangeRejectsNullRange() {
+        StatisticsUseCase useCase = new StatisticsUseCase(new InMemorySessionHistoryRepository());
+        useCase.getSummaryForTimeRange(null, 2_000_000_000_000L);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getSummaryForTimeRangeRejectsInvalidNowValue() {
+        StatisticsUseCase useCase = new StatisticsUseCase(new InMemorySessionHistoryRepository());
+        useCase.getSummaryForTimeRange(StatisticsTimeRange.LAST_7_DAYS, 0L);
+    }
+
+    private static long toMs(int days) {
+        return days * 24L * 60L * 60L * 1000L;
     }
 
     private static SessionRecord createRecord(String id, long completedAtEpochMs, int durationSeconds) {
