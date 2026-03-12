@@ -1,8 +1,10 @@
-package com.example.exergen.model;
+package com.example.exergen.business.service;
+
+import com.example.exergen.model.EquipmentType;
+import com.example.exergen.model.MuscleGroup;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class EnumMapper {
     public EnumMapper() {}

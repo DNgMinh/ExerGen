@@ -22,7 +22,7 @@ public enum MuscleGroup implements LabeledEnum{
         return label;
     }
 
-    @Override
+
     public boolean isValidLabel(String value) {
         for (MuscleGroup group : values()) {
             if (group.label.equalsIgnoreCase(value)) {

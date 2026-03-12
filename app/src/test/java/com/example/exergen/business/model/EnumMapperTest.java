@@ -1,14 +1,12 @@
 package com.example.exergen.business.model;
 
-import com.example.exergen.model.EnumMapper;
-import com.example.exergen.model.EquipmentType;
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.model.MuscleGroup;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

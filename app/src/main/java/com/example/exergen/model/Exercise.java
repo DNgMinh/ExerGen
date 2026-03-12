@@ -1,5 +1,7 @@
 package com.example.exergen.model;
 
+import com.example.exergen.business.validation.ValidationHelper;
+
 import java.util.List;
 
 public class Exercise {
@@ -19,14 +21,14 @@ public class Exercise {
             String instructions,
             int intensity,
             String imageName) {
-        this.id = ModelValidation.requireNonBlank(id, "ID required");
-        this.name = ModelValidation.requireNonBlank(name, "Name required");
-        ModelValidation.requireNonEmptyList(muscleGroups, "muscleGroups required");
-        ModelValidation.requireNonEmptyList(equipment, "Equipment required");
+        this.id = ValidationHelper.requireNonBlank(id, "ID required");
+        this.name = ValidationHelper.requireNonBlank(name, "Name required");
+        ValidationHelper.requireNonEmptyList(muscleGroups, "muscleGroups required");
+        ValidationHelper.requireNonEmptyList(equipment, "Equipment required");
         if (intensity < 0){
             throw new IllegalArgumentException("Intensity must be >= 0");
             }
-        this.imageName = ModelValidation.requireNonBlank(imageName, "Image name required");
+        this.imageName = ValidationHelper.requireNonBlank(imageName, "Image name required");
 
         this.muscleGroups = List.copyOf(muscleGroups);
         this.equipment = List.copyOf(equipment);

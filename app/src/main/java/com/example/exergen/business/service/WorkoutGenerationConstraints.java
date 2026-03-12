@@ -1,7 +1,7 @@
 package com.example.exergen.business.service;
 
-import com.example.exergen.business.validation.ConstraintValidator;
-import com.example.exergen.model.EnumMapper;
+
+import com.example.exergen.business.validation.ValidationHelper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
@@ -21,19 +21,18 @@ public final class WorkoutGenerationConstraints {
     public WorkoutGenerationConstraints(List<String> equipmentLabels,
                                         List<String> muscleLabels,
                                         int desiredDurationMinutes) {
-        this(new ConstraintValidator(), new EnumMapper(), equipmentLabels, muscleLabels, desiredDurationMinutes);
+        this( new EnumMapper(), equipmentLabels, muscleLabels, desiredDurationMinutes);
     }
     public WorkoutGenerationConstraints(
-            ConstraintValidator validator,
             EnumMapper mapper,
-            List<String> equipmentLabels,
-            List<String> muscleLabels,
+            List<String> selectedEquipment,
+            List<String> targetMuscleGroups,
             int desiredDurationMinutes) {
-        validator.validateMuscles(muscleLabels);
-        validator.validateEquipment(equipmentLabels);
+        List<String> validMuscles = ValidationHelper.requireNonEmptyList(targetMuscleGroups, "targetMuscleGroups required");
+        List<String> validEquipment = ValidationHelper.requireNonNull(selectedEquipment, "selectedEquipment required");
 
-        this.selectedEquipment = Collections.unmodifiableList(mapper.toEquipmentEnums(equipmentLabels));
-        this.targetMuscleGroups = Collections.unmodifiableList(mapper.toMuscleEnums(muscleLabels));
+        this.selectedEquipment = Collections.unmodifiableList(mapper.toEquipmentEnums(validMuscles));
+        this.targetMuscleGroups = Collections.unmodifiableList(mapper.toMuscleEnums(validEquipment));
 
         if (desiredDurationMinutes <= 0) {
             throw new IllegalArgumentException("desiredDurationMinutes must be > 0");

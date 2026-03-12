@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.exergen.application.helper.DatabaseHelper;
-import com.example.exergen.model.EnumMapper;
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.repository.IExerciseRepository;

@@ -1,5 +1,7 @@
 package com.example.exergen.model;
 
+import com.example.exergen.business.validation.ValidationHelper;
+
 import java.util.List;
 
 public class ActiveWorkoutSession {
@@ -10,12 +12,11 @@ public class ActiveWorkoutSession {
     private long endTime;
 
     public ActiveWorkoutSession(String id, String templateName, List<WorkoutSet> sets, long startTime) {
-        this.id = ModelValidation.requireNonBlank(id, "ID required");
-        this.templateName = ModelValidation.requireNonBlank(templateName, "Template name required");
-        ModelValidation.requireNonEmptyList(sets, "Sets required");
+        this.id = ValidationHelper.requireNonBlank(id, "ID required");
+        this.templateName = ValidationHelper.requireNonBlank(templateName, "Template name required");
+        this.sets = ValidationHelper.requireNonEmptyList(sets, "Sets required");
         if (startTime < 0)
             throw new IllegalArgumentException("Start time must be >= 0");
-        this.sets = sets;
         this.startTime = startTime;
         this.endTime = 0; // 0 indicates the session is still actively running
     }

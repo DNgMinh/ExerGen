@@ -18,7 +18,7 @@ public enum EquipmentType implements LabeledEnum{
         return label;
     }
 
-    @Override
+
     public boolean isValidLabel(String value) {
         for (EquipmentType type : values()) {
             if (type.label.equalsIgnoreCase(value)) {
@@ -29,13 +29,12 @@ public enum EquipmentType implements LabeledEnum{
     }
 
     public static EquipmentType fromLabel(String value) {
-        String label = ModelValidation.requireNonBlank(value, "Equipment label required");
-        String normalizedLabel = label.trim();
+        String normalizedLabel = value.trim();
         for (EquipmentType equipment : EquipmentType.values()) {
             if (equipment.label.equalsIgnoreCase(normalizedLabel)) {
                 return equipment;
             }
         }
-        throw new IllegalArgumentException("Invalid muscle group label: " + label);
+        throw new IllegalArgumentException("Invalid muscle group label: " + value);
     }
 }
