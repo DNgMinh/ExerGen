@@ -1,12 +1,15 @@
 package com.example.exergen.business.usecase;
 
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.model.MuscleGroup;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -35,29 +38,39 @@ public class ExerciseServiceTest {
         }
 
         @Override
-        public List<Exercise> filterByEquipment(String equipment) {
-            if (equipment == null || equipment.trim().isEmpty()) {
-                throw new IllegalArgumentException("Equipment required.");
+        public List<Exercise> filterByEquipment(EquipmentType equipment) {
+            if (equipment == null) {
+                throw new InvalidFilterException("Equipment filter must be non-empty.");
             }
 
-            String normalizedEquipment = equipment.trim();
-            return exercises.stream()
-                    .filter(exercise -> exercise.getEquipment().stream()
-                            .anyMatch(currentEquipment -> currentEquipment.equalsIgnoreCase(normalizedEquipment)))
-                    .toList();
+            List<Exercise> result = new ArrayList<>();
+            for (Exercise exercise : exercises) {
+                for (EquipmentType currentEquipment : exercise.getEquipment()) {
+                    if (currentEquipment == equipment) {
+                        result.add(exercise);
+                        break;
+                    }
+                }
+            }
+            return result;
         }
 
         @Override
-        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
-            if (muscleGroup == null || muscleGroup.trim().isEmpty()) {
-                throw new IllegalArgumentException("Muscle required.");
+        public List<Exercise> filterByMuscleGroup(MuscleGroup muscle) {
+            if (muscle == null) {
+                throw new InvalidFilterException("Muscle group filter must be non-empty.");
             }
 
-            String normalizedMuscleGroup = muscleGroup.trim();
-            return exercises.stream()
-                    .filter(exercise -> exercise.getMuscleGroups().stream()
-                            .anyMatch(currentMuscleGroup -> currentMuscleGroup.equalsIgnoreCase(normalizedMuscleGroup)))
-                    .toList();
+            List<Exercise> result = new ArrayList<>();
+            for (Exercise exercise : exercises) {
+                for (MuscleGroup currentMuscle : exercise.getMuscleGroups()) {
+                    if (currentMuscle == muscle) {
+                        result.add(exercise);
+                        break;
+                    }
+                }
+            }
+            return result;
         }
 
         @Override
@@ -76,8 +89,8 @@ public class ExerciseServiceTest {
     @Test
     public void getAllExercisesReturnsAllItems() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
+                new Exercise("e1", "Pushup", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Squat", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         List<Exercise> result = service.getAllExercises();
@@ -90,8 +103,8 @@ public class ExerciseServiceTest {
     @Test
     public void getExerciseByIdReturnsCorrectExercise() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
+                new Exercise("e1", "Pushup", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Squat", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
         Exercise result = service.getExerciseById("e2");
@@ -103,11 +116,11 @@ public class ExerciseServiceTest {
     @Test
     public void filterByEquipmentReturnsMatchingExercises() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
-                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, List.of("placeholder")));
+                new Exercise("e1", "Pushup", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Bench Press", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BARBELL), "", 3, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
-        List<Exercise> result = service.filterByEquipment("Barbell");
+        List<Exercise> result = service.filterByEquipment(EquipmentType.BARBELL);
 
         assertEquals(1, result.size());
         assertEquals("Bench Press", result.get(0).getName());
@@ -116,11 +129,11 @@ public class ExerciseServiceTest {
     @Test
     public void filterByEquipmentReturnsEmptyWhenNoMatches() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
-                new Exercise("e2", "Bench Press", List.of("Chest"), List.of("Barbell"), "", 3, List.of("placeholder")));
+                new Exercise("e1", "Pushup", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Bench Press", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BARBELL), "", 3, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
-        List<Exercise> result = service.filterByEquipment("Dumbbells");
+        List<Exercise> result = service.filterByEquipment(EquipmentType.DUMBBELLS);
 
         assertTrue(result.isEmpty());
     }
@@ -128,27 +141,20 @@ public class ExerciseServiceTest {
     @Test(expected = InvalidFilterException.class)
     public void filterByEquipmentRejectsNullInput() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
+                new Exercise("e1", "Pushup", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
         service.filterByEquipment(null);
     }
 
-    @Test(expected = InvalidFilterException.class)
-    public void filterByEquipmentRejectsBlankInput() {
-        List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
-        ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
-        service.filterByEquipment("   ");
-    }
 
     @Test
     public void filterByMuscleGroupReturnsMatchingExercises() {
         List<Exercise> seed = List.of(
-                new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder")),
-                new Exercise("e2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("placeholder")));
+                new Exercise("e1", "Pushup", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")),
+                new Exercise("e2", "Squat", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder")));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(seed));
 
-        List<Exercise> result = service.filterByMuscleGroup("Legs");
+        List<Exercise> result = service.filterByMuscleGroup(MuscleGroup.LEGS);
 
         assertEquals(1, result.size());
         assertEquals("Squat", result.get(0).getName());

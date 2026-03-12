@@ -10,6 +10,7 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.model.Workout;
@@ -31,12 +32,13 @@ public class WorkoutIntegrationTest {
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
-        
+        EnumMapper mapper = new EnumMapper();
+
         // Reset database to ensure a clean state for each test
         context.deleteDatabase("ExerGen.db");
 
         WorkoutRepositorySQLite workoutRepo = new WorkoutRepositorySQLite(context);
-        ExerciseRepositorySQLite exerciseRepo = new ExerciseRepositorySQLite(context);
+        ExerciseRepositorySQLite exerciseRepo = new ExerciseRepositorySQLite(context, mapper);
         
         // Seed database with default content as required
         workoutRepo.seedData();

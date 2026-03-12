@@ -37,53 +37,53 @@ public class ExerciseTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void nullId_throwsException() {
-        new Exercise(null, "Name", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
+        new Exercise(null, "Name", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyName_throwsException() {
-        new Exercise("id_1", "", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
+        new Exercise("id_1", "", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullMuscleGroups_throwsException() {
-        new Exercise("id_1", "Name", null, Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
+        new Exercise("id_1", "Name", null, List.of(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullEquipment_throwsException() {
-        new Exercise("id_1", "Name", Arrays.asList(MuscleGroup.CHEST), null, "Inst", 1, List.of("placeholder"));
+        new Exercise("id_1", "Name", List.of(MuscleGroup.CHEST), null, "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void negativeIntensity_throwsException() {
-        new Exercise("id_1", "Name", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", -1, List.of("placeholder"));
+        new Exercise("id_1", "Name", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "Inst", -1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullImagePaths_throwsException() {
-        new Exercise("id_1", "Name", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", 1, null);
+        new Exercise("id_1", "Name", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "Inst", 1, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyImagePaths_throwsException() {
-        new Exercise("id_1", "Name", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", 1, List.of());
+        new Exercise("id_1", "Name", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "Inst", 1, List.of());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyId_throwsException() {
-        new Exercise("", "Name", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
+        new Exercise("", "Name", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void nullName_throwsException() {
-        new Exercise("id_1", null, Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
+        new Exercise("id_1", null, List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder"));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void listEncapsulation_preventsModification() {
         Exercise exercise = new Exercise(
-                "ex_1", "Name", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder")
+                "ex_1", "Name", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "Inst", 1, List.of("placeholder")
         );
 
         exercise.getMuscleGroups().add(MuscleGroup.SHOULDERS);

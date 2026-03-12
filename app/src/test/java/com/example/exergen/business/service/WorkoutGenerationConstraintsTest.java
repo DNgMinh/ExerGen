@@ -15,50 +15,57 @@ import java.util.List;
 
 public class WorkoutGenerationConstraintsTest {
 
+    // --- CONSTRUCTOR TESTS ---
+
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsNullSelectedEquipment() {
-        new WorkoutGenerationConstraints(null, List.of("Chest"), 20);
+        // Correct order: Muscles first, Equipment second
+        new WorkoutGenerationConstraints(List.of("Chest"), null, 20);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsNullTargetMuscles() {
-        new WorkoutGenerationConstraints(List.of("Dumbbells"), null, 20);
+        // Correct order: Muscles first, Equipment second
+        new WorkoutGenerationConstraints(null, List.of("Dumbbells"), 20);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsEmptyTargetMuscles() {
-        new WorkoutGenerationConstraints(List.of("Dumbbells"), List.of(), 20);
+        new WorkoutGenerationConstraints(List.of(), List.of("Dumbbells"), 20);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsNonPositiveDuration() {
-        new WorkoutGenerationConstraints(List.of("Dumbbells"), List.of("Chest"), 0);
+        new WorkoutGenerationConstraints(List.of("Chest"), List.of("Dumbbells"), 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsBlankConstraintValues() {
-        new WorkoutGenerationConstraints(List.of(" "), List.of("Chest"), 20);
+        new WorkoutGenerationConstraints(List.of("Chest"), List.of(" "), 20);
     }
 
     @Test
     public void testConstructorTrimsValuesAndStoresDuration() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(" Dumbbells "),
-                List.of(" Chest "), 25);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                List.of(" Chest "), List.of(" Dumbbells "), 25);
 
-        assertEquals(Arrays.asList(EquipmentType.DUMBBELLS), constraints.getSelectedEquipment());
-        assertEquals(Arrays.asList(MuscleGroup.CHEST), constraints.getTargetMuscleGroups());
+        assertEquals(List.of(EquipmentType.DUMBBELLS), constraints.getSelectedEquipment());
+        assertEquals(List.of(MuscleGroup.CHEST), constraints.getTargetMuscleGroups());
         assertEquals(25, constraints.getDesiredDurationMinutes());
     }
 
+    // --- MATCHES EXERCISE TESTS ---
+
     @Test
     public void testMatchesExerciseReturnsTrueWhenEquipmentAndMuscleMatch() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"),
-                List.of("Chest"), 20);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                List.of("Chest"), List.of("Dumbbells"), 20);
+
         Exercise exercise = new Exercise(
                 "ex-1",
                 "Dumbbell Press",
-                Arrays.asList(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
-                Arrays.asList(EquipmentType.BODYWEIGHT),
+                List.of(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
+                List.of(EquipmentType.DUMBBELLS), // Fixed: Was accidentally BODYWEIGHT
                 "Press dumbbells",
                 3,
                 List.of("img"));
@@ -68,13 +75,14 @@ public class WorkoutGenerationConstraintsTest {
 
     @Test
     public void testMatchesExerciseReturnsFalseWhenMuscleDoesNotMatch() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"),
-                List.of("Legs"), 20);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                List.of("Legs"), List.of("Dumbbells"), 20);
+
         Exercise exercise = new Exercise(
                 "ex-1",
                 "Dumbbell Press",
-                Arrays.asList(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
-                Arrays.asList(EquipmentType.DUMBBELLS),
+                List.of(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
+                List.of(EquipmentType.DUMBBELLS),
                 "Press dumbbells",
                 3,
                 List.of("img"));
@@ -84,13 +92,14 @@ public class WorkoutGenerationConstraintsTest {
 
     @Test
     public void testMatchesExerciseReturnsFalseWhenEquipmentDoesNotMatch() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Barbell"),
-                List.of("Chest"), 20);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                List.of("Chest"), List.of("Barbell"), 20);
+
         Exercise exercise = new Exercise(
                 "ex-1",
                 "Dumbbell Press",
-                Arrays.asList(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
-                Arrays.asList(EquipmentType.DUMBBELLS),
+                List.of(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
+                List.of(EquipmentType.DUMBBELLS),
                 "Press dumbbells",
                 3,
                 List.of("img"));
@@ -100,12 +109,14 @@ public class WorkoutGenerationConstraintsTest {
 
     @Test
     public void testMatchesExerciseAllowsAnyEquipmentWhenNoEquipmentSelected() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Chest"), 20);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                List.of("Chest"), List.of(), 20);
+
         Exercise exercise = new Exercise(
                 "ex-1",
                 "Bodyweight Pushup",
-                Arrays.asList(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
-                Arrays.asList(EquipmentType.BODYWEIGHT),
+                List.of(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
+                List.of(EquipmentType.BODYWEIGHT),
                 "Pushup",
                 2,
                 List.of("img"));

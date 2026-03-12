@@ -1,9 +1,11 @@
 package com.example.exergen.business.service;
 
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.exception.DuplicateExerciseException;
 import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.model.MuscleGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,21 +43,21 @@ public class ExerciseService {
         exerciseRepository.insertExercise(exercise);
     }
 
-    public List<Exercise> filterByEquipment(String equipment) {
-        if (equipment == null || equipment.trim().isEmpty()) {
+    public List<Exercise> filterByEquipment(EquipmentType equipment) {
+        if (equipment == null) {
             throw new InvalidFilterException("Equipment required.");
         }
-        return exerciseRepository.filterByEquipment(equipment.trim());
+        return exerciseRepository.filterByEquipment(equipment);
     }
 
-    public List<Exercise> filterByMuscleGroup(String muscle) {
-        if (muscle == null || muscle.trim().isEmpty()) {
+    public List<Exercise> filterByMuscleGroup(MuscleGroup muscle) {
+        if (muscle == null) {
             throw new InvalidFilterException("Muscle group required.");
         }
-        return exerciseRepository.filterByMuscleGroup(muscle.trim());
+        return exerciseRepository.filterByMuscleGroup(muscle);
     }
 
-    public List<Exercise> filterByConstraints(List<String> equipment, List<String> muscleGroups) {
+    public List<Exercise> filterByConstraints(List<EquipmentType> equipment, List<MuscleGroup> muscleGroups) {
         List<Exercise> all = exerciseRepository.getAllExercises();
         List<Exercise> filtered = new ArrayList<>();
 
@@ -67,25 +69,28 @@ public class ExerciseService {
         return filtered;
     }
 
-    private boolean matches(Exercise exercise, List<String> equipment, List<String> muscleGroups) {
+    private boolean matches(Exercise exercise, List<EquipmentType> equipment, List<MuscleGroup> muscleGroups) {
         boolean matchesMuscle = false;
-        for (String target : muscleGroups) {
-            for (String exerciseMuscle : exercise.getMuscleGroups()) {
-                if (target.equalsIgnoreCase(exerciseMuscle)) {
+        for (MuscleGroup target : muscleGroups) {
+            for (MuscleGroup exerciseMuscle : exercise.getMuscleGroups()) {
+                if (target == exerciseMuscle) {
                     matchesMuscle = true;
                     break;
                 }
             }
-            if (matchesMuscle) break;
+            if (matchesMuscle)
+                break;
         }
 
-        if (!matchesMuscle) return false;
+        if (!matchesMuscle)
+            return false;
 
-        if (equipment == null || equipment.isEmpty()) return true;
+        if (equipment == null || equipment.isEmpty())
+            return true;
 
-        for (String selected : equipment) {
-            for (String exerciseEquipment : exercise.getEquipment()) {
-                if (selected.equalsIgnoreCase(exerciseEquipment)) {
+        for (EquipmentType selected : equipment) {
+            for (EquipmentType exerciseEquipment : exercise.getEquipment()) {
+                if (selected == exerciseEquipment) {
                     return true;
                 }
             }

@@ -5,8 +5,8 @@ public enum EquipmentType implements LabeledEnum{
     BODYWEIGHT("Bodyweight"),
     DUMBBELLS("Dumbbells"),
     BARBELL("Barbell"),
-    BENCH("Bench");
-
+    BENCH("Bench"),
+    CABLE("Cable");
     private final String label;
 
     EquipmentType(String label) {

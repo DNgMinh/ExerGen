@@ -3,6 +3,7 @@ package com.example.exergen.model;
 public enum MuscleGroup implements LabeledEnum{
     CHEST("Chest"),
     TRICEPS("Triceps"),
+    BICEPS("Biceps"),
     LEGS("Legs"),
     GLUTES("Glutes"),
     CORE("Core"),
@@ -33,13 +34,12 @@ public enum MuscleGroup implements LabeledEnum{
     }
 
     public static MuscleGroup fromLabel(String value) {
-        String label = ModelValidation.requireNonBlank(value, "Muscle group label required");
-        String normalizedLabel = label.trim();
+        String normalizedLabel = value.trim();
         for (MuscleGroup group : MuscleGroup.values()) {
             if (group.label.equalsIgnoreCase(normalizedLabel)) {
                 return group;
             }
         }
-        throw new IllegalArgumentException("Invalid muscle group label: " + label);
+        throw new IllegalArgumentException("Invalid muscle group label: " + value);
     }
 }

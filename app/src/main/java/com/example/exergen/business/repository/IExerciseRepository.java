@@ -9,9 +9,9 @@ import java.util.List;
 public interface IExerciseRepository {
     List<Exercise> getAllExercises();
 
-    List<Exercise> filterByEquipment(String equipment);
+    List<Exercise> filterByEquipment(EquipmentType equipment);
 
-    List<Exercise> filterByMuscleGroup(String muscleGroup);
+    List<Exercise> filterByMuscleGroup(MuscleGroup muscleGroup);
 
     void insertExercise(Exercise exercise);
 

@@ -7,7 +7,9 @@ import static org.mockito.Mockito.*;
 
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
 
 import org.junit.Before;
@@ -57,7 +59,7 @@ public class WorkoutBuilderUseCaseTest {
                 3
         );
 
-        Exercise e1 = new Exercise("ex-chest-db", "Dumbbell Press", List.of("Chest"), List.of("Dumbbells"), "", 3, List.of("img"));
+        Exercise e1 = new Exercise("ex-chest-db", "Dumbbell Press", List.of(MuscleGroup.CHEST), List.of(EquipmentType.DUMBBELLS), "", 3, List.of("img"));
         when(mockExerciseService.filterByConstraints(constraints.getSelectedEquipment(), constraints.getTargetMuscleGroups()))
                 .thenReturn(List.of(e1));
 
@@ -74,9 +76,9 @@ public class WorkoutBuilderUseCaseTest {
     @Test
     public void generateWorkoutAllowsEmptyEquipmentSelection() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Legs"), 2);
-        Exercise e1 = new Exercise("ex-legs-bw", "Air Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("img"));
+        Exercise e1 = new Exercise("ex-legs-bw", "Air Squat", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img"));
 
-        when(mockExerciseService.filterByConstraints(eq(List.of()), eq(List.of("Legs"))))
+        when(mockExerciseService.filterByConstraints(eq(List.of()), eq(List.of(MuscleGroup.LEGS))))
                 .thenReturn(List.of(e1));
 
         Workout result = workoutBuilderUseCase.generateWorkout(constraints);
@@ -89,8 +91,8 @@ public class WorkoutBuilderUseCaseTest {
     public void generateWorkoutCyclesMatchingExercisesWhenDurationRequiresMoreSlots() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Chest", "Legs"), 3);
 
-        Exercise e1 = new Exercise("e1", "E1", List.of("Chest"), List.of("BW"), "", 2, List.of("img1"));
-        Exercise e2 = new Exercise("e2", "E2", List.of("Legs"), List.of("BW"), "", 2, List.of("img2"));
+        Exercise e1 = new Exercise("e1", "E1", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img1"));
+        Exercise e2 = new Exercise("e2", "E2", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img2"));
 
         when(mockExerciseService.filterByConstraints(anyList(), anyList()))
                 .thenReturn(Arrays.asList(e1, e2));
@@ -113,7 +115,7 @@ public class WorkoutBuilderUseCaseTest {
     @Test
     public void generateWorkoutAssignsUniqueIdsAcrossGenerations() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"), List.of("Chest"), 2);
-        Exercise e1 = new Exercise("e1", "E1", List.of("Chest"), List.of("DB"), "", 2, List.of("img1"));
+        Exercise e1 = new Exercise("e1", "E1", List.of(MuscleGroup.CHEST), List.of(EquipmentType.DUMBBELLS), "", 2, List.of("img1"));
 
         when(mockExerciseService.filterByConstraints(anyList(), anyList()))
                 .thenReturn(List.of(e1));

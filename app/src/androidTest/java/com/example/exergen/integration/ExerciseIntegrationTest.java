@@ -9,14 +9,18 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.persistence.ExerciseRepositorySQLite;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,14 +33,16 @@ public class ExerciseIntegrationTest {
     private ExerciseService exerciseService;
     private Context context;
 
+
     @Before
     public void setUp() {
+        EnumMapper mapper = new EnumMapper();
         context = ApplicationProvider.getApplicationContext();
-        
+
         // Ensure clean state
         context.deleteDatabase("ExerGen.db");
 
-        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context);
+        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, mapper);
         
         // Seed database from real CSV assets
         repo.seedData();
@@ -48,8 +54,8 @@ public class ExerciseIntegrationTest {
     public void testFilterByConstraints_RetrievesFromRealDatabase() {
         // Based on the default exercises.csv, "Pushups" should be for "Chest" using "Bodyweight"
         List<Exercise> results = exerciseService.filterByConstraints(
-                List.of("Bodyweight"), 
-                List.of("Chest")
+                Arrays.asList(EquipmentType.BODYWEIGHT),
+                Arrays.asList(MuscleGroup.CHEST)
         );
 
         assertNotNull(results);
@@ -72,8 +78,8 @@ public class ExerciseIntegrationTest {
         Exercise custom = new Exercise(
                 customId,
                 "Z-Press",
-                List.of("Shoulders"),
-                List.of("Dumbbells"),
+                Arrays.asList(MuscleGroup.SHOULDERS),
+                Arrays.asList(EquipmentType.DUMBBELLS),
                 "Seated shoulder press",
                 4,
                 List.of("img")
@@ -84,8 +90,8 @@ public class ExerciseIntegrationTest {
 
         // Assert: Filter for the new constraints and see if SQLite finds it
         List<Exercise> results = exerciseService.filterByConstraints(
-                List.of("Dumbbells"), 
-                List.of("Shoulders")
+                Arrays.asList(EquipmentType.DUMBBELLS),
+                Arrays.asList(MuscleGroup.SHOULDERS)
         );
 
         boolean foundCustom = false;

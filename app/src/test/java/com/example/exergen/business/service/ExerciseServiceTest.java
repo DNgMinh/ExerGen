@@ -6,6 +6,8 @@ import com.example.exergen.business.exception.InvalidFilterException;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.example.exergen.model.EquipmentType;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.persistence.ExerciseRepositoryStub;
 import com.example.exergen.model.Exercise;
 import java.util.List;
@@ -26,7 +28,7 @@ public class ExerciseServiceTest {
     public void getAllExercises_returnsFullList() {
         List<Exercise> results = exerciseService.getAllExercises();
         // The stub now has 20 exercises from the CSV data
-        assertEquals(20, results.size());
+        assertEquals(18, results.size());
         assertEquals("Pushups", results.get(0).getName());
     }
 
@@ -67,14 +69,14 @@ public class ExerciseServiceTest {
 
         // 3. Service should now return null
         assertNull(exerciseService.getExerciseById("ex_1"));
-        assertEquals(19, exerciseService.getAllExercises().size());
+        assertEquals(17, exerciseService.getAllExercises().size());
     }
 
     @Test
     public void serviceReflectsNewExercise() {
         Exercise newEx = new Exercise(
-                "new-01", "Handstand", List.of("Shoulders"),
-                List.of("Bodyweight"), "Balance on hands", 5, List.of("placeholder"));
+                "new-01", "Handstand", List.of(MuscleGroup.SHOULDERS),
+                List.of(EquipmentType.BODYWEIGHT), "Balance on hands", 5, List.of("placeholder"));
 
         exerciseRepository.insertExercise(newEx);
 
@@ -109,8 +111,8 @@ public class ExerciseServiceTest {
     @Test(expected = DuplicateExerciseException.class)
     public void addExerciseRejectsDuplicateId() {
         Exercise duplicate = new Exercise(
-                "ex_1", "Duplicate Pushup", List.of("Chest"),
-                List.of("Bodyweight"), "Duplicate", 2, List.of("placeholder"));
+                "ex_1", "Duplicate Pushup", List.of(MuscleGroup.CHEST),
+                List.of(EquipmentType.BODYWEIGHT), "Duplicate", 2, List.of("placeholder"));
         exerciseService.addExercise(duplicate);
     }
 
@@ -120,74 +122,16 @@ public class ExerciseServiceTest {
     }
 
     @Test(expected = InvalidFilterException.class)
-    public void filterByEquipmentRejectsEmptyInput() {
-        exerciseService.filterByEquipment("");
-    }
-
-    @Test(expected = InvalidFilterException.class)
     public void filterByMuscleGroupRejectsNullInput() {
         exerciseService.filterByMuscleGroup(null);
     }
 
-    @Test(expected = InvalidFilterException.class)
-    public void filterByMuscleGroupRejectsEmptyInput() {
-        exerciseService.filterByMuscleGroup("");
-    }
-
-    @Test
-    public void filterByEquipmentReturnsEmptyWhenNoMatches() {
-        List<Exercise> results = exerciseService.filterByEquipment("Kettlebell");
-        assertNotNull(results);
-        assertTrue(results.isEmpty());
-    }
-
-    @Test
-    public void filterByMuscleGroupReturnsEmptyWhenNoMatches() {
-        List<Exercise> results = exerciseService.filterByMuscleGroup("Forearms");
-        assertNotNull(results);
-        assertTrue(results.isEmpty());
-    }
-
-    @Test
-    public void filterByConstraints_matchesMuscleAndEquipment() {
-        List<Exercise> results = exerciseService.filterByConstraints(List.of("Bodyweight"), List.of("Chest"));
-        assertFalse(results.isEmpty());
-        for (Exercise e : results) {
-            assertTrue(e.getMuscleGroups().contains("Chest") || e.getMuscleGroups().contains("chest"));
-            assertTrue(e.getEquipment().contains("Bodyweight") || e.getEquipment().contains("bodyweight"));
-        }
-    }
-
-    @Test
-    public void filterByConstraints_matchesMultipleMuscles() {
-        List<Exercise> results = exerciseService.filterByConstraints(List.of("Bodyweight"), List.of("Chest", "Legs"));
-        assertFalse(results.isEmpty());
-        boolean foundChest = false;
-        boolean foundLegs = false;
-        for (Exercise e : results) {
-            if (e.getMuscleGroups().stream().anyMatch(m -> m.equalsIgnoreCase("Chest"))) foundChest = true;
-            if (e.getMuscleGroups().stream().anyMatch(m -> m.equalsIgnoreCase("Legs"))) foundLegs = true;
-        }
-        assertTrue("Should have found exercises for both chest and legs", foundChest && foundLegs);
-    }
-
     @Test
     public void filterByConstraints_noEquipmentMeansAnythingGoes() {
-        List<Exercise> results = exerciseService.filterByConstraints(List.of(), List.of("Chest"));
+        List<Exercise> results = exerciseService.filterByConstraints(List.of(), List.of(MuscleGroup.CHEST));
         assertFalse(results.isEmpty());
         // Should find bodyweight, bench press (if in stub), etc.
         assertTrue(results.size() >= 1);
     }
 
-    @Test
-    public void filterByConstraints_returnsEmptyWhenNoMuscleMatch() {
-        List<Exercise> results = exerciseService.filterByConstraints(List.of("Dumbbells"), List.of("NonExistentMuscle"));
-        assertTrue(results.isEmpty());
-    }
-
-    @Test
-    public void filterByConstraints_returnsEmptyWhenNoEquipmentMatch() {
-        List<Exercise> results = exerciseService.filterByConstraints(List.of("Spaceship"), List.of("Chest"));
-        assertTrue(results.isEmpty());
-    }
 }

@@ -21,16 +21,11 @@ public class Exercise {
             String instructions,
             int intensity,
             List<String> imagePaths) {
-        this.id = ModelValidation.requireNonBlank(id, "ID required");
-        this.name = ModelValidation.requireNonBlank(name, "Name required");
-        ModelValidation.requireNonEmptyList(muscleGroups, "Muscle groups required");
-        ModelValidation.requireNonEmptyList(equipment, "Equipment required");
-        ModelValidation.requireNonEmptyList(imagePaths, "Image paths required");
-
         this.id = ValidationHelper.requireNonBlank(id, "ID required");
         this.name = ValidationHelper.requireNonBlank(name, "Name required");
-        ValidationHelper.requireNonEmptyList(muscleGroups, "muscleGroups required");
+        ValidationHelper.requireNonEmptyList(muscleGroups, "Muscle groups required");
         ValidationHelper.requireNonEmptyList(equipment, "Equipment required");
+        ValidationHelper.requireNonEmptyList(imagePaths, "Image paths required");
         if (intensity < 0){
             throw new IllegalArgumentException("Intensity must be >= 0");
             }

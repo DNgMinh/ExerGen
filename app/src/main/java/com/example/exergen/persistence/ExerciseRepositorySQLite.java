@@ -63,12 +63,13 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     }
 
     @Override
-    public List<Exercise> filterByEquipment(String equipment) {
+    public List<Exercise> filterByEquipment(EquipmentType equipment) {
         List<Exercise> exercises = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String searchString = equipment.getLabel();
 
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "equipment LIKE ?",
-                new String[]{"%" + equipment + "%"}, null, null, null)) {
+                new String[]{"%" + searchString + "%"}, null, null, null)) {
             if (cursor.moveToFirst()) {
                 do {
                     exercises.add(mapCursorToExercise(cursor));
@@ -79,12 +80,13 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     }
 
     @Override
-    public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+    public List<Exercise> filterByMuscleGroup(MuscleGroup muscleGroup) {
         List<Exercise> exercises = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String searchString = muscleGroup.getLabel();
 
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "muscle_groups LIKE ?",
-                new String[]{"%" + muscleGroup + "%"}, null, null, null)) {
+                new String[]{"%" + searchString + "%"}, null, null, null)) {
             if (cursor.moveToFirst()) {
                 do {
                     exercises.add(mapCursorToExercise(cursor));

@@ -10,6 +10,8 @@ import org.mockito.MockitoAnnotations;
 
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.repository.IWorkoutRepository;
+import com.example.exergen.model.EquipmentType;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
 import com.example.exergen.model.Exercise;
 
@@ -95,8 +97,8 @@ public class WorkoutUseCaseTest {
     @Test
     public void testGetExercisesForWorkout_ResolvesCorrectly() {
         Workout workout = new Workout("w1", "Workout", 1, Arrays.asList("ex1", "ex2"), Arrays.asList(30, 30), Arrays.asList(10, 10));
-        Exercise e1 = new Exercise("ex1", "E1", List.of("M1"), List.of("Eq1"), "D1", 1, List.of("P1"));
-        Exercise e2 = new Exercise("ex2", "E2", List.of("M2"), List.of("Eq2"), "D2", 2, List.of("P2"));
+        Exercise e1 = new Exercise("ex1", "E1", List.of(MuscleGroup.FULL_BODY), List.of(EquipmentType.BODYWEIGHT), "D1", 1, List.of("P1"));
+        Exercise e2 = new Exercise("ex2", "E2", List.of(MuscleGroup.FULL_BODY), List.of(EquipmentType.BODYWEIGHT), "D2", 2, List.of("P2"));
 
         when(mockExerciseService.getExerciseById("ex1")).thenReturn(e1);
         when(mockExerciseService.getExerciseById("ex2")).thenReturn(e2);
