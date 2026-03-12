@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
 import android.view.View;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -70,6 +72,41 @@ public class SessionHistoryStatsInteractionTest {
         android.app.Dialog dialog = ShadowDialog.getLatestDialog();
         assertNotNull(dialog);
         assertTrue(dialog.isShowing());
+    }
+
+    @Test
+    public void summaryDurationDisplaysMinutesAndSeconds() {
+        InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
+        repository.saveSession(createRecord("s-1", "Short Session", System.currentTimeMillis()));
+
+        StatsFragment fragment = launchStatsFragment(repository);
+        View root = fragment.requireView();
+        TextView totalDuration = root.findViewById(R.id.stats_total_duration_value);
+
+        String expected = fragment.getString(R.string.stats_total_duration_value_format, 2, 0);
+        assertEquals(expected, totalDuration.getText().toString());
+    }
+
+    @Test
+    public void changingTimeRangeRebindsSummaryMetrics() {
+        long now = System.currentTimeMillis();
+        InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
+        repository.saveSession(createRecord("recent", "Recent", now - (2L * 24L * 60L * 60L * 1000L)));
+        repository.saveSession(createRecord("older", "Older", now - (40L * 24L * 60L * 60L * 1000L)));
+
+        StatsFragment fragment = launchStatsFragment(repository);
+        View root = fragment.requireView();
+        Spinner timeRangeSpinner = root.findViewById(R.id.stats_time_range_spinner);
+        TextView totalSessions = root.findViewById(R.id.stats_total_sessions_value);
+
+        String allTimeExpected = fragment.getString(R.string.stats_total_sessions_value_format, 2);
+        assertEquals(allTimeExpected, totalSessions.getText().toString());
+
+        timeRangeSpinner.setSelection(1);
+        Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();
+
+        String lastSevenDaysExpected = fragment.getString(R.string.stats_total_sessions_value_format, 1);
+        assertEquals(lastSevenDaysExpected, totalSessions.getText().toString());
     }
 
     private static StatsFragment launchStatsFragment(ISessionHistoryRepository repository) {

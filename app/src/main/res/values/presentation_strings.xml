@@ -74,15 +74,20 @@
     <string name="stats_subtitle">Completed sessions</string>
     <string name="stats_dashboard_title">Statistics Dashboard</string>
     <string name="stats_total_sessions_value_default">Total Sessions: 0</string>
-    <string name="stats_total_duration_value_default">Total Duration: 0 min</string>
-    <string name="stats_average_duration_value_default">Average Session: 0 min</string>
+    <string name="stats_total_duration_value_default">Total Duration: 0 min 0 sec</string>
+    <string name="stats_average_duration_value_default">Average Session: 0 min 0 sec</string>
     <string name="stats_total_calories_value_default">Estimated Calories: 0 kcal</string>
     <string name="stats_average_calories_value_default">Avg Calories/Session: 0 kcal</string>
     <string name="stats_total_sessions_value_format">Total Sessions: %1$d</string>
-    <string name="stats_total_duration_value_format">Total Duration: %1$d min</string>
-    <string name="stats_average_duration_value_format">Average Session: %1$d min</string>
+    <string name="stats_total_duration_value_format">Total Duration: %1$d min %2$d sec</string>
+    <string name="stats_average_duration_value_format">Average Session: %1$d min %2$d sec</string>
     <string name="stats_total_calories_value_format">Estimated Calories: %1$d kcal</string>
     <string name="stats_average_calories_value_format">Avg Calories/Session: %1$d kcal</string>
+    <string-array name="stats_time_range_options">
+        <item>All-time</item>
+        <item>Last 7 days</item>
+        <item>Last 30 days</item>
+    </string-array>
     <string name="session_history_title">Session History</string>
     <string name="session_history_empty">No completed sessions yet.</string>
     <string name="session_history_item_summary_format">%1$s\nDuration: %2$d sec | Rounds: %3$d/%4$d</string>
