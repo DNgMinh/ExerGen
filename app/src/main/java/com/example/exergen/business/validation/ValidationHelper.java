@@ -34,7 +34,7 @@ public final class ValidationHelper {
         }
         return obj;
     }
-    public void validateMuscles(List<String> labels) {
+    public static void validateMuscles(List<String> labels) {
         validateBasicList(labels, "targetMuscleGroups");
 
         if (labels.isEmpty()) {
@@ -43,11 +43,11 @@ public final class ValidationHelper {
     }
 
     // Check Nulls and Blank Strings
-    public void validateEquipment(List<String> labels) {
+    public static void validateEquipment(List<String> labels) {
         validateBasicList(labels, "selectedEquipment");
     }
 
-    private void validateBasicList(List<String> labels, String fieldName) {
+    private static void validateBasicList(List<String> labels, String fieldName) {
         if (labels == null) {
             throw new IllegalArgumentException(fieldName + " list cannot be null");
         }

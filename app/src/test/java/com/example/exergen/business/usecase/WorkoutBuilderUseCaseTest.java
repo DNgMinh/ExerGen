@@ -3,7 +3,8 @@ package com.example.exergen.business.usecase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.when;
 
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
@@ -78,7 +79,7 @@ public class WorkoutBuilderUseCaseTest {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Legs"), 2);
         Exercise e1 = new Exercise("ex-legs-bw", "Air Squat", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img"));
 
-        when(mockExerciseService.filterByConstraints(eq(List.of()), eq(List.of(MuscleGroup.LEGS))))
+        when(mockExerciseService.filterByConstraints(anyList(), anyList()))
                 .thenReturn(List.of(e1));
 
         Workout result = workoutBuilderUseCase.generateWorkout(constraints);

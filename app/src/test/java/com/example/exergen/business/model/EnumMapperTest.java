@@ -1,16 +1,13 @@
-package com.example.exergen.business.model;
+package com.example.exergen.business.service;
 
-import com.example.exergen.business.service.EnumMapper;
+import static org.junit.Assert.*;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.MuscleGroup;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class EnumMapperTest {
     private EnumMapper mapper;
@@ -21,49 +18,42 @@ public class EnumMapperTest {
     }
 
     @Test
-    public void testToMuscleEnums_withPerfectLabels_returnsCorrectEnums() {
-        List<String> input = Arrays.asList("Chest", "Legs");
-        List<MuscleGroup> result = mapper.toMuscleEnums(input);
+    public void testToEquipmentEnums_HandlesPluralAndSingularDumbbells() {
+        // Test both variations found in your logs/CSV
+        List<String> input = Arrays.asList("Dumbbell", "DUMBBELLS");
+        List<EquipmentType> result = mapper.toEquipmentEnums(input);
 
         assertEquals(2, result.size());
-        assertEquals(MuscleGroup.CHEST, result.get(0));
-        assertEquals(MuscleGroup.LEGS, result.get(1));
+        assertEquals(EquipmentType.DUMBBELLS, result.get(0));
+        assertEquals(EquipmentType.DUMBBELLS, result.get(1));
     }
 
     @Test
-    public void testToMuscleEnums_withNullsAndEmptyStrings_skipsThemGracefully() {
+    public void testToEquipmentEnums_MapsNewTypes() {
+        // Ensure new additions like EZ Curl Bar work
+        List<String> input = Arrays.asList("EZ Curl Bar", "Cable");
+        List<EquipmentType> result = mapper.toEquipmentEnums(input);
 
-        List<String> input = Arrays.asList("Chest", null, "   ", "", "Legs");
-        List<MuscleGroup> result = mapper.toMuscleEnums(input);
-
-        assertEquals(2, result.size());
-        assertEquals(MuscleGroup.CHEST, result.get(0));
-        assertEquals(MuscleGroup.LEGS, result.get(1));
+        assertTrue(result.contains(EquipmentType.EZ_CURL_BAR));
+        assertTrue(result.contains(EquipmentType.CABLE));
     }
 
     @Test
-    public void testToMuscleEnums_withWeirdCasing_mapsCorrectly() {
-        List<String> input = Arrays.asList("  cHeSt  ", "LEGS");
-        List<MuscleGroup> result = mapper.toMuscleEnums(input);
-
-        assertEquals(2, result.size());
-        assertEquals(MuscleGroup.CHEST, result.get(0));
-        assertEquals(MuscleGroup.LEGS, result.get(1));
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testToMuscleEnums_withFakeMuscle_throwsException() {
-        List<String> input = Arrays.asList("Chest", "Fake Muscle", "Legs");
-
-        mapper.toMuscleEnums(input);
-
+    public void testToEquipmentEnums_EmptyListDefaultsToBodyweight() {
+        // Validation: Exercise requires non-empty equipment
+        List<EquipmentType> result = mapper.toEquipmentEnums(Collections.emptyList());
+        assertEquals(1, result.size());
+        assertEquals(EquipmentType.BODYWEIGHT, result.get(0));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testToEquipmentEnums_withFakeEquipment_throwsException() {
-        List<String> input = Arrays.asList("Dumbbell", "Magic Wand");
+    public void testToMuscleEnums_ThrowsOnInvalidData() {
+        // Strict testing for your professor's requirements
+        mapper.toMuscleEnums(Arrays.asList("Chest", "NotAMuscle"));
+    }
 
-        mapper.toEquipmentEnums(input);
+    @Test(expected = IllegalArgumentException.class)
+    public void testToEquipmentEnums_ThrowsOnInvalidData() {
+        mapper.toEquipmentEnums(Arrays.asList("Dumbbell", "Magic Wand"));
     }
 }

@@ -1,6 +1,5 @@
 package com.example.exergen.business.service;
 
-
 import com.example.exergen.business.validation.ValidationHelper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
@@ -10,8 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Encapsulates validation and matching rules for Workout Builder generation
- * inputs.
+ * Encapsulates validation and matching rules for Workout Builder generation inputs.
  */
 public final class WorkoutGenerationConstraints {
     private final List<EquipmentType> selectedEquipment;
@@ -21,18 +19,20 @@ public final class WorkoutGenerationConstraints {
     public WorkoutGenerationConstraints(List<String> equipmentLabels,
                                         List<String> muscleLabels,
                                         int desiredDurationMinutes) {
-        this( new EnumMapper(), equipmentLabels, muscleLabels, desiredDurationMinutes);
+        this(new EnumMapper(), equipmentLabels, muscleLabels, desiredDurationMinutes);
     }
+
     public WorkoutGenerationConstraints(
             EnumMapper mapper,
-            List<String> selectedEquipment,
-            List<String> targetMuscleGroups,
+            List<String> equipmentLabels,
+            List<String> muscleLabels,
             int desiredDurationMinutes) {
-        List<String> validMuscles = ValidationHelper.requireNonEmptyList(targetMuscleGroups, "targetMuscleGroups required");
-        List<String> validEquipment = ValidationHelper.requireNonNull(selectedEquipment, "selectedEquipment required");
 
-        this.selectedEquipment = Collections.unmodifiableList(mapper.toEquipmentEnums(validMuscles));
-        this.targetMuscleGroups = Collections.unmodifiableList(mapper.toMuscleEnums(validEquipment));
+        ValidationHelper.validateEquipment(equipmentLabels);
+        ValidationHelper.validateMuscles(muscleLabels);
+
+        this.selectedEquipment = Collections.unmodifiableList(mapper.toEquipmentEnums(equipmentLabels));
+        this.targetMuscleGroups = Collections.unmodifiableList(mapper.toMuscleEnums(muscleLabels));
 
         if (desiredDurationMinutes <= 0) {
             throw new IllegalArgumentException("desiredDurationMinutes must be > 0");
@@ -80,5 +80,4 @@ public final class WorkoutGenerationConstraints {
         }
         return false;
     }
-
 }
