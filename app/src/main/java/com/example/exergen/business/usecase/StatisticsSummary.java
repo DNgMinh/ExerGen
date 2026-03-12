@@ -1,5 +1,8 @@
 package com.example.exergen.business.usecase;
 
+import com.example.exergen.business.service.StatisticsConstants;
+import com.example.exergen.business.service.StatisticsValidation;
+
 public class StatisticsSummary {
     private final int totalSessions;
     private final int cumulativeDurationSeconds;
@@ -13,21 +16,19 @@ public class StatisticsSummary {
             int averageSessionLengthSeconds,
             int totalEstimatedCalories,
             int averageEstimatedCalories) {
-        if (totalSessions < 0) {
-            throw new IllegalArgumentException("totalSessions must be >= 0");
-        }
-        if (cumulativeDurationSeconds < 0) {
-            throw new IllegalArgumentException("cumulativeDurationSeconds must be >= 0");
-        }
-        if (averageSessionLengthSeconds < 0) {
-            throw new IllegalArgumentException("averageSessionLengthSeconds must be >= 0");
-        }
-        if (totalEstimatedCalories < 0) {
-            throw new IllegalArgumentException("totalEstimatedCalories must be >= 0");
-        }
-        if (averageEstimatedCalories < 0) {
-            throw new IllegalArgumentException("averageEstimatedCalories must be >= 0");
-        }
+        StatisticsValidation.requireNonNegative(totalSessions, StatisticsConstants.MESSAGE_TOTAL_SESSIONS_NON_NEGATIVE);
+        StatisticsValidation.requireNonNegative(
+                cumulativeDurationSeconds,
+                StatisticsConstants.MESSAGE_CUMULATIVE_DURATION_NON_NEGATIVE);
+        StatisticsValidation.requireNonNegative(
+                averageSessionLengthSeconds,
+                StatisticsConstants.MESSAGE_AVERAGE_DURATION_NON_NEGATIVE);
+        StatisticsValidation.requireNonNegative(
+                totalEstimatedCalories,
+                StatisticsConstants.MESSAGE_TOTAL_CALORIES_NON_NEGATIVE);
+        StatisticsValidation.requireNonNegative(
+                averageEstimatedCalories,
+                StatisticsConstants.MESSAGE_AVERAGE_CALORIES_NON_NEGATIVE);
 
         this.totalSessions = totalSessions;
         this.cumulativeDurationSeconds = cumulativeDurationSeconds;

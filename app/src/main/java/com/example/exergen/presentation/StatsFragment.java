@@ -88,11 +88,11 @@ public class StatsFragment extends Fragment {
                 android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         timeRangeSpinner.setAdapter(adapter);
-        timeRangeSpinner.setSelection(0, false);
+        timeRangeSpinner.setSelection(StatisticsTimeRange.ALL_TIME.getSpinnerPosition(), false);
         timeRangeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedTimeRange = mapPositionToTimeRange(position);
+                selectedTimeRange = StatisticsTimeRange.fromSpinnerPosition(position);
                 refreshStatisticsSection();
             }
 
@@ -210,13 +210,4 @@ public class StatsFragment extends Fragment {
                 .show();
     }
 
-    private StatisticsTimeRange mapPositionToTimeRange(int position) {
-        if (position == 1) {
-            return StatisticsTimeRange.LAST_7_DAYS;
-        }
-        if (position == 2) {
-            return StatisticsTimeRange.LAST_30_DAYS;
-        }
-        return StatisticsTimeRange.ALL_TIME;
-    }
 }

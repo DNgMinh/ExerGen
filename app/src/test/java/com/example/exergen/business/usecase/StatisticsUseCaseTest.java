@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.example.exergen.business.exception.InvalidFilterException;
+import com.example.exergen.business.exception.StatisticsValidationException;
 import com.example.exergen.business.repository.ISessionHistoryRepository;
 import com.example.exergen.model.SessionRecord;
 
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class StatisticsUseCaseTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = StatisticsValidationException.class)
     public void constructorRejectsNullRepository() {
         new StatisticsUseCase(null);
     }
@@ -117,7 +118,7 @@ public class StatisticsUseCaseTest {
         useCase.getSummaryForTimeRange(null, 2_000_000_000_000L);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = StatisticsValidationException.class)
     public void getSummaryForTimeRangeRejectsInvalidNowValue() {
         StatisticsUseCase useCase = new StatisticsUseCase(new InMemorySessionHistoryRepository());
         useCase.getSummaryForTimeRange(StatisticsTimeRange.LAST_7_DAYS, 0L);
@@ -191,7 +192,7 @@ public class StatisticsUseCaseTest {
         useCase.getWeeklyTrendSeries(null, 2_000_000_000_000L);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = StatisticsValidationException.class)
     public void getWeeklyTrendSeriesRejectsInvalidNowValue() {
         StatisticsUseCase useCase = new StatisticsUseCase(new InMemorySessionHistoryRepository());
         useCase.getWeeklyTrendSeries(StatisticsTimeRange.ALL_TIME, 0L);

@@ -2,30 +2,29 @@ package com.example.exergen.business.usecase;
 
 import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.repository.ISessionHistoryRepository;
+import com.example.exergen.business.service.StatisticsAggregationService;
+import com.example.exergen.business.service.StatisticsConstants;
+import com.example.exergen.business.service.StatisticsValidation;
 import com.example.exergen.model.SessionRecord;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StatisticsUseCase {
-    // A lightweight fixed estimate to provide consistent baseline metrics.
-    private static final double ESTIMATED_CALORIES_PER_MINUTE = 8.0;
-    private static final int SECONDS_PER_MINUTE = 60;
-    private static final long MS_PER_DAY = 24L * 60L * 60L * 1000L;
-    private static final long MS_PER_WEEK = 7L * MS_PER_DAY;
-
     private final ISessionHistoryRepository sessionHistoryRepository;
+    private final StatisticsAggregationService aggregationService;
 
     public StatisticsUseCase(ISessionHistoryRepository sessionHistoryRepository) {
-        if (sessionHistoryRepository == null) {
-            throw new IllegalArgumentException("sessionHistoryRepository required");
-        }
+        StatisticsValidation.requireNonNull(
+                sessionHistoryRepository,
+                StatisticsConstants.MESSAGE_SESSION_HISTORY_REPOSITORY_REQUIRED);
         this.sessionHistoryRepository = sessionHistoryRepository;
+        this.aggregationService = new StatisticsAggregationService();
     }
 
     public StatisticsSummary getOverallSummary() {
         List<SessionRecord> sessions = sessionHistoryRepository.getAllSessions();
-        return buildSummary(sessions);
+        return aggregationService.buildSummary(sessions);
     }
 
     public StatisticsSummary getSummaryForTimeRange(StatisticsTimeRange timeRange) {
@@ -34,18 +33,16 @@ public class StatisticsUseCase {
 
     StatisticsSummary getSummaryForTimeRange(StatisticsTimeRange timeRange, long nowEpochMs) {
         if (timeRange == null) {
-            throw new InvalidFilterException("Time range required.");
+            throw new InvalidFilterException(StatisticsConstants.MESSAGE_TIME_RANGE_REQUIRED);
         }
-        if (nowEpochMs <= 0L) {
-            throw new IllegalArgumentException("nowEpochMs must be > 0");
-        }
+        StatisticsValidation.requirePositive(nowEpochMs, StatisticsConstants.MESSAGE_NOW_EPOCH_MS_POSITIVE);
 
         List<SessionRecord> sessions = sessionHistoryRepository.getAllSessions();
         if (sessions == null || sessions.isEmpty() || timeRange == StatisticsTimeRange.ALL_TIME) {
-            return buildSummary(sessions);
+            return aggregationService.buildSummary(sessions);
         }
 
-        long lowerBound = nowEpochMs - (timeRange.getDays() * MS_PER_DAY);
+        long lowerBound = nowEpochMs - (timeRange.getDays() * StatisticsConstants.MS_PER_DAY);
         List<SessionRecord> filteredSessions = new ArrayList<>();
         for (SessionRecord session : sessions) {
             long completedAt = session.getCompletedAtEpochMs();
@@ -54,7 +51,7 @@ public class StatisticsUseCase {
             }
         }
 
-        return buildSummary(filteredSessions);
+        return aggregationService.buildSummary(filteredSessions);
     }
 
     public List<WeeklyTrendPoint> getWeeklyTrendSeries(StatisticsTimeRange timeRange) {
@@ -63,11 +60,9 @@ public class StatisticsUseCase {
 
     List<WeeklyTrendPoint> getWeeklyTrendSeries(StatisticsTimeRange timeRange, long nowEpochMs) {
         if (timeRange == null) {
-            throw new InvalidFilterException("Time range required.");
+            throw new InvalidFilterException(StatisticsConstants.MESSAGE_TIME_RANGE_REQUIRED);
         }
-        if (nowEpochMs <= 0L) {
-            throw new IllegalArgumentException("nowEpochMs must be > 0");
-        }
+        StatisticsValidation.requirePositive(nowEpochMs, StatisticsConstants.MESSAGE_NOW_EPOCH_MS_POSITIVE);
 
         List<SessionRecord> sessions = sessionHistoryRepository.getAllSessions();
         if (sessions == null || sessions.isEmpty()) {
@@ -77,7 +72,7 @@ public class StatisticsUseCase {
         List<SessionRecord> includedSessions = new ArrayList<>();
         long lowerBound = 0L;
         if (timeRange != StatisticsTimeRange.ALL_TIME) {
-            lowerBound = nowEpochMs - (timeRange.getDays() * MS_PER_DAY);
+            lowerBound = nowEpochMs - (timeRange.getDays() * StatisticsConstants.MS_PER_DAY);
         }
 
         int maxWeekOffset = -1;
@@ -91,7 +86,7 @@ public class StatisticsUseCase {
             }
 
             includedSessions.add(session);
-            int weekOffset = (int) ((nowEpochMs - completedAt) / MS_PER_WEEK);
+            int weekOffset = (int) ((nowEpochMs - completedAt) / StatisticsConstants.MS_PER_WEEK);
             if (weekOffset > maxWeekOffset) {
                 maxWeekOffset = weekOffset;
             }
@@ -102,60 +97,10 @@ public class StatisticsUseCase {
         }
 
         if (timeRange == StatisticsTimeRange.LAST_7_DAYS) {
-            maxWeekOffset = 0;
+            maxWeekOffset = StatisticsConstants.LAST_SEVEN_DAYS_WEEK_OFFSET;
         } else if (timeRange == StatisticsTimeRange.LAST_30_DAYS) {
-            maxWeekOffset = 4;
+            maxWeekOffset = StatisticsConstants.LAST_THIRTY_DAYS_MAX_WEEK_OFFSET;
         }
-
-        int bucketCount = maxWeekOffset + 1;
-        int[] sessionCounts = new int[bucketCount];
-        int[] totalDurationSeconds = new int[bucketCount];
-
-        for (SessionRecord session : includedSessions) {
-            int weekOffset = (int) ((nowEpochMs - session.getCompletedAtEpochMs()) / MS_PER_WEEK);
-            if (weekOffset >= 0 && weekOffset < bucketCount) {
-                sessionCounts[weekOffset]++;
-                totalDurationSeconds[weekOffset] += session.getTotalDurationSeconds();
-            }
-        }
-
-        List<WeeklyTrendPoint> points = new ArrayList<>();
-        for (int weekOffset = maxWeekOffset; weekOffset >= 0; weekOffset--) {
-            int count = sessionCounts[weekOffset];
-            int averageDurationSeconds = count == 0 ? 0 : totalDurationSeconds[weekOffset] / count;
-            points.add(new WeeklyTrendPoint(weekOffset, count, averageDurationSeconds));
-        }
-        return points;
-    }
-
-    private StatisticsSummary buildSummary(List<SessionRecord> sessions) {
-        if (sessions == null || sessions.isEmpty()) {
-            return new StatisticsSummary(0, 0, 0, 0, 0);
-        }
-
-        int totalSessions = sessions.size();
-        int cumulativeDurationSeconds = 0;
-        int totalEstimatedCalories = 0;
-
-        for (SessionRecord session : sessions) {
-            int durationSeconds = session.getTotalDurationSeconds();
-            cumulativeDurationSeconds += durationSeconds;
-            totalEstimatedCalories += estimateCalories(durationSeconds);
-        }
-
-        int averageSessionLengthSeconds = cumulativeDurationSeconds / totalSessions;
-        int averageEstimatedCalories = totalEstimatedCalories / totalSessions;
-
-        return new StatisticsSummary(
-                totalSessions,
-                cumulativeDurationSeconds,
-                averageSessionLengthSeconds,
-                totalEstimatedCalories,
-                averageEstimatedCalories);
-    }
-
-    private int estimateCalories(int durationSeconds) {
-        double durationMinutes = (double) durationSeconds / SECONDS_PER_MINUTE;
-        return (int) Math.round(durationMinutes * ESTIMATED_CALORIES_PER_MINUTE);
+        return aggregationService.buildTrendSeries(includedSessions, maxWeekOffset, nowEpochMs);
     }
 }

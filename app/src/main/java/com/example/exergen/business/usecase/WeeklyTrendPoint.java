@@ -1,20 +1,21 @@
 package com.example.exergen.business.usecase;
 
+import com.example.exergen.business.service.StatisticsConstants;
+import com.example.exergen.business.service.StatisticsValidation;
+
 public class WeeklyTrendPoint {
     private final int weekOffsetFromCurrent;
     private final int sessionCount;
     private final int averageDurationSeconds;
 
     public WeeklyTrendPoint(int weekOffsetFromCurrent, int sessionCount, int averageDurationSeconds) {
-        if (weekOffsetFromCurrent < 0) {
-            throw new IllegalArgumentException("weekOffsetFromCurrent must be >= 0");
-        }
-        if (sessionCount < 0) {
-            throw new IllegalArgumentException("sessionCount must be >= 0");
-        }
-        if (averageDurationSeconds < 0) {
-            throw new IllegalArgumentException("averageDurationSeconds must be >= 0");
-        }
+        StatisticsValidation.requireNonNegative(
+                weekOffsetFromCurrent,
+                StatisticsConstants.MESSAGE_WEEK_OFFSET_NON_NEGATIVE);
+        StatisticsValidation.requireNonNegative(sessionCount, StatisticsConstants.MESSAGE_SESSION_COUNT_NON_NEGATIVE);
+        StatisticsValidation.requireNonNegative(
+                averageDurationSeconds,
+                StatisticsConstants.MESSAGE_AVERAGE_SECONDS_NON_NEGATIVE);
         this.weekOffsetFromCurrent = weekOffsetFromCurrent;
         this.sessionCount = sessionCount;
         this.averageDurationSeconds = averageDurationSeconds;
