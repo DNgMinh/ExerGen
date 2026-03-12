@@ -4,11 +4,14 @@ import com.example.exergen.business.exception.ExerciseNotFoundException;
 import com.example.exergen.business.exception.SessionCompletedException;
 import com.example.exergen.business.repository.IExerciseRepository;
 import com.example.exergen.business.service.SessionManager;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,8 +65,8 @@ public class SessionManagerTest {
 
     @Test
     public void testNextMovesToNextExercise() {
-        Exercise e1 = new Exercise("e1", "First", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
-        Exercise e2 = new Exercise("e2", "Second", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
+        Exercise e1 = new Exercise("e1", "First", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "", 1, "placeholder");
+        Exercise e2 = new Exercise("e2", "Second", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "", 1, "placeholder");
         FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1, e2));
 
         Workout workout = new Workout("w1", "Test Workout", 1, List.of("e1", "e2"), List.of(0, 0), List.of(0, 0));
@@ -75,7 +78,7 @@ public class SessionManagerTest {
 
     @Test(expected = SessionCompletedException.class)
     public void getCurrentExerciseThrowsWhenSessionFinished() {
-        Exercise e1 = new Exercise("e1", "Only", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
+        Exercise e1 = new Exercise("e1", "Only", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "", 1, "placeholder");
         FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
         Workout workout = new Workout("w1", "Test", 1, List.of("e1"), List.of(10), List.of(5));
         SessionManager manager = new SessionManager(workout, repo);
@@ -95,7 +98,7 @@ public class SessionManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorRejectsNullWorkout() {
-        Exercise e1 = new Exercise("e1", "Only", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
+        Exercise e1 = new Exercise("e1", "Only", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "", 1, "placeholder");
         FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
         new SessionManager(null, repo);
     }
@@ -108,7 +111,7 @@ public class SessionManagerTest {
 
     @Test
     public void nextDoesNotAdvancePastFinished() {
-        Exercise e1 = new Exercise("e1", "First", List.of("Chest"), List.of("Bodyweight"), "", 1, "placeholder");
+        Exercise e1 = new Exercise("e1", "First", Arrays.asList(MuscleGroup.CHEST), Arrays.asList(EquipmentType.BODYWEIGHT), "", 1, "placeholder");
         FakeExerciseRepository repo = new FakeExerciseRepository(List.of(e1));
         Workout workout = new Workout("w1", "Test", 1, List.of("e1"), List.of(10), List.of(5));
 

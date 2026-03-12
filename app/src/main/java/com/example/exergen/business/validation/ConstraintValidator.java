@@ -13,7 +13,7 @@ public class ConstraintValidator {
             throw new IllegalArgumentException("targetMuscleGroups must contain at least one value");
         }
 
-        validateLabels(labels, "MuscleGroup", MuscleGroup::isValidLabel);
+        validateLabels(labels, "MuscleGroup", MuscleGroup.values());
     }
 
     // Check Nulls and Blank Strings
@@ -34,13 +34,9 @@ public class ConstraintValidator {
         }
     }
 
-    /**
-     * The Master Loop: This handles the Enum verification for ANY type.
-     * @param validator A function that takes a String and returns boolean (isValidLabel)
-     */
-    private void validateLabels(List<String> labels, String typeName, java.util.function.Predicate<String> validator) {
+    private void validateLabels(List<String> labels, String typeName, List<String> validOptions) {
         for (String label : labels) {
-            if (!validator.test(label.trim())) {
+            if (!validOptions.contains(label.trim())) {
                 throw new IllegalArgumentException("Invalid " + typeName + ": " + label);
             }
         }

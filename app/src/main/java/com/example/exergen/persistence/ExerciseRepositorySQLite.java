@@ -6,20 +6,26 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.exergen.application.helper.DatabaseHelper;
+import com.example.exergen.model.EnumMapper;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.model.MuscleGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExerciseRepositorySQLite implements IExerciseRepository {
     private final DatabaseHelper dbHelper;
     private final Context context;
+    private final EnumMapper mapper;
 
-    public ExerciseRepositorySQLite(Context context) {
+    public ExerciseRepositorySQLite(Context context, EnumMapper mapper) {
         this.context = context;
         this.dbHelper = new DatabaseHelper(context);
+        this.mapper = mapper;
     }
 
     @Override
@@ -41,7 +47,10 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
                     List<String> muscleGroups = Arrays.asList(muscleGroupStr.split(","));
                     List<String> equipment = Arrays.asList(equipmentStr.split(","));
 
-                    exercises.add(new Exercise(id, name, muscleGroups, equipment, instructions, intensity, imgName));
+                    List<MuscleGroup> cleanMuscles = mapper.toMuscleEnums(muscleGroups);
+                    List<EquipmentType> cleanEquipment = mapper.toEquipmentEnums(equipment);
+
+                    exercises.add(new Exercise(id, name, cleanMuscles, cleanEquipment, instructions, intensity, imgName));
                 } while (cursor.moveToNext());
             }
         }
@@ -106,7 +115,10 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
                 List<String> muscleGroups = Arrays.asList(muscleGroupStr.split(","));
                 List<String> equipment = Arrays.asList(equipmentStr.split(","));
 
-                exercise = new Exercise(id, name, muscleGroups, equipment, instructions, intensity, imgName);
+                List<MuscleGroup> cleanMuscles = mapper.toMuscleEnums(muscleGroups);
+                List<EquipmentType> cleanEquipment = mapper.toEquipmentEnums(equipment);
+
+                exercise = new Exercise(id, name, cleanMuscles, cleanEquipment, instructions, intensity, imgName);
             }
         }
         return exercise;
@@ -117,8 +129,8 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        String muscleGroupsStr = String.join(",", exercise.getMuscleGroups());
-        String equipmentStr = String.join(",", exercise.getEquipment());
+        String muscleGroupsStr = exercise.getMuscleGroups().stream().map(MuscleGroup::name).collect(Collectors.joining(","));
+        String equipmentStr = exercise.getEquipment().stream().map(EquipmentType::name).collect(Collectors.joining(","));
 
         values.put("id", exercise.getId());
         values.put("name", exercise.getName());
@@ -162,8 +174,11 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
                 String instructions = tokens[4].replaceAll("^\"|\"$", "");
 
+                List<MuscleGroup> cleanMuscles = mapper.toMuscleEnums(muscles);
+                List<EquipmentType> cleanEquipment = mapper.toEquipmentEnums(equipment);
+
                 list.add(new Exercise(
-                        tokens[0], tokens[1], muscles, equipment, instructions,
+                        tokens[0], tokens[1], cleanMuscles, cleanEquipment, instructions,
                         Integer.parseInt(tokens[5]), tokens[6]));
             }
         }

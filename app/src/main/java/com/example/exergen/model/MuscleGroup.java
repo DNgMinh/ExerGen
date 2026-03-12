@@ -22,12 +22,24 @@ public enum MuscleGroup implements LabeledEnum{
         return label;
     }
 
-    public static boolean isValidLabel(String value) {
+    @Override
+    public boolean isValidLabel(String value) {
         for (MuscleGroup group : values()) {
             if (group.label.equalsIgnoreCase(value)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static MuscleGroup fromLabel(String value) {
+        String label = ModelValidation.requireNonBlank(value, "Muscle group label required");
+        String normalizedLabel = label.trim();
+        for (MuscleGroup group : MuscleGroup.values()) {
+            if (group.label.equalsIgnoreCase(normalizedLabel)) {
+                return group;
+            }
+        }
+        throw new IllegalArgumentException("Invalid muscle group label: " + label);
     }
 }

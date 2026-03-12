@@ -3,9 +3,12 @@ package com.example.exergen.persistence;
 import com.example.exergen.business.repository.IExerciseRepository;
 import com.example.exergen.business.exception.DuplicateExerciseException;
 import com.example.exergen.business.exception.InvalidFilterException;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ExerciseRepositoryStub implements IExerciseRepository {
@@ -15,80 +18,80 @@ public class ExerciseRepositoryStub implements IExerciseRepository {
         exercises.add(new Exercise(
                 "ex-1",
                 "Pushup",
-                List.of("Chest", "Triceps"),
-                List.of("Bodyweight"),
+                Arrays.asList(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
+                Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Keep a straight line from head to heels and lower with control.",
                 3,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-2",
                 "Squat",
-                List.of("Legs", "Glutes"),
-                List.of("Bodyweight"),
+                Arrays.asList(MuscleGroup.LEGS, MuscleGroup.GLUTES),
+                Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Sit back with your hips and keep your chest upright.",
                 3,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-3",
                 "Plank",
-                List.of("Core"),
-                List.of("Bodyweight"),
+                Arrays.asList(MuscleGroup.CORE),
+                Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Maintain a straight line from shoulders to heels.",
                 2,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-4",
                 "Dumbbell Row",
-                List.of("Back"),
-                List.of("Dumbbells"),
+                Arrays.asList(MuscleGroup.BACK),
+                Arrays.asList(EquipmentType.DUMBBELLS),
                 "Pull the dumbbell toward your hip with a flat back.",
                 3,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-5",
                 "Bicep Curl",
-                List.of("Arms"),
-                List.of("Dumbbells"),
+                Arrays.asList(MuscleGroup.ARMS),
+                Arrays.asList(EquipmentType.DUMBBELLS),
                 "Keep elbows tucked and curl the weight with control.",
                 2,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-6",
                 "Lunge",
-                List.of("Legs", "Glutes"),
-                List.of("Bodyweight"),
+                Arrays.asList(MuscleGroup.LEGS, MuscleGroup.GLUTES),
+                Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Step forward and lower until both knees are bent.",
                 3,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-7",
                 "Bench Press",
-                List.of("Chest", "Triceps"),
-                List.of("Barbell"),
+                Arrays.asList(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
+                Arrays.asList(EquipmentType.DUMBBELLS),
                 "Lower the bar to your mid-chest and press upward.",
                 4,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-8",
                 "Shoulder Press",
-                List.of("Shoulders"),
-                List.of("Dumbbells"),
+                Arrays.asList(MuscleGroup.SHOULDERS),
+                Arrays.asList(EquipmentType.DUMBBELLS),
                 "Press the weights overhead without arching your back.",
                 3,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-9",
                 "Jumping Jacks",
-                List.of("Full Body"),
-                List.of("Bodyweight"),
+                Arrays.asList(MuscleGroup.FULL_BODY),
+                Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Jump feet out while raising arms overhead.",
                 2,
                 "placeholder.png"));
         exercises.add(new Exercise(
                 "ex-10",
                 "Mountain Climbers",
-                List.of("Core", "Legs"),
-                List.of("Bodyweight"),
+                Arrays.asList(MuscleGroup.CORE, MuscleGroup.LEGS),
+                Arrays.asList(EquipmentType.BODYWEIGHT),
                 "Drive knees toward your chest in a plank position.",
                 3,
                 "placeholder.png"));
