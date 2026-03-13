@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.sqlite)
+    implementation(libs.androidx.sqlite.framework)
     implementation(libs.androidx.core)
     
     // Pure JVM Unit Testing

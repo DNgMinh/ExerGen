@@ -14,7 +14,7 @@ import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
-import com.example.exergen.persistence.ExerciseRepositorySQLite;
+import com.example.exergen.application.persistence.ExerciseRepositorySQLite;
 
 import org.junit.After;
 import org.junit.Before;

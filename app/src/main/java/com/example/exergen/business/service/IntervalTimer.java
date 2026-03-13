@@ -1,7 +1,7 @@
 package com.example.exergen.business.service;
 
-import com.example.exergen.business.exception.InvalidTimerConfigurationException;
 import com.example.exergen.business.exception.TimerAlreadyRunningException;
+import com.example.exergen.business.validation.ValidationHelper;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,15 +23,10 @@ public class IntervalTimer {
     private boolean isRunning = false;
 
     public IntervalTimer(int workSecs, int restSecs, int sets, TimerObserver observer) {
-        if (workSecs <= 0) {
-            throw new InvalidTimerConfigurationException("Work seconds must be > 0.");
-        }
-        if (restSecs < 0) {
-            throw new InvalidTimerConfigurationException("Rest seconds must be >= 0.");
-        }
-        if (sets <= 0) {
-            throw new InvalidTimerConfigurationException("Sets must be > 0.");
-        }
+        ValidationHelper.requirePositive(workSecs, "Work seconds must be > 0.");
+        ValidationHelper.requireNonNegative(restSecs, "Rest seconds must be >= 0.");
+        ValidationHelper.requirePositive(sets, "Sets must be > 0.");
+        
         this.workDurationSeconds = workSecs;
         this.restDurationSeconds = restSecs;
         this.totalSets = sets;
@@ -62,7 +57,7 @@ public class IntervalTimer {
     public void pause() {
         if (timer != null) {
             timer.cancel();
-            timer = null; // Reset the reference so start() knows to make a new one
+            timer = null;
         }
         isRunning = false;
     }
@@ -122,33 +117,13 @@ public class IntervalTimer {
         remainingSeconds = workDurationSeconds;
     }
 
-    public int getWorkDurationSeconds() {
-        return workDurationSeconds;
-    }
-
-    public int getRestDurationSeconds() {
-        return restDurationSeconds;
-    }
-
-    public int getTotalSets() {
-        return totalSets;
-    }
-
-    public int getCurrentSet() {
-        return currentSet;
-    }
-
-    public TimerPhase getCurrentPhase() {
-        return currentPhase;
-    }
-
-    public int getRemainingSeconds() {
-        return remainingSeconds;
-    }
-
-    public boolean isRunning() {
-        return isRunning;
-    }
+    public int getWorkDurationSeconds() { return workDurationSeconds; }
+    public int getRestDurationSeconds() { return restDurationSeconds; }
+    public int getTotalSets() { return totalSets; }
+    public int getCurrentSet() { return currentSet; }
+    public TimerPhase getCurrentPhase() { return currentPhase; }
+    public int getRemainingSeconds() { return remainingSeconds; }
+    public boolean isRunning() { return isRunning; }
 
     public void restoreState(int set, TimerPhase phase, int secondsRemaining) {
         this.currentSet = set;
@@ -158,11 +133,8 @@ public class IntervalTimer {
     }
 
     public void skipPhase() {
-        if (isRunning) {
-            handlePhaseSwitch();
-        } else {
-            // If paused, switch phase but don't automatically start ticking
-            handlePhaseSwitch();
+        handlePhaseSwitch();
+        if (!isRunning) {
             pause();
         }
     }

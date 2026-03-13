@@ -1,36 +1,45 @@
 package com.example.exergen.application.helper;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import androidx.annotation.NonNull;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class DatabaseHelper extends SupportSQLiteOpenHelper.Callback {
 
     public static final String DEFAULT_DATABASE_NAME = "ExerGen.db";
-    // FYI: We can change the DB version during testing if we add/remove from exercises.csv.
-    // Just increment version # and restart emulator
     private static final int DATABASE_VERSION = 5;
 
     public static final String TABLE_EXERCISE = "Exercise";
     public static final String TABLE_WORKOUT = "Workout";
     public static final String TABLE_SESSION_HISTORY = "SessionHistory";
 
+    private final SupportSQLiteOpenHelper openHelper;
+
     public DatabaseHelper(Context context) {
         this(context, DEFAULT_DATABASE_NAME);
     }
 
     public DatabaseHelper(Context context, String databaseName) {
-        super(context, databaseName, null, DATABASE_VERSION);
+        super(DATABASE_VERSION);
+        SupportSQLiteOpenHelper.Configuration config = SupportSQLiteOpenHelper.Configuration.builder(context)
+                .name(databaseName)
+                .callback(this)
+                .build();
+        this.openHelper = new FrameworkSQLiteOpenHelperFactory().create(config);
     }
 
-    /*
-    Yes, I know that technically these tables are in first normal form (Sorry Adam Pazdor!),
-    but I decided on simply keeping the list of exercise_ids as a list for simplicity. Also,
-    the id "should" be of INTEGER type, but using UUIDs solved the problem of closing the app
-    and losing track of what the last ID was.
-     */
+    public SupportSQLiteDatabase getWritableDatabase() {
+        return openHelper.getWritableDatabase();
+    }
+
+    public SupportSQLiteDatabase getReadableDatabase() {
+        return openHelper.getReadableDatabase();
+    }
+
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(@NonNull SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_EXERCISE + " (" +
                 "id TEXT PRIMARY KEY, " +
                 "name TEXT NOT NULL, " +
@@ -60,7 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION_HISTORY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORKOUT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISE);
@@ -68,7 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onDowngrade(@NonNull SupportSQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
 }
