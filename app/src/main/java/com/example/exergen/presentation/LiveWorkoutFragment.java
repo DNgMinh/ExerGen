@@ -199,10 +199,14 @@ public class LiveWorkoutFragment extends Fragment {
                 }
             }
             else {
-                btnStart.setText(getString(R.string.btn_resume));
+                if (setupContainer.getVisibility() == View.VISIBLE) {
+                    btnStart.setText(getString(R.string.btn_start));
+                } else {
+                    btnStart.setText(getString(R.string.btn_resume));
+                    tvPhase.setText(getString(R.string.timer_paused));
+                }
                 btnStart.setVisibility(View.VISIBLE);
                 btnPause.setEnabled(false);
-                tvPhase.setText(getString(R.string.timer_paused));
                 pauseAnimation();
             }
         });
