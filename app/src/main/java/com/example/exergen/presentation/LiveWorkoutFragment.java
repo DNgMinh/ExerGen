@@ -21,10 +21,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
-import com.example.exergen.business.service.IntervalTimer;
-import com.example.exergen.business.service.TimerObserver;
 import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
@@ -34,13 +33,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LiveWorkoutFragment extends Fragment implements TimerObserver {
+public class LiveWorkoutFragment extends Fragment {
     private static final String ARG_WORKOUT_ID = "workout_id";
     private static final String TAG = "LiveWorkoutFragment";
 
     private String workoutId;
     private Workout workout;
-    private IntervalTimer intervalTimer;
+    private LiveWorkoutViewModel viewModel;
     private ToneGenerator toneGenerator;
 
     private TextView tvTimer, tvPhase, tvWorkoutName, tvCurrentExercise, tvNextExercise;
@@ -55,7 +54,6 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
     private final Handler animationHandler = new Handler(Looper.getMainLooper());
     private int currentFrame = 0;
     private boolean isAnimating = false;
-    private boolean suppressNextSound = false;
 
     private final Runnable animationRunnable = new Runnable() {
         @Override
@@ -84,6 +82,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
             workoutId = getArguments().getString(ARG_WORKOUT_ID);
             workout = AppBootstrap.get().workoutUseCase.getWorkoutById(workoutId);
         }
+        viewModel = new ViewModelProvider(this).get(LiveWorkoutViewModel.class);
     }
 
     @Nullable
@@ -98,6 +97,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
         initializeViews(view);
         setupPickers();
         setupButtons();
+        setupObservers();
 
         if (workout != null) {
             tvWorkoutName.setText(workout.getName());
@@ -132,144 +132,111 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
     }
 
     private void setupButtons() {
-        btnStart.setOnClickListener(v -> startOrResumeWorkout());
-        btnPause.setOnClickListener(v -> pauseWorkout());
-        btnCancel.setOnClickListener(v -> {
-            setBottomNavVisibility(View.VISIBLE);
-            getParentFragmentManager().popBackStack();
+        btnStart.setOnClickListener(v -> {
+            if (workout != null) {
+                viewModel.init(workout, npWork.getValue(), npRest.getValue());
+                viewModel.start();
+                setupContainer.setVisibility(View.GONE);
+                activeContainer.setVisibility(View.VISIBLE);
+                btnPause.setVisibility(View.VISIBLE);
+                btnCancel.setVisibility(View.GONE);
+            }
         });
+        btnPause.setOnClickListener(v -> viewModel.pause());
+        btnCancel.setOnClickListener(v -> exitWorkout());
         btnExit.setOnClickListener(v -> confirmExit());
     }
 
-    private void startOrResumeWorkout() {
-        if (intervalTimer == null) {
-            int work = npWork.getValue();
-            int rest = npRest.getValue();
-            int totalSets = workout.getRounds() * workout.getExerciseIds().size();
+    private void setupObservers() {
+        viewModel.getTimeLeft().observe(getViewLifecycleOwner(), seconds -> {
+            String timeString = String.format(java.util.Locale.getDefault(), "%02d:%02d",
+                    seconds / 60, seconds % 60);
+            tvTimer.setText(timeString);
+            if (seconds > 0 && seconds <= 3) {
+                toneGenerator.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
+            }
+        });
 
-            intervalTimer = new IntervalTimer(work, rest, totalSets, this);
-            setupContainer.setVisibility(View.GONE);
-            activeContainer.setVisibility(View.VISIBLE);
-            btnPause.setVisibility(View.VISIBLE);
-            btnCancel.setVisibility(View.GONE);
-            suppressNextSound = false;
-        } else {
-            suppressNextSound = true;
-        }
+        viewModel.getPhase().observe(getViewLifecycleOwner(), phase -> {
+            if (phase == TimerPhase.WORK) {
+                tvPhase.setText(getString(R.string.timer_work));
+                tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+            } else {
+                tvPhase.setText(getString(R.string.timer_rest));
+                tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
+                tvCurrentExercise.setText(getString(R.string.timer_rest).toUpperCase());
+                stopAnimation();
+                ivAnimation.setImageDrawable(null);
+            }
+            toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 500);
+        });
 
-        intervalTimer.start();
-        suppressNextSound = false;
-        
-        // Ensure animation starts/keeps playing (always playing for exercise)
-        if (!isAnimating) {
-            isAnimating = true;
-            animationHandler.post(animationRunnable);
-        }
-        
-        btnStart.setVisibility(View.GONE);
-        btnPause.setEnabled(true);
-    }
+        viewModel.getCurrentExercise().observe(getViewLifecycleOwner(), exercise -> {
+            if (exercise != null && viewModel.getPhase().getValue() == TimerPhase.WORK) {
+                tvCurrentExercise.setText(exercise.getName());
+                loadAndStartAnimation(exercise.getImagePaths());
+            }
+        });
 
-    private void pauseWorkout() {
-        if (intervalTimer != null) {
-            intervalTimer.pause();
-            // Animation keeps playing as requested
-            btnStart.setText(getString(R.string.btn_resume));
-            btnStart.setVisibility(View.VISIBLE);
-            btnPause.setEnabled(false);
-            tvPhase.setText(getString(R.string.timer_paused));
-        }
+        viewModel.getNextExercise().observe(getViewLifecycleOwner(), exercise -> {
+            if (exercise != null) {
+                tvNextExercise.setText(getString(R.string.live_workout_next_label, exercise.getName()));
+                tvNextExercise.setVisibility(View.VISIBLE);
+            } else {
+                tvNextExercise.setVisibility(View.GONE);
+            }
+        });
+
+        viewModel.getIsRunning().observe(getViewLifecycleOwner(), isRunning -> {
+            if (isRunning) {
+                btnStart.setVisibility(View.GONE);
+                btnPause.setEnabled(true);
+                if (viewModel.getPhase().getValue() == TimerPhase.WORK) {
+                    resumeAnimation();
+                }
+            } else {
+                btnStart.setText(getString(R.string.btn_resume));
+                btnStart.setVisibility(View.VISIBLE);
+                btnPause.setEnabled(false);
+                tvPhase.setText(getString(R.string.timer_paused));
+                pauseAnimation();
+            }
+        });
+
+        viewModel.getIsFinished().observe(getViewLifecycleOwner(), isFinished -> {
+            if (isFinished) {
+                tvPhase.setText(getString(R.string.live_workout_finished));
+                tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                tvTimer.setVisibility(View.GONE);
+                tvCurrentExercise.setText("");
+                tvNextExercise.setText("");
+                stopAnimation();
+                ivAnimation.setImageResource(R.drawable.ic_check_circle);
+                btnPause.setVisibility(View.GONE);
+                btnStart.setVisibility(View.GONE);
+                btnCancel.setText(R.string.btn_back);
+                btnCancel.setVisibility(View.VISIBLE);
+                setBottomNavVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void confirmExit() {
+        if (Boolean.TRUE.equals(viewModel.getIsFinished().getValue())) {
+            exitWorkout();
+            return;
+        }
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.live_workout_exit_confirm)
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    if (intervalTimer != null) {
-                        intervalTimer.cancel();
-                    }
-                    setBottomNavVisibility(View.VISIBLE);
-                    getParentFragmentManager().popBackStack();
-                })
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> exitWorkout())
                 .setNegativeButton(android.R.string.no, null)
                 .show();
     }
 
-    @Override
-    public void onTick(long secondsRemaining) {
-        safeRunOnUiThread(() -> {
-            String timeString = String.format(java.util.Locale.getDefault(), "%02d:%02d",
-                    secondsRemaining / 60, secondsRemaining % 60);
-            tvTimer.setText(timeString);
-            if (secondsRemaining > 0 && secondsRemaining <= 3) {
-                toneGenerator.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
-            }
-        });
-    }
-
-    @Override
-    public void onPhaseChange(TimerPhase phase) {
-        safeRunOnUiThread(() -> {
-            if (phase == TimerPhase.WORK) {
-                tvPhase.setText(getString(R.string.timer_work));
-                tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                updateExerciseDisplay();
-            } else {
-                tvPhase.setText(getString(R.string.timer_rest));
-                tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
-                
-                // Keep image blank during rest
-                stopAnimation();
-                tvCurrentExercise.setText(getString(R.string.timer_rest).toUpperCase());
-                ivAnimation.setImageDrawable(null);
-            }
-
-            if (!suppressNextSound) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 500);
-            }
-        });
-    }
-
-    @Override
-    public void onFinish() {
-        safeRunOnUiThread(() -> {
-            tvPhase.setText(getString(R.string.live_workout_finished));
-            tvCurrentExercise.setText("");
-            tvNextExercise.setText("");
-            stopAnimation();
-            ivAnimation.setImageResource(android.R.drawable.checkbox_on_background);
-            ivAnimation.setAlpha(1.0f);
-            btnPause.setVisibility(View.GONE);
-            btnStart.setVisibility(View.GONE);
-            setBottomNavVisibility(View.VISIBLE);
-        });
-    }
-
-    private void updateExerciseDisplay() {
-        if (workout == null || intervalTimer == null) return;
-
-        int currentSetIndex = intervalTimer.getCurrentSet() - 1;
-        int exerciseCount = workout.getExerciseIds().size();
-        
-        String currentExId = workout.getExerciseIds().get(currentSetIndex % exerciseCount);
-        Exercise currentEx = AppBootstrap.get().exerciseService.getExerciseById(currentExId);
-        
-        if (currentEx != null) {
-            tvCurrentExercise.setText(currentEx.getName());
-            loadAndStartAnimation(currentEx.getImagePaths());
-        }
-
-        int nextSetIndex = currentSetIndex + 1;
-        if (nextSetIndex < intervalTimer.getTotalSets()) {
-            String nextExId = workout.getExerciseIds().get(nextSetIndex % exerciseCount);
-            Exercise nextEx = AppBootstrap.get().exerciseService.getExerciseById(nextExId);
-            if (nextEx != null) {
-                tvNextExercise.setText(getString(R.string.live_workout_next_label, nextEx.getName()));
-                tvNextExercise.setVisibility(View.VISIBLE);
-            }
-        } else {
-            tvNextExercise.setVisibility(View.GONE);
-        }
+    private void exitWorkout() {
+        viewModel.stop();
+        setBottomNavVisibility(View.VISIBLE);
+        getParentFragmentManager().popBackStack();
     }
 
     private void loadAndStartAnimation(List<String> paths) {
@@ -286,8 +253,19 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
         if (!animationDrawables.isEmpty()) {
             isAnimating = true;
             currentFrame = 0;
-            ivAnimation.setAlpha(1.0f);
             ivAnimation.setImageDrawable(animationDrawables.get(0));
+            animationHandler.post(animationRunnable);
+        }
+    }
+
+    private void pauseAnimation() {
+        isAnimating = false;
+        animationHandler.removeCallbacks(animationRunnable);
+    }
+
+    private void resumeAnimation() {
+        if (!isAnimating && !animationDrawables.isEmpty()) {
+            isAnimating = true;
             animationHandler.post(animationRunnable);
         }
     }
@@ -302,12 +280,6 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
         if (getActivity() != null) {
             View nav = getActivity().findViewById(R.id.bottom_navigation);
             if (nav != null) nav.setVisibility(visibility);
-        }
-    }
-
-    private void safeRunOnUiThread(Runnable action) {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(action);
         }
     }
 

@@ -53,6 +53,7 @@ dependencies {
     // Pure JVM Unit Testing
     testImplementation(libs.junit)
     testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation(libs.androidx.arch.core.testing)
     
     // Instrumented Integration Testing (Device/Emulator)
     androidTestImplementation(libs.androidx.junit)

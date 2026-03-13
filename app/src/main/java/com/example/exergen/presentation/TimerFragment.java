@@ -152,7 +152,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
 
     private void updateButtonStates() {
         btnPause.setEnabled(isTimerActive);
-        btnStop.setEnabled(isTimerActive);
+        btnStop.setEnabled(intervalTimer != null);
     }
 
     private void updateTimerText(long secondsRemaining) {

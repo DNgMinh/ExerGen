@@ -125,7 +125,7 @@ public class WorkoutBuilderFragment extends Fragment {
         btnGenerateWorkout.setOnClickListener(v -> generateAndPreviewWorkout());
         btnRegenerateWorkout.setOnClickListener(v -> generateAndPreviewWorkout());
         btnEditConstraints.setOnClickListener(v -> setPreviewMode(false));
-        btnStartWorkout.setOnClickListener(v -> openTimer());
+        btnStartWorkout.setOnClickListener(v -> openLiveWorkout());
     }
 
     @Override
@@ -263,7 +263,7 @@ public class WorkoutBuilderFragment extends Fragment {
         cbEquipmentCable.setEnabled(enabled);
     }
 
-    private void openTimer() {
+    private void openLiveWorkout() {
         if (lastGeneratedWorkout == null) {
             showToast(getString(R.string.workout_builder_error_generate_first));
             return;
@@ -271,17 +271,9 @@ public class WorkoutBuilderFragment extends Fragment {
         workoutUseCase.saveWorkout(lastGeneratedWorkout);
         showToast(getString(R.string.workout_builder_saved_message));
 
-        if (getActivity() == null) {
-            return;
-        }
-        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottom_navigation);
-        if (bottomNavigationView != null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_timer);
-            return;
-        }
         getParentFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, new TimerFragment())
+                .replace(R.id.fragment_container, LiveWorkoutFragment.newInstance(lastGeneratedWorkout.getId()))
                 .addToBackStack(null)
                 .commit();
     }

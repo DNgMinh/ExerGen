@@ -65,9 +65,11 @@ public final class AppBootstrap {
             sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
         }
 
-        // Seed data for workout and exercise repositories
-        workoutRepository.seedData();
-        exerciseRepository.seedData();
+        // Fix: Seed data in background to prevent UI freeze on first run
+        new Thread(() -> {
+            workoutRepository.seedData();
+            exerciseRepository.seedData();
+        }).start();
 
         // Dependency Injection into Business Services
         this.exerciseService = new ExerciseService(exerciseRepository);
