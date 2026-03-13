@@ -60,7 +60,10 @@ public class WorkoutsFragment extends Fragment {
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
-            recyclerView.setAdapter(new WorkoutAdapter(workouts, this::showWorkoutDetails, this::confirmDeleteWorkout));
+            recyclerView.setAdapter(new WorkoutAdapter(workouts, 
+                this::showWorkoutDetails, 
+                this::confirmDeleteWorkout,
+                this::startLiveWorkout));
         }
     }
 
@@ -108,5 +111,16 @@ public class WorkoutsFragment extends Fragment {
                     refreshWorkoutList();
                 })
                 .show();
+    }
+
+    private void startLiveWorkout(Workout workout) {
+        if (workout == null) return;
+        
+        LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workout.getId());
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

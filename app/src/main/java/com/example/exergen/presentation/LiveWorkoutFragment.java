@@ -45,7 +45,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
 
     private TextView tvTimer, tvPhase, tvWorkoutName, tvCurrentExercise, tvNextExercise;
     private ImageView ivAnimation;
-    private Button btnStart, btnPause;
+    private Button btnStart, btnPause, btnCancel;
     private ImageButton btnExit;
     private LinearLayout setupContainer;
     private View activeContainer;
@@ -112,6 +112,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
         ivAnimation = view.findViewById(R.id.iv_exercise_animation);
         btnStart = view.findViewById(R.id.btn_live_start);
         btnPause = view.findViewById(R.id.btn_live_pause);
+        btnCancel = view.findViewById(R.id.btn_live_cancel);
         btnExit = view.findViewById(R.id.btn_exit_workout);
         setupContainer = view.findViewById(R.id.setup_picker_container);
         activeContainer = view.findViewById(R.id.active_exercise_container);
@@ -131,6 +132,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
     private void setupButtons() {
         btnStart.setOnClickListener(v -> startOrResumeWorkout());
         btnPause.setOnClickListener(v -> pauseWorkout());
+        btnCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
         btnExit.setOnClickListener(v -> confirmExit());
     }
 
@@ -144,6 +146,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
             setupContainer.setVisibility(View.GONE);
             activeContainer.setVisibility(View.VISIBLE);
             btnPause.setVisibility(View.VISIBLE);
+            btnCancel.setVisibility(View.GONE);
         }
 
         intervalTimer.start();
@@ -197,7 +200,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
                 tvPhase.setText(getString(R.string.timer_rest));
                 tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                 stopAnimation();
-                ivAnimation.setImageResource(android.R.drawable.ic_media_pause); // Placeholder for rest
+                ivAnimation.setImageResource(android.R.drawable.ic_media_pause);
             }
             toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 500);
         });

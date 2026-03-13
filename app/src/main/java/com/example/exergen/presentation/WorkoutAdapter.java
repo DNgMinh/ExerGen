@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +20,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     private final List<Workout> workouts;
     private final OnWorkoutClickListener clickListener;
     private final OnWorkoutLongClickListener longClickListener;
+    private final OnWorkoutPlayClickListener playClickListener;
 
     public interface OnWorkoutClickListener {
         void onWorkoutClick(Workout workout);
@@ -28,13 +30,19 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
         void onWorkoutLongClick(Workout workout);
     }
 
+    public interface OnWorkoutPlayClickListener {
+        void onWorkoutPlayClick(Workout workout);
+    }
+
     // Initializes the adapter with a list of workouts
     public WorkoutAdapter(List<Workout> workouts,
             OnWorkoutClickListener clickListener,
-            OnWorkoutLongClickListener longClickListener) {
+            OnWorkoutLongClickListener longClickListener,
+            OnWorkoutPlayClickListener playClickListener) {
         this.workouts = workouts;
         this.clickListener = clickListener;
         this.longClickListener = longClickListener;
+        this.playClickListener = playClickListener;
     }
 
     @NonNull
@@ -68,6 +76,11 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
             }
             return false;
         });
+        holder.btnPlay.setOnClickListener(v -> {
+            if (playClickListener != null) {
+                playClickListener.onWorkoutPlayClick(workout);
+            }
+        });
     }
 
     @Override
@@ -78,11 +91,13 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     static class WorkoutViewHolder extends RecyclerView.ViewHolder {
         TextView name;
         TextView details;
+        ImageButton btnPlay;
 
         public WorkoutViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.workout_name);
             details = itemView.findViewById(R.id.workout_details);
+            btnPlay = itemView.findViewById(R.id.btn_play_workout);
         }
     }
 }
