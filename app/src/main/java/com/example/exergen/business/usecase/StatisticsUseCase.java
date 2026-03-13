@@ -6,6 +6,8 @@ import com.example.exergen.business.service.StatisticsAggregationService;
 import com.example.exergen.business.service.StatisticsConstants;
 import com.example.exergen.business.service.StatisticsValidation;
 import com.example.exergen.model.SessionRecord;
+import com.example.exergen.model.StatisticsSummary;
+import com.example.exergen.model.WeeklyTrendPoint;
 
 import java.util.ArrayList;
 import java.util.List;

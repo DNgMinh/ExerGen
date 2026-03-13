@@ -1,5 +1,7 @@
 ﻿# ARCHITECTURE
 
+![architecture](Architecture-Diagram.png)
+
 ### Major Packages
 
 - **`presentation`** - User interface components and views
@@ -13,49 +15,90 @@
 ### Presentation Layer (UI)
 
 - **[`MainActivity`](app/src/main/java/com/example/exergen/presentation/MainActivity.java)**
-  - Entry point of the app\*\*
   - Entry point of the app
   - Displays results to the user (full instructions, equipment, muscles, duration)
   - User input handling
   - Displays application state
 - **[`AddFragment`](app/src/main/java/com/example/exergen/presentation/AddFragment.java)**
-  - Displays a list of all exercises
+  - Displays a list of all exercises available in the library
 - **[`StatsFragment`](app/src/main/java/com/example/exergen/presentation/StatsFragment.java)**
-  - Displays statistics about user's workout (in progress)
+  - Displays personal workout statistics and trends
 - **[`TimerFragment`](app/src/main/java/com/example/exergen/presentation/TimerFragment.java)**
-  - Displays the workout timer (includes working, resting time and num of sets)
-- **[`ExerciseAdapter`](app/src/main/java/com/example/exergen/presentation/ExerciseAdapter.java)**
-  - Adapts a list of exercises to be displayed
-- **[`WorkoutAdapter`](app/src/main/java/com/example/exergen/presentation/WorkoutAdapter.java)**
-  - Adapts a list of workouts to be displayed
+  - Simple standalone timer for work/rest intervals
 - **[`WorkoutsFragment`](app/src/main/java/com/example/exergen/presentation/WorkoutsFragment.java)**
-  - Displays a list of user's saved workout
+  - Displays a list of user's saved workouts and allows viewing details or deleting them
 - **[`ExerciseDetailFragment`](app/src/main/java/com/example/exergen/presentation/ExerciseDetailFragment.java)**
-  - Displays detailed information about an exercise
+  - Displays detailed information about a specific exercise (instructions, equipment, etc.)
+- **[`LiveWorkoutFragment`](app/src/main/java/com/example/exergen/presentation/LiveWorkoutFragment.java)**
+  - Interactive screen that guides the user through an active workout session with a timer and exercise animations
+- **[`ExerciseAdapter`](app/src/main/java/com/example/exergen/presentation/ExerciseAdapter.java)**
+  - RecyclerView adapter for Exercise objects
+- **[`WorkoutAdapter`](app/src/main/java/com/example/exergen/presentation/WorkoutAdapter.java)**
+  - RecyclerView adapter for Workout objects
 
 ### Business Layer
 
 #### `business/usecase/`
 
 - **[`WorkoutUseCase`](app/src/main/java/com/example/exergen/business/usecase/WorkoutUseCase.java)**
-  - Main facade for the application’s domain operations in Iteration 1
+  - Coordinates operations related to workout management (saving, loading, deleting)
+- **[`StatisticsUseCase`](app/src/main/java/com/example/exergen/business/usecase/StatisticsUseCase.java)**
+  - Provides the business logic for calculating and retrieving user statistics
+- **[`SessionHistoryUseCase`](app/src/main/java/com/example/exergen/business/usecase/SessionHistoryUseCase.java)**
+  - Manages the recording and retrieval of completed workout sessions
+- **[`WorkoutBuilderUseCase`](app/src/main/java/com/example/exergen/business/usecase/WorkoutBuilderUseCase.java)**
+  - Logic for generating or building workouts based on specific criteria
 
 #### `business/service/`
 
-- **[`IntervalTimer`](app/src/main/java/com/example/exergen/business/service/IntervalTimer.java)** - Core timer implementation for workout intervals -**[`TimerObserver`](app/src/main/java/com/example/exergen/business/service/TimerObserver.java)** - Interface for components that react to timer events
 - **[`ExerciseService`](app/src/main/java/com/example/exergen/business/service/ExerciseService.java)**
-  - Provides operations related to the exercise library from a repository
-
+  - High-level service for exercise library operations (filtering, searching)
+- **[`IntervalTimer`](app/src/main/java/com/example/exergen/business/service/IntervalTimer.java)**
+  - Core countdown logic for work/rest interval sets
+- **[`TimerObserver`](app/src/main/java/com/example/exergen/business/service/TimerObserver.java)**
+  - Interface for receiving ticks and phase changes from a timer
+- **[`SessionManager`](app/src/main/java/com/example/exergen/business/service/SessionManager.java)**
+  - Tracks progress and state during an active workout session
+- **[`WorkoutMetricsService`](app/src/main/java/com/example/exergen/business/service/WorkoutMetricsService.java)**
+  - Utility for calculating workout-related metrics (total duration, etc.)
+- **[`StatisticsAggregationService`](app/src/main/java/com/example/exergen/business/service/StatisticsAggregationService.java)**
+  - Aggregates raw session data into meaningful summary statistics
+- **[`EnumMapper`](app/src/main/java/com/example/exergen/business/service/EnumMapper.java)**
+  - Helper for mapping between domain enums and UI-friendly strings/indices
+- **[`WorkoutPreviewMapper`](app/src/main/java/com/example/exergen/business/service/WorkoutPreviewMapper.java)**
+    - Converts domain models into preview models for the UI
+  
 ### Persistence Layer
 
-- **[`ExerciseRepository`](app/src/main/java/com/example/exergen/persistence/repository/ExerciseRepository.java)**
-  - Interface for retrieving exercises.
-- **[`WorkoutRepository`](app/src/main/java/com/example/exergen/persistence/repository/WorkoutRepository.java)**
-  - Interface for saving and retrieving workouts.
+- **[`ExerciseRepositoryStub`](app/src/main/java/com/example/exergen/persistence/ExerciseRepositoryStub.java)**
+    - In-memory implementation of the exercise repository
+- **[`WorkoutRepositoryStub`](app/src/main/java/com/example/exergen/persistence/WorkoutRepositoryStub.java)**
+    - In-memory implementation of the workout repository
+- **[`SessionHistoryRepositoryStub`](app/src/main/java/com/example/exergen/persistence/SessionHistoryRepositoryStub.java)**
+    - In-memory implementation of the session history repository
+- **[`ExerciseRepositorySQLite`](app/src/main/java/com/example/exergen/persistence/ExerciseRepositorySQLite.java)**
+    - SQLite implementation of the exercise repository for persistent storage
+- **[`WorkoutRepositorySQLite`](app/src/main/java/com/example/exergen/persistence/WorkoutRepositorySQLite.java)**
+    - SQLite implementation of the workout repository for persistent storage
+- **[`SessionHistoryRepositorySQLite`](app/src/main/java/com/example/exergen/persistence/SessionHistoryRepositorySQLite.java)**
+    - SQLite implementation of the session history repository for persistent storage
+
+### Application
+
+- **[`AppBootstrap`](app/src/main/java/com/example/exergen/application/AppBootstrap.java)**
+  - Central service locator and configuration hub for dependency injection
 
 ### Model
 
 - **[`Exercise`](app/src/main/java/com/example/exergen/model/Exercise.java)**
-  - Represents a single exercise in the library (id, name, muscle group, equipment, instructions, intensity)
+  - Domain model for an exercise (id, name, muscles, equipment, etc.)
 - **[`Workout`](app/src/main/java/com/example/exergen/model/Workout.java)**
-  - Represents a workout built from one or more `Exercise` instances
+  - Domain model for a collection of exercises forming a routine
+- **[`SessionRecord`](app/src/main/java/com/example/exergen/model/SessionRecord.java)**
+  - Represents a completed workout session with timestamp and performance data
+- **[`StatisticsSummary`](app/src/main/java/com/example/exergen/model/StatisticsSummary.java)**
+  - Value object holding aggregated statistical data
+- **[`WeeklyTrendPoint`](app/src/main/java/com/example/exergen/model/WeeklyTrendPoint.java)**
+  - Data point for visualizing weekly workout trends
+- **[`EquipmentType`](app/src/main/java/com/example/exergen/model/EquipmentType.java)** / **[`MuscleGroup`](app/src/main/java/com/example/exergen/model/MuscleGroup.java)**
+  - Enums representing domain-specific categories

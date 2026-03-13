@@ -19,10 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
-import com.example.exergen.business.usecase.StatisticsSummary;
+import com.example.exergen.model.StatisticsSummary;
 import com.example.exergen.business.usecase.StatisticsTimeRange;
 import com.example.exergen.business.usecase.StatisticsUseCase;
-import com.example.exergen.business.usecase.WeeklyTrendPoint;
+import com.example.exergen.model.WeeklyTrendPoint;
 import com.example.exergen.model.SessionRecord;
 
 import java.text.DateFormat;

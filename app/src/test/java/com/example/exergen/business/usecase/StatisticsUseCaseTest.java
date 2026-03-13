@@ -7,6 +7,8 @@ import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.exception.StatisticsValidationException;
 import com.example.exergen.business.repository.ISessionHistoryRepository;
 import com.example.exergen.model.SessionRecord;
+import com.example.exergen.model.StatisticsSummary;
+import com.example.exergen.model.WeeklyTrendPoint;
 
 import org.junit.Test;
 

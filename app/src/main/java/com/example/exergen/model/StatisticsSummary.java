@@ -1,4 +1,4 @@
-package com.example.exergen.business.usecase;
+package com.example.exergen.model;
 
 import com.example.exergen.business.service.StatisticsConstants;
 import com.example.exergen.business.service.StatisticsValidation;
