@@ -1,7 +1,6 @@
 package com.example.exergen.business.validation;
 
-import com.example.exergen.model.EquipmentType;
-import com.example.exergen.model.MuscleGroup;
+import com.example.exergen.business.exception.InvalidTimerConfigurationException;
 import java.util.List;
 
 public final class ValidationHelper {
@@ -34,6 +33,21 @@ public final class ValidationHelper {
         }
         return obj;
     }
+
+    public static int requirePositive(int value, String message) {
+        if (value <= 0) {
+            throw new InvalidTimerConfigurationException(message);
+        }
+        return value;
+    }
+
+    public static int requireNonNegative(int value, String message) {
+        if (value < 0) {
+            throw new InvalidTimerConfigurationException(message);
+        }
+        return value;
+    }
+
     public static void validateMuscles(List<String> labels) {
         validateBasicList(labels, "targetMuscleGroups");
 
@@ -42,7 +56,6 @@ public final class ValidationHelper {
         }
     }
 
-    // Check Nulls and Blank Strings
     public static void validateEquipment(List<String> labels) {
         validateBasicList(labels, "selectedEquipment");
     }
