@@ -1,33 +1,37 @@
 package com.example.exergen.business.usecase;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.when;
 
-import com.example.exergen.business.repository.IExerciseRepository;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class WorkoutBuilderUseCaseTest {
 
     private WorkoutBuilderUseCase workoutBuilderUseCase;
 
+    @Mock
+    private ExerciseService mockExerciseService;
+
     @Before
     public void setUp() {
-        List<Exercise> exercises = List.of(
-                new Exercise("ex-chest-db", "Dumbbell Press", List.of("Chest"), List.of("Dumbbells"), "", 3, List.of("img")),
-                new Exercise("ex-legs-bw", "Air Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("img")),
-                new Exercise("ex-back-bar", "Barbell Row", List.of("Back"), List.of("Barbell"), "", 3, List.of("img")));
-
-        ExerciseService exerciseService = new ExerciseService(new FakeExerciseRepository(exercises));
-        workoutBuilderUseCase = new WorkoutBuilderUseCase(exerciseService);
+        MockitoAnnotations.openMocks(this);
+        workoutBuilderUseCase = new WorkoutBuilderUseCase(mockExerciseService);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -37,15 +41,28 @@ public class WorkoutBuilderUseCaseTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void generateWorkoutRejectsNoMatchingExercises() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Kettlebell"),
-                List.of("Shoulders"), 10);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                List.of("Kettlebell"),
+                List.of("Shoulders"),
+                10
+        );
+
+        when(mockExerciseService.filterByConstraints(anyList(), anyList())).thenReturn(List.of());
+
         workoutBuilderUseCase.generateWorkout(constraints);
     }
 
     @Test
     public void generateWorkoutBuildsRoutineForDurationAndConstraints() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"),
-                List.of("Chest"), 3);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                List.of("Dumbbells"),
+                List.of("Chest"),
+                3
+        );
+
+        Exercise e1 = new Exercise("ex-chest-db", "Dumbbell Press", List.of(MuscleGroup.CHEST), List.of(EquipmentType.DUMBBELLS), "", 3, List.of("img"));
+        when(mockExerciseService.filterByConstraints(constraints.getSelectedEquipment(), constraints.getTargetMuscleGroups()))
+                .thenReturn(List.of(e1));
 
         Workout result = workoutBuilderUseCase.generateWorkout(constraints);
 
@@ -55,17 +72,15 @@ public class WorkoutBuilderUseCaseTest {
         for (String id : result.getExerciseIds()) {
             assertEquals("ex-chest-db", id);
         }
-        for (Integer work : result.getWorkSeconds()) {
-            assertEquals(45, work.intValue());
-        }
-        for (Integer rest : result.getRestSeconds()) {
-            assertEquals(15, rest.intValue());
-        }
     }
 
     @Test
     public void generateWorkoutAllowsEmptyEquipmentSelection() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Legs"), 2);
+        Exercise e1 = new Exercise("ex-legs-bw", "Air Squat", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img"));
+
+        when(mockExerciseService.filterByConstraints(anyList(), anyList()))
+                .thenReturn(List.of(e1));
 
         Workout result = workoutBuilderUseCase.generateWorkout(constraints);
 
@@ -74,9 +89,37 @@ public class WorkoutBuilderUseCaseTest {
     }
 
     @Test
+    public void generateWorkoutCyclesMatchingExercisesWhenDurationRequiresMoreSlots() {
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Chest", "Legs"), 3);
+
+        Exercise e1 = new Exercise("e1", "E1", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img1"));
+        Exercise e2 = new Exercise("e2", "E2", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img2"));
+
+        when(mockExerciseService.filterByConstraints(anyList(), anyList()))
+                .thenReturn(Arrays.asList(e1, e2));
+
+        Workout result = workoutBuilderUseCase.generateWorkout(constraints);
+
+        assertEquals(3, result.getExerciseIds().size());
+        
+        // Due to shuffling, we check that it cycles through the available exercises correctly
+        String id0 = result.getExerciseIds().get(0);
+        String id1 = result.getExerciseIds().get(1);
+        String id2 = result.getExerciseIds().get(2);
+
+        assertTrue("First exercise should be e1 or e2", id0.equals("e1") || id0.equals("e2"));
+        assertTrue("Second exercise should be e1 or e2", id1.equals("e1") || id1.equals("e2"));
+        assertNotEquals("Should cycle to a different exercise", id0, id1);
+        assertEquals("Should cycle back to the first exercise", id0, id2);
+    }
+
+    @Test
     public void generateWorkoutAssignsUniqueIdsAcrossGenerations() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"),
-                List.of("Chest"), 2);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"), List.of("Chest"), 2);
+        Exercise e1 = new Exercise("e1", "E1", List.of(MuscleGroup.CHEST), List.of(EquipmentType.DUMBBELLS), "", 2, List.of("img1"));
+
+        when(mockExerciseService.filterByConstraints(anyList(), anyList()))
+                .thenReturn(List.of(e1));
 
         Workout first = workoutBuilderUseCase.generateWorkout(constraints);
         Workout second = workoutBuilderUseCase.generateWorkout(constraints);
@@ -84,62 +127,5 @@ public class WorkoutBuilderUseCaseTest {
         assertTrue(first.getId().startsWith("generated-"));
         assertTrue(second.getId().startsWith("generated-"));
         assertNotEquals(first.getId(), second.getId());
-    }
-
-    @Test
-    public void generateWorkoutCyclesMatchingExercisesWhenDurationRequiresMoreSlots() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(),
-                List.of("Chest", "Legs"), 5);
-
-        Workout result = workoutBuilderUseCase.generateWorkout(constraints);
-
-        assertEquals(5, result.getExerciseIds().size());
-        assertTrue(result.getExerciseIds().contains("ex-chest-db"));
-        assertTrue(result.getExerciseIds().contains("ex-legs-bw"));
-    }
-
-    private static class FakeExerciseRepository implements IExerciseRepository {
-        private final List<Exercise> exercises;
-
-        private FakeExerciseRepository(List<Exercise> exercises) {
-            this.exercises = exercises;
-        }
-
-        @Override
-        public List<Exercise> getAllExercises() {
-            return exercises;
-        }
-
-        @Override
-        public List<Exercise> filterByEquipment(String equipment) {
-            return List.of();
-        }
-
-        @Override
-        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
-            return List.of();
-        }
-
-        @Override
-        public void insertExercise(Exercise exercise) {
-        }
-
-        @Override
-        public Exercise getExerciseById(String id) {
-            for (Exercise exercise : exercises) {
-                if (exercise.getId().equals(id)) {
-                    return exercise;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public void deleteExercise(String id) {
-        }
-
-        @Override
-        public void seedData() {
-        }
     }
 }

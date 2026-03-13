@@ -2,6 +2,7 @@ package com.example.exergen.application;
 
 import android.app.Application;
 
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.StatisticsUseCase;
@@ -41,7 +42,7 @@ public final class AppBootstrap {
 
     private AppBootstrap(Application app) {
         IWorkoutRepository workoutRepository = new WorkoutRepositorySQLite(app);
-        IExerciseRepository exerciseRepository = new ExerciseRepositorySQLite(app);
+        IExerciseRepository exerciseRepository = new ExerciseRepositorySQLite(app, new EnumMapper());
         ISessionHistoryRepository sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
 
         // Seed data for workout and exercise repositories

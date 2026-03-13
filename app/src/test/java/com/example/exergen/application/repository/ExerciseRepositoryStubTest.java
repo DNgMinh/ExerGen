@@ -2,7 +2,9 @@ package com.example.exergen.application.repository;
 
 import com.example.exergen.business.exception.DuplicateExerciseException;
 import com.example.exergen.business.exception.InvalidFilterException;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.persistence.ExerciseRepositoryStub;
 
 import org.junit.Test;
@@ -47,17 +49,11 @@ public class ExerciseRepositoryStubTest {
         Exercise duplicate = new Exercise(
                 "ex_1",
                 "Duplicate Pushup",
-                List.of("Chest"),
-                List.of("Bodyweight"),
+                List.of(MuscleGroup.CHEST),
+                List.of(EquipmentType.BODYWEIGHT),
                 "desc",
                 2,
                 List.of("placeholder.png"));
         stub.insertExercise(duplicate);
-    }
-
-    @Test(expected = InvalidFilterException.class)
-    public void filterByEquipmentRejectsEmptyFilter() {
-        ExerciseRepositoryStub stub = new ExerciseRepositoryStub();
-        stub.filterByEquipment("");
     }
 }

@@ -3,26 +3,33 @@ package com.example.exergen.persistence;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.exergen.application.helper.DatabaseHelper;
+import com.example.exergen.business.service.EnumMapper;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.model.MuscleGroup;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExerciseRepositorySQLite implements IExerciseRepository {
     private static final String TAG = "ExerciseRepoSQLite";
     private final DatabaseHelper dbHelper;
     private final Context context;
+    private final EnumMapper mapper;
 
-    public ExerciseRepositorySQLite(Context context) {
+    public ExerciseRepositorySQLite(Context context, EnumMapper mapper) {
         this.context = context;
         this.dbHelper = new DatabaseHelper(context);
+        this.mapper = mapper;
     }
 
     @Override
@@ -56,12 +63,13 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     }
 
     @Override
-    public List<Exercise> filterByEquipment(String equipment) {
+    public List<Exercise> filterByEquipment(EquipmentType equipment) {
         List<Exercise> exercises = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String searchString = equipment.getLabel();
 
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "equipment LIKE ?",
-                new String[]{"%" + equipment + "%"}, null, null, null)) {
+                new String[]{"%" + searchString + "%"}, null, null, null)) {
             if (cursor.moveToFirst()) {
                 do {
                     exercises.add(mapCursorToExercise(cursor));
@@ -72,12 +80,13 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     }
 
     @Override
-    public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+    public List<Exercise> filterByMuscleGroup(MuscleGroup muscleGroup) {
         List<Exercise> exercises = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String searchString = muscleGroup.getLabel();
 
         try (Cursor cursor = db.query(DatabaseHelper.TABLE_EXERCISE, null, "muscle_groups LIKE ?",
-                new String[]{"%" + muscleGroup + "%"}, null, null, null)) {
+                new String[]{"%" + searchString + "%"}, null, null, null)) {
             if (cursor.moveToFirst()) {
                 do {
                     exercises.add(mapCursorToExercise(cursor));
@@ -92,8 +101,8 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        String muscleGroupsStr = String.join(",", exercise.getMuscleGroups());
-        String equipmentStr = String.join(",", exercise.getEquipment());
+        String muscleGroupsStr = exercise.getMuscleGroups().stream().map(MuscleGroup::name).collect(Collectors.joining(","));
+        String equipmentStr = exercise.getEquipment().stream().map(EquipmentType::name).collect(Collectors.joining(","));
         String imagePathsStr = String.join(",", exercise.getImagePaths());
 
         values.put("id", exercise.getId());
@@ -115,12 +124,18 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
     @Override
     public void seedData() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete(DatabaseHelper.TABLE_EXERCISE, null, null);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        long count = DatabaseUtils.queryNumEntries(db, DatabaseHelper.TABLE_EXERCISE);
 
-        List<Exercise> defaultExercises = loadExercisesFromAssets();
-        for (Exercise ex : defaultExercises) {
-            insertExercise(ex);
+        // Only seed if the database is currently empty
+        if (count == 0) {
+            Log.d(TAG, "Database empty. Seeding exercises from assets...");
+            List<Exercise> defaultExercises = loadExercisesFromAssets();
+            for (Exercise ex : defaultExercises) {
+                insertExercise(ex);
+            }
+        } else {
+            Log.d(TAG, "Database already contains " + count + " exercises. Skipping seed.");
         }
     }
 
@@ -137,7 +152,10 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         List<String> equipment = Arrays.asList(equipmentStr.split(","));
         List<String> imagePaths = Arrays.asList(imagePathsStr.split(","));
 
-        return new Exercise(id, name, muscleGroups, equipment, instructions, intensity, imagePaths);
+        List<MuscleGroup> cleanMuscles = mapper.toMuscleEnums(muscleGroups);
+        List<EquipmentType> cleanEquipment = mapper.toEquipmentEnums(equipment);
+
+        return new Exercise(id, name, cleanMuscles, cleanEquipment, instructions, intensity, imagePaths);
     }
 
     private List<Exercise> loadExercisesFromAssets() {
@@ -148,7 +166,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
             if (tokens.length >= 7) {
                 List<String> muscles = Arrays.asList(tokens[2].split("\\|"));
                 List<String> equipment = Arrays.asList(tokens[3].split("\\|"));
-                
+
 
                 String imageFolder = tokens[1].toLowerCase().replaceAll("[^a-z0-9]+", "_");
                 if (imageFolder.endsWith("_")) {
@@ -156,7 +174,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
                 }
 
                 List<String> imagePaths = new ArrayList<>();
-                
+
                 try {
                     String assetsPath = "exercise/" + imageFolder;
                     String[] files = context.getAssets().list(assetsPath);
@@ -178,8 +196,11 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
                 String instructions = tokens[4].replaceAll("^\"|\"$", "");
 
+                List<MuscleGroup> cleanMuscles = mapper.toMuscleEnums(muscles);
+                List<EquipmentType> cleanEquipment = mapper.toEquipmentEnums(equipment);
+
                 list.add(new Exercise(
-                        tokens[0], tokens[1], muscles, equipment, instructions,
+                        tokens[0], tokens[1], cleanMuscles, cleanEquipment, instructions,
                         Integer.parseInt(tokens[5]), imagePaths
                 ));
             }

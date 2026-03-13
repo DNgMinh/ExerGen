@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
 
 import org.junit.Before;
@@ -20,8 +22,8 @@ public class WorkoutPreviewMapperTest {
     public void setUp() {
         mapper = new WorkoutPreviewMapper();
         exerciseService = new ExerciseService(new FakeExerciseRepository(List.of(
-                new Exercise("ex-1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("img")),
-                new Exercise("ex-2", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("img")))));
+                new Exercise("ex-1", "Pushup", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img")),
+                new Exercise("ex-2", "Squat", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img")))));
     }
 
     @Test
@@ -91,12 +93,12 @@ public class WorkoutPreviewMapperTest {
         }
 
         @Override
-        public List<Exercise> filterByEquipment(String equipment) {
+        public List<Exercise> filterByEquipment(EquipmentType equipment) {
             return List.of();
         }
 
         @Override
-        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+        public List<Exercise> filterByMuscleGroup(MuscleGroup muscleGroup) {
             return List.of();
         }
 

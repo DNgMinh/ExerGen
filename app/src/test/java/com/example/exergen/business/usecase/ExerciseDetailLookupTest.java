@@ -1,8 +1,10 @@
 package com.example.exergen.business.usecase;
 
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.model.MuscleGroup;
 
 import org.junit.Test;
 
@@ -34,12 +36,12 @@ public class ExerciseDetailLookupTest {
         }
 
         @Override
-        public List<Exercise> filterByEquipment(String equipment) {
+        public List<Exercise> filterByEquipment(EquipmentType equipment) {
             return List.of();
         }
 
         @Override
-        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+        public List<Exercise> filterByMuscleGroup(MuscleGroup muscleGroup) {
             return List.of();
         }
 
@@ -58,7 +60,7 @@ public class ExerciseDetailLookupTest {
 
     @Test
     public void getExerciseByIdReturnsExerciseWhenPresent() {
-        Exercise target = new Exercise("e1", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("placeholder"));
+        Exercise target = new Exercise("e1", "Pushup", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("placeholder"));
         ExerciseService service = new ExerciseService(new FakeExerciseRepository(List.of(target)));
 
         Exercise result = service.getExerciseById("e1");

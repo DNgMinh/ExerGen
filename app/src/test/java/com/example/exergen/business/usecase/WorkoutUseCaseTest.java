@@ -1,72 +1,81 @@
 package com.example.exergen.business.usecase;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import com.example.exergen.business.service.ExerciseService;
-import com.example.exergen.business.repository.IExerciseRepository;
-import com.example.exergen.persistence.WorkoutRepositoryStub;
+import com.example.exergen.business.repository.IWorkoutRepository;
+import com.example.exergen.model.EquipmentType;
+import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
 import com.example.exergen.model.Exercise;
+
+import java.util.Arrays;
 import java.util.List;
 
 public class WorkoutUseCaseTest {
 
     private WorkoutUseCase workoutUseCase;
 
+    @Mock
+    private IWorkoutRepository mockWorkoutRepository;
+
+    @Mock
+    private ExerciseService mockExerciseService;
+
     @Before
     public void setUp() {
-        // Create a list of exercises with List<String> for imagePaths
-        List<Exercise> exercises = List.of(
-                new Exercise("pushups", "Pushup", List.of("Chest"), List.of("Bodyweight"), "", 2, List.of("img")),
-                new Exercise("squats", "Squat", List.of("Legs"), List.of("Bodyweight"), "", 2, List.of("img")),
-                new Exercise("plank", "Plank", List.of("Core"), List.of("Bodyweight"), "", 2, List.of("img")));
-
-        ExerciseService exerciseService = new ExerciseService(new LocalFakeExerciseRepo(exercises));
-
-        WorkoutRepositoryStub workoutRepository = new WorkoutRepositoryStub();
-        workoutUseCase = new WorkoutUseCase(workoutRepository, exerciseService);
+        MockitoAnnotations.openMocks(this);
+        workoutUseCase = new WorkoutUseCase(mockWorkoutRepository, mockExerciseService);
     }
 
     @Test
     public void testGetWorkoutById_Valid() {
+        Workout expectedWorkout = new Workout("w1", "Test Workout", 1, List.of("ex1"), List.of(30), List.of(10));
+        when(mockWorkoutRepository.getWorkoutById("w1")).thenReturn(expectedWorkout);
+
         Workout result = workoutUseCase.getWorkoutById("w1");
+
         assertNotNull(result);
-        assertEquals("Beginner Full Body", result.getName());
+        assertEquals("Test Workout", result.getName());
+        verify(mockWorkoutRepository).getWorkoutById("w1");
     }
 
     @Test
     public void testGetWorkoutById_Invalid() {
         assertNull(workoutUseCase.getWorkoutById(null));
         assertNull(workoutUseCase.getWorkoutById(""));
-        assertNull(workoutUseCase.getWorkoutById("non-existent"));
+
+        when(mockWorkoutRepository.getWorkoutById("missing")).thenReturn(null);
+        assertNull(workoutUseCase.getWorkoutById("missing"));
     }
 
     @Test
-    public void testGetAllWorkouts_ReturnsSeededWorkouts() {
-        List<Workout> workouts = workoutUseCase.getAllWorkouts();
-        assertNotNull(workouts);
-        assertFalse(workouts.isEmpty());
+    public void testGetAllWorkouts_DelegatesToRepository() {
+        List<Workout> workouts = Arrays.asList(
+                new Workout("w1", "W1", 1, List.of("e1"), List.of(1), List.of(1)),
+                new Workout("w2", "W2", 1, List.of("e2"), List.of(1), List.of(1))
+        );
+        when(mockWorkoutRepository.getAllWorkouts()).thenReturn(workouts);
+
+        List<Workout> result = workoutUseCase.getAllWorkouts();
+
+        assertEquals(2, result.size());
+        verify(mockWorkoutRepository).getAllWorkouts();
     }
 
     @Test
-    public void testGetExercisesForWorkout_ResolvesCorrectly() {
-        Workout workout = workoutUseCase.getWorkoutById("w1");
-        List<Exercise> exercises = workoutUseCase.getExercisesForWorkout(workout);
+    public void testSaveWorkout_ValidatesAndSaves() {
+        Workout workout = new Workout("new", "New", 1, List.of("e1"), List.of(30), List.of(10));
 
-        assertNotNull(exercises);
-        assertFalse("List should not be empty", exercises.isEmpty());
-        assertEquals("Pushup", exercises.get(0).getName());
-    }
+        workoutUseCase.saveWorkout(workout);
 
-    @Test
-    public void testGetExercisesForWorkout_HandlesMissingExercises() {
-        Workout brokenWorkout = new Workout("b1", "Broken", 1,
-                List.of("fake-id"), List.of(30), List.of(10));
-
-        List<Exercise> results = workoutUseCase.getExercisesForWorkout(brokenWorkout);
-        assertTrue(results.isEmpty());
+        verify(mockWorkoutRepository).saveWorkout(workout);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -75,17 +84,9 @@ public class WorkoutUseCaseTest {
     }
 
     @Test
-    public void testSaveWorkout_PersistsWorkout() {
-        Workout workout = new Workout("w-new", "New Workout", 1, List.of("pushups"), List.of(20), List.of(10));
-        workoutUseCase.saveWorkout(workout);
-        assertNotNull(workoutUseCase.getWorkoutById("w-new"));
-    }
-
-    @Test
-    public void testDeleteWorkout_RemovesWorkout() {
-        assertNotNull(workoutUseCase.getWorkoutById("w1"));
+    public void testDeleteWorkout_ValidatesAndDeletes() {
         workoutUseCase.deleteWorkout("w1");
-        assertNull(workoutUseCase.getWorkoutById("w1"));
+        verify(mockWorkoutRepository).deleteWorkout("w1");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -94,78 +95,35 @@ public class WorkoutUseCaseTest {
     }
 
     @Test
-    public void testGetExercisesForWorkout_PartialResolution() {
-        // Workout with one valid ID ("pushups") and one non-existent ID
-        Workout mixedWorkout = new Workout("m1", "Mixed Results", 1,
-                List.of("pushups", "non-existent-id"), List.of(30, 30), List.of(10, 10));
+    public void testGetExercisesForWorkout_ResolvesCorrectly() {
+        Workout workout = new Workout("w1", "Workout", 1, Arrays.asList("ex1", "ex2"), Arrays.asList(30, 30), Arrays.asList(10, 10));
+        Exercise e1 = new Exercise("ex1", "E1", List.of(MuscleGroup.FULL_BODY), List.of(EquipmentType.BODYWEIGHT), "D1", 1, List.of("P1"));
+        Exercise e2 = new Exercise("ex2", "E2", List.of(MuscleGroup.FULL_BODY), List.of(EquipmentType.BODYWEIGHT), "D2", 2, List.of("P2"));
 
-        List<Exercise> results = workoutUseCase.getExercisesForWorkout(mixedWorkout);
+        when(mockExerciseService.getExerciseById("ex1")).thenReturn(e1);
+        when(mockExerciseService.getExerciseById("ex2")).thenReturn(e2);
 
-        assertEquals(1, results.size());
-        assertEquals("Pushup", results.get(0).getName());
+        List<Exercise> results = workoutUseCase.getExercisesForWorkout(workout);
+
+        assertEquals(2, results.size());
+        assertEquals("E1", results.get(0).getName());
+        assertEquals("E2", results.get(1).getName());
     }
 
     @Test
-    public void testGetExercisesForWorkout_NoMatchingExercisesInRepo() {
-        // Create a valid workout with one ID
-        Workout validWorkout = new Workout("w_none", "Valid But Missing", 1,
-                List.of("ghost-id"), List.of(30), List.of(10));
+    public void testGetExercisesForWorkout_HandlesMissingExercises() {
+        Workout workout = new Workout("w1", "Workout", 1, List.of("ghost"), List.of(30), List.of(10));
+        when(mockExerciseService.getExerciseById("ghost")).thenReturn(null);
 
-        List<Exercise> results = workoutUseCase.getExercisesForWorkout(validWorkout);
+        List<Exercise> results = workoutUseCase.getExercisesForWorkout(workout);
 
-        // Verify it returns an empty list
-        assertNotNull(results);
-        assertTrue("Should be empty because the ID wasn't found", results.isEmpty());
-    }
-
-    @Test
-    public void testGetExercisesForWorkout_NullWorkoutReturnsEmptyList() {
-        List<Exercise> results = workoutUseCase.getExercisesForWorkout(null);
-        assertNotNull(results);
         assertTrue(results.isEmpty());
     }
 
-    private static class LocalFakeExerciseRepo implements IExerciseRepository {
-        private final List<Exercise> exercises;
-
-        public LocalFakeExerciseRepo(List<Exercise> exercises) {
-            this.exercises = exercises;
-        }
-
-        @Override
-        public Exercise getExerciseById(String id) {
-            for (Exercise e : exercises) {
-                if (e.getId().equals(id))
-                    return e;
-            }
-            return null;
-        }
-
-        @Override
-        public List<Exercise> getAllExercises() {
-            return exercises;
-        }
-
-        @Override
-        public List<Exercise> filterByEquipment(String equipment) {
-            return List.of();
-        }
-
-        @Override
-        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
-            return List.of();
-        }
-
-        @Override
-        public void insertExercise(Exercise exercise) {
-        }
-
-        @Override
-        public void deleteExercise(String id) {
-        }
-
-        @Override
-        public void seedData() {
-        }
+    @Test
+    public void testGetExercisesForWorkout_NullWorkoutReturnsEmpty() {
+        List<Exercise> results = workoutUseCase.getExercisesForWorkout(null);
+        assertNotNull(results);
+        assertTrue(results.isEmpty());
     }
 }

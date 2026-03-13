@@ -1,32 +1,34 @@
 package com.example.exergen.model;
 
+import com.example.exergen.business.validation.ValidationHelper;
+
 import java.util.List;
 
 public class Exercise {
 
     private final String id; // Unique key (UUID)
     private final String name; // Display name
-    private final List<String> muscleGroups; // e.g. ["chest", "triceps"]
-    private final List<String> equipment; // e.g. ["dumbbells"] or ["bodyweight"]
+    private final List<MuscleGroup> muscleGroups; // e.g. ["chest", "triceps"]
+    private final List<EquipmentType> equipment; // e.g. ["dumbbells"] or ["bodyweight"]
     private final String instructions; // Instructions
     private final int intensity; // 1-5 scale
     private final List<String> imagePaths; // e.g. ["exercises/planks/0.jpg", "exercises/planks/1.jpg"]
 
     public Exercise(String id,
             String name,
-            List<String> muscleGroups,
-            List<String> equipment,
+            List<MuscleGroup> muscleGroups,
+            List<EquipmentType> equipment,
             String instructions,
             int intensity,
             List<String> imagePaths) {
-        this.id = ModelValidation.requireNonBlank(id, "ID required");
-        this.name = ModelValidation.requireNonBlank(name, "Name required");
-        ModelValidation.requireNonEmptyList(muscleGroups, "Muscle groups required");
-        ModelValidation.requireNonEmptyList(equipment, "Equipment required");
-        ModelValidation.requireNonEmptyList(imagePaths, "Image paths required");
-        
-        if (intensity < 0)
+        this.id = ValidationHelper.requireNonBlank(id, "ID required");
+        this.name = ValidationHelper.requireNonBlank(name, "Name required");
+        ValidationHelper.requireNonEmptyList(muscleGroups, "Muscle groups required");
+        ValidationHelper.requireNonEmptyList(equipment, "Equipment required");
+        ValidationHelper.requireNonEmptyList(imagePaths, "Image paths required");
+        if (intensity < 0){
             throw new IllegalArgumentException("Intensity must be >= 0");
+            }
 
         this.muscleGroups = List.copyOf(muscleGroups);
         this.equipment = List.copyOf(equipment);
@@ -45,11 +47,11 @@ public class Exercise {
         return name;
     }
 
-    public List<String> getMuscleGroups() {
+    public List<MuscleGroup> getMuscleGroups() {
         return muscleGroups;
     }
 
-    public List<String> getEquipment() {
+    public List<EquipmentType> getEquipment() {
         return equipment;
     }
 

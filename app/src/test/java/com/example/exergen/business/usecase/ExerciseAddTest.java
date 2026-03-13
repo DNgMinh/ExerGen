@@ -1,9 +1,11 @@
 package com.example.exergen.business.usecase;
 
 import com.example.exergen.business.exception.DuplicateExerciseException;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.model.MuscleGroup;
 
 import org.junit.Test;
 
@@ -32,12 +34,12 @@ public class ExerciseAddTest {
         }
 
         @Override
-        public List<Exercise> filterByEquipment(String equipment) {
+        public List<Exercise> filterByEquipment(EquipmentType equipment) {
             return List.of();
         }
 
         @Override
-        public List<Exercise> filterByMuscleGroup(String muscleGroup) {
+        public List<Exercise> filterByMuscleGroup(MuscleGroup muscleGroup) {
             return List.of();
         }
 
@@ -59,7 +61,7 @@ public class ExerciseAddTest {
     @Test
     public void addExerciseMakesExerciseRetrievable() {
         ExerciseService service = new ExerciseService(new FakeExerciseRepository());
-        Exercise added = new Exercise("ex-99", "Burpee", List.of("Full Body"), List.of("Bodyweight"), "", 3,
+        Exercise added = new Exercise("ex-99", "Burpee", List.of(MuscleGroup.FULL_BODY), List.of(EquipmentType.BODYWEIGHT), "", 3,
                 List.of("placeholder"));
 
         service.addExercise(added);
@@ -79,13 +81,13 @@ public class ExerciseAddTest {
     public void addExerciseRejectsDuplicateId() {
         IExerciseRepository fakeRepository = new FakeExerciseRepository();
         ExerciseService service = new ExerciseService(fakeRepository);
-        Exercise existingExercise = new Exercise("ex-100", "Push-up", List.of("Chest"), List.of("Bodyweight"), "", 3,
+        Exercise existingExercise = new Exercise("ex-100", "Push-up", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 3,
                 List.of("placeholder"));
 
         fakeRepository.insertExercise(existingExercise);
 
-        Exercise duplicateExercise = new Exercise("ex-100", "Diamond Push-up", List.of("Triceps"),
-                List.of("Bodyweight"), "", 4, List.of("placeholder"));
+        Exercise duplicateExercise = new Exercise("ex-100", "Diamond Push-up", List.of(MuscleGroup.TRICEPS),
+                List.of(EquipmentType.BODYWEIGHT), "", 4, List.of("placeholder"));
         service.addExercise(duplicateExercise);
     }
 }

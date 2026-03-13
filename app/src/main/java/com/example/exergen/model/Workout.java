@@ -1,5 +1,6 @@
 package com.example.exergen.model;
 
+import com.example.exergen.business.validation.ValidationHelper;
 import java.util.List;
 
 public class Workout {
@@ -18,13 +19,13 @@ public class Workout {
             List<String> exerciseIds,
             List<Integer> workSeconds,
             List<Integer> restSeconds) {
-        this.id = ModelValidation.requireNonBlank(id, "ID required");
-        this.name = ModelValidation.requireNonBlank(name, "Workout name required");
+        this.id = ValidationHelper.requireNonBlank(id, "ID required");
+        this.name = ValidationHelper.requireNonBlank(name, "Workout name required");
         if (rounds <= 0)
             throw new IllegalArgumentException("Rounds must be > 0");
-        ModelValidation.requireNonEmptyList(exerciseIds, "exerciseIds required");
-        ModelValidation.requireNonEmptyList(workSeconds, "workSeconds required");
-        ModelValidation.requireNonEmptyList(restSeconds, "restSeconds required");
+        ValidationHelper.requireNonEmptyList(exerciseIds, "exerciseIds required");
+        ValidationHelper.requireNonEmptyList(workSeconds, "workSeconds required");
+        ValidationHelper.requireNonEmptyList(restSeconds, "restSeconds required");
         if (workSeconds.size() != exerciseIds.size())
             throw new IllegalArgumentException("WorkSeconds mismatch");
         if (restSeconds.size() != exerciseIds.size())
