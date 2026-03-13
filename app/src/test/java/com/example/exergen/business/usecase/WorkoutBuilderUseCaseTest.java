@@ -2,6 +2,7 @@ package com.example.exergen.business.usecase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
@@ -53,7 +54,7 @@ public class WorkoutBuilderUseCaseTest {
     }
 
     @Test
-    public void generateWorkoutBuildsRoutineForDurationAndConstraints() {
+    public void generateWorkoutBuildsRoutineForExerciseCountAndConstraints() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
                 List.of("Dumbbells"),
                 List.of("Chest"),
@@ -66,7 +67,8 @@ public class WorkoutBuilderUseCaseTest {
 
         Workout result = workoutBuilderUseCase.generateWorkout(constraints);
 
-        assertEquals("Generated Workout", result.getName());
+        assertNotNull(result.getName());
+        assertTrue(result.getName().startsWith("Generated Workout - "));
         assertEquals(1, result.getRounds());
         assertEquals(3, result.getExerciseIds().size());
         for (String id : result.getExerciseIds()) {
@@ -89,7 +91,7 @@ public class WorkoutBuilderUseCaseTest {
     }
 
     @Test
-    public void generateWorkoutCyclesMatchingExercisesWhenDurationRequiresMoreSlots() {
+    public void generateWorkoutCyclesMatchingExercisesWhenCountRequiresMoreSlots() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Chest", "Legs"), 3);
 
         Exercise e1 = new Exercise("e1", "E1", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img1"));

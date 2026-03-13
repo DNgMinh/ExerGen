@@ -5,18 +5,27 @@ import android.app.Application;
 import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.StatisticsUseCase;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.business.repository.IExerciseRepository;
 import com.example.exergen.business.repository.ISessionHistoryRepository;
 import com.example.exergen.business.repository.IWorkoutRepository;
 import com.example.exergen.persistence.ExerciseRepositorySQLite;
+import com.example.exergen.persistence.ExerciseRepositoryStub;
 import com.example.exergen.persistence.SessionHistoryRepositorySQLite;
+import com.example.exergen.persistence.SessionHistoryRepositoryStub;
 import com.example.exergen.persistence.WorkoutRepositorySQLite;
+import com.example.exergen.persistence.WorkoutRepositoryStub;
 
 public final class AppBootstrap {
 
     private static AppBootstrap instance;
+
+    // SWITCH DATA SOURCE HERE
+    // Set to 'false' for SQLite
+    // Set to 'true' for Stub
+    private static final boolean USE_STUB = false;
 
     public static void init(Application app) {
         if (instance != null)
@@ -36,20 +45,35 @@ public final class AppBootstrap {
     public final WorkoutUseCase workoutUseCase;
     public final WorkoutBuilderUseCase workoutBuilderUseCase;
     public final SessionHistoryUseCase sessionHistoryUseCase;
+    public final StatisticsUseCase statisticsUseCase;
     public final ExerciseService exerciseService;
-    //public final EnumMapper mapper;
 
     private AppBootstrap(Application app) {
-        IWorkoutRepository workoutRepository = new WorkoutRepositorySQLite(app);
-        IExerciseRepository exerciseRepository = new ExerciseRepositorySQLite(app, new EnumMapper());
-        ISessionHistoryRepository sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
+        IWorkoutRepository workoutRepository;
+        IExerciseRepository exerciseRepository;
+        ISessionHistoryRepository sessionHistoryRepository;
+
+        if (USE_STUB) {
+            // Using Stub Implementations
+            workoutRepository = new WorkoutRepositoryStub();
+            exerciseRepository = new ExerciseRepositoryStub();
+            sessionHistoryRepository = new SessionHistoryRepositoryStub();
+        } else {
+            // Using Real SQLite Implementations
+            workoutRepository = new WorkoutRepositorySQLite(app);
+            exerciseRepository = new ExerciseRepositorySQLite(app, new EnumMapper());
+            sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
+        }
+
         // Seed data for workout and exercise repositories
         workoutRepository.seedData();
         exerciseRepository.seedData();
 
+        // Dependency Injection into Business Services
         this.exerciseService = new ExerciseService(exerciseRepository);
         this.workoutUseCase = new WorkoutUseCase(workoutRepository, exerciseService);
         this.workoutBuilderUseCase = new WorkoutBuilderUseCase(exerciseService);
         this.sessionHistoryUseCase = new SessionHistoryUseCase(sessionHistoryRepository);
+        this.statisticsUseCase = new StatisticsUseCase(sessionHistoryRepository);
     }
 }

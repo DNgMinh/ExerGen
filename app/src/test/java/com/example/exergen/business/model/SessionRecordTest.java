@@ -39,8 +39,33 @@ public class SessionRecordTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsBlankWorkoutId() {
+        new SessionRecord("s1", " ", "Leg Day", 1700000000000L, 1200, 6, 3, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsBlankWorkoutName() {
+        new SessionRecord("s1", "w1", " ", 1700000000000L, 1200, 6, 3, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void constructorRejectsNegativeDuration() {
         new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, -1, 6, 3, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsZeroExerciseCount() {
+        new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 0, 3, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsZeroRoundsPlanned() {
+        new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 6, 0, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsNegativeRoundsCompleted() {
+        new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 6, 3, -1);
     }
 
     @Test(expected = IllegalArgumentException.class)

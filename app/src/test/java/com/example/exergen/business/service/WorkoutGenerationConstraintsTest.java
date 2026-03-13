@@ -30,7 +30,7 @@ public class WorkoutGenerationConstraintsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorRejectsNonPositiveDuration() {
+    public void testConstructorRejectsNonPositiveExerciseCount() {
         new WorkoutGenerationConstraints(List.of("Dumbbells"), List.of("Chest"), 0);
     }
 
@@ -40,13 +40,13 @@ public class WorkoutGenerationConstraintsTest {
     }
 
     @Test
-    public void testConstructorTrimsValuesAndStoresDuration() {
+    public void testConstructorTrimsValuesAndStoresExerciseCount() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
                 List.of(" Dumbbells "), List.of(" Chest "), 25);
 
         assertEquals(List.of(EquipmentType.DUMBBELLS), constraints.getSelectedEquipment());
         assertEquals(List.of(MuscleGroup.CHEST), constraints.getTargetMuscleGroups());
-        assertEquals(25, constraints.getDesiredDurationMinutes());
+        assertEquals(25, constraints.getTargetExerciseCount());
     }
 
     @Test
