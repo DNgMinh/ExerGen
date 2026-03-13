@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <ImageButton
+        android:id="@+id/btn_exit_workout"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/btn_exit"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_workout_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_exit_workout"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btn_exit_workout" />
+
+    <TextView
+        android:id="@+id/tv_live_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/timer_default"
+        android:textSize="64sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_exit_workout" />
+
+    <TextView
+        android:id="@+id/tv_live_phase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/timer_ready"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_live_timer" />
+
+    <TextView
+        android:id="@+id/tv_current_exercise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textAppearance="?attr/textAppearanceHeadline5"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_live_phase" />
+
+    <ImageView
+        android:id="@+id/iv_exercise_animation"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginVertical="16dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@id/tv_next_exercise"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_current_exercise" />
+
+    <TextView
+        android:id="@+id/tv_next_exercise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textAppearance="?attr/textAppearanceSubtitle1"
+        app:layout_constraintBottom_toTopOf="@id/live_btn_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/live_btn_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/btn_live_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:backgroundTint="#FF5722"
+            android:text="@string/btn_pause" />
+
+        <Button
+            android:id="@+id/btn_live_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="32dp"
+            android:text="@string/btn_start" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
