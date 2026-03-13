@@ -25,7 +25,7 @@ public final class AppBootstrap {
     // SWITCH DATA SOURCE HERE
     // Set to 'false' for SQLite
     // Set to 'true' for Stub
-    private static final boolean USE_STUB = true;
+    private static final boolean USE_STUB = false;
 
     public static void init(Application app) {
         if (instance != null)
