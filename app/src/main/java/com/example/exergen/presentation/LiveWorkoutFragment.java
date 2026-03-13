@@ -55,11 +55,12 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
     private final Handler animationHandler = new Handler(Looper.getMainLooper());
     private int currentFrame = 0;
     private boolean isAnimating = false;
+    private boolean suppressNextSound = false;
 
     private final Runnable animationRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!animationDrawables.isEmpty()) {
+            if (!animationDrawables.isEmpty() && isAnimating) {
                 currentFrame = (currentFrame + 1) % animationDrawables.size();
                 ivAnimation.setImageDrawable(animationDrawables.get(currentFrame));
                 animationHandler.postDelayed(this, 1000);
@@ -101,6 +102,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
         if (workout != null) {
             tvWorkoutName.setText(workout.getName());
         }
+        setBottomNavVisibility(View.GONE);
     }
 
     private void initializeViews(View view) {
@@ -132,7 +134,10 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
     private void setupButtons() {
         btnStart.setOnClickListener(v -> startOrResumeWorkout());
         btnPause.setOnClickListener(v -> pauseWorkout());
-        btnCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        btnCancel.setOnClickListener(v -> {
+            setBottomNavVisibility(View.VISIBLE);
+            getParentFragmentManager().popBackStack();
+        });
         btnExit.setOnClickListener(v -> confirmExit());
     }
 
@@ -147,9 +152,20 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
             activeContainer.setVisibility(View.VISIBLE);
             btnPause.setVisibility(View.VISIBLE);
             btnCancel.setVisibility(View.GONE);
+            suppressNextSound = false;
+        } else {
+            suppressNextSound = true;
         }
 
         intervalTimer.start();
+        suppressNextSound = false;
+        
+        // Ensure animation starts/keeps playing (always playing for exercise)
+        if (!isAnimating) {
+            isAnimating = true;
+            animationHandler.post(animationRunnable);
+        }
+        
         btnStart.setVisibility(View.GONE);
         btnPause.setEnabled(true);
     }
@@ -157,6 +173,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
     private void pauseWorkout() {
         if (intervalTimer != null) {
             intervalTimer.pause();
+            // Animation keeps playing as requested
             btnStart.setText(getString(R.string.btn_resume));
             btnStart.setVisibility(View.VISIBLE);
             btnPause.setEnabled(false);
@@ -171,6 +188,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
                     if (intervalTimer != null) {
                         intervalTimer.cancel();
                     }
+                    setBottomNavVisibility(View.VISIBLE);
                     getParentFragmentManager().popBackStack();
                 })
                 .setNegativeButton(android.R.string.no, null)
@@ -199,10 +217,16 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
             } else {
                 tvPhase.setText(getString(R.string.timer_rest));
                 tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
+                
+                // Keep image blank during rest
                 stopAnimation();
-                ivAnimation.setImageResource(android.R.drawable.ic_media_pause);
+                tvCurrentExercise.setText(getString(R.string.timer_rest).toUpperCase());
+                ivAnimation.setImageDrawable(null);
             }
-            toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 500);
+
+            if (!suppressNextSound) {
+                toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 500);
+            }
         });
     }
 
@@ -214,8 +238,10 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
             tvNextExercise.setText("");
             stopAnimation();
             ivAnimation.setImageResource(android.R.drawable.checkbox_on_background);
+            ivAnimation.setAlpha(1.0f);
             btnPause.setVisibility(View.GONE);
             btnStart.setVisibility(View.GONE);
+            setBottomNavVisibility(View.VISIBLE);
         });
     }
 
@@ -239,14 +265,15 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
             Exercise nextEx = AppBootstrap.get().exerciseService.getExerciseById(nextExId);
             if (nextEx != null) {
                 tvNextExercise.setText(getString(R.string.live_workout_next_label, nextEx.getName()));
+                tvNextExercise.setVisibility(View.VISIBLE);
             }
         } else {
-            tvNextExercise.setText("");
+            tvNextExercise.setVisibility(View.GONE);
         }
     }
 
     private void loadAndStartAnimation(List<String> paths) {
-        stopAnimation();
+        animationHandler.removeCallbacks(animationRunnable);
         animationDrawables.clear();
         for (String path : paths) {
             try (InputStream is = requireContext().getAssets().open(path)) {
@@ -259,6 +286,7 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
         if (!animationDrawables.isEmpty()) {
             isAnimating = true;
             currentFrame = 0;
+            ivAnimation.setAlpha(1.0f);
             ivAnimation.setImageDrawable(animationDrawables.get(0));
             animationHandler.post(animationRunnable);
         }
@@ -267,6 +295,14 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
     private void stopAnimation() {
         isAnimating = false;
         animationHandler.removeCallbacks(animationRunnable);
+        animationDrawables.clear();
+    }
+
+    private void setBottomNavVisibility(int visibility) {
+        if (getActivity() != null) {
+            View nav = getActivity().findViewById(R.id.bottom_navigation);
+            if (nav != null) nav.setVisibility(visibility);
+        }
     }
 
     private void safeRunOnUiThread(Runnable action) {
@@ -280,5 +316,6 @@ public class LiveWorkoutFragment extends Fragment implements TimerObserver {
         super.onDestroy();
         if (toneGenerator != null) toneGenerator.release();
         stopAnimation();
+        setBottomNavVisibility(View.VISIBLE);
     }
 }

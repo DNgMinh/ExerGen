@@ -13,7 +13,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/btn_exit"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -23,8 +23,8 @@
         android:gravity="center"
         android:textAppearance="?attr/textAppearanceHeadline6"
         app:layout_constraintBottom_toBottomOf="@id/btn_exit_workout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_exit_workout"
+        app:layout_constraintEnd_toStartOf="@id/btn_exit_workout"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
