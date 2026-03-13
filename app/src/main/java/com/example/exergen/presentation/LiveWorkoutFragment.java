@@ -161,10 +161,12 @@ public class LiveWorkoutFragment extends Fragment {
             if (phase == TimerPhase.WORK) {
                 tvPhase.setText(getString(R.string.timer_work));
                 tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-            } else {
+            }
+            else {
                 tvPhase.setText(getString(R.string.timer_rest));
                 tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                 tvCurrentExercise.setText(getString(R.string.timer_rest).toUpperCase());
+                stopAnimation();
                 stopAnimation();
                 ivAnimation.setImageDrawable(null);
             }
@@ -182,7 +184,8 @@ public class LiveWorkoutFragment extends Fragment {
             if (exercise != null) {
                 tvNextExercise.setText(getString(R.string.live_workout_next_label, exercise.getName()));
                 tvNextExercise.setVisibility(View.VISIBLE);
-            } else {
+            }
+            else {
                 tvNextExercise.setVisibility(View.GONE);
             }
         });
@@ -194,7 +197,8 @@ public class LiveWorkoutFragment extends Fragment {
                 if (viewModel.getPhase().getValue() == TimerPhase.WORK) {
                     resumeAnimation();
                 }
-            } else {
+            }
+            else {
                 btnStart.setText(getString(R.string.btn_resume));
                 btnStart.setVisibility(View.VISIBLE);
                 btnPause.setEnabled(false);
@@ -246,7 +250,8 @@ public class LiveWorkoutFragment extends Fragment {
             try (InputStream is = requireContext().getAssets().open(path)) {
                 Drawable d = Drawable.createFromStream(is, null);
                 if (d != null) animationDrawables.add(d);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 Log.e(TAG, "Error loading image: " + path, e);
             }
         }

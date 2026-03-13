@@ -58,7 +58,8 @@ public final class AppBootstrap {
             workoutRepository = new WorkoutRepositoryStub();
             exerciseRepository = new ExerciseRepositoryStub();
             sessionHistoryRepository = new SessionHistoryRepositoryStub();
-        } else {
+        }
+        else {
             // Using Real SQLite Implementations
             workoutRepository = new WorkoutRepositorySQLite(app);
             exerciseRepository = new ExerciseRepositorySQLite(app, new EnumMapper());
