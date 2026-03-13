@@ -156,4 +156,14 @@ public class IntervalTimer {
         this.remainingSeconds = secondsRemaining;
         this.isRunning = false;
     }
+
+    public void skipPhase() {
+        if (isRunning) {
+            handlePhaseSwitch();
+        } else {
+            // If paused, switch phase but don't automatically start ticking
+            handlePhaseSwitch();
+            pause();
+        }
+    }
 }
