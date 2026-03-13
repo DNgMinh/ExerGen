@@ -5,6 +5,8 @@ import com.example.exergen.business.service.WorkoutGenerationConstraints;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.UUID;
 public class WorkoutBuilderUseCase {
     private static final int DEFAULT_WORK_SECONDS = 45;
     private static final int DEFAULT_REST_SECONDS = 15;
-    private static final int SECONDS_PER_MINUTE = 60;
+    private static final DateTimeFormatter GENERATED_NAME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final ExerciseService exerciseService;
 
@@ -42,9 +44,7 @@ public class WorkoutBuilderUseCase {
         List<Exercise> shuffled = new ArrayList<>(matchingExercises);
         Collections.shuffle(shuffled);
 
-        int targetSeconds = constraints.getDesiredDurationMinutes() * SECONDS_PER_MINUTE;
-        int slotSeconds = DEFAULT_WORK_SECONDS + DEFAULT_REST_SECONDS;
-        int exerciseCount = Math.max(1, targetSeconds / slotSeconds);
+        int exerciseCount = constraints.getTargetExerciseCount();
 
         List<String> exerciseIds = new ArrayList<>();
         List<Integer> workSeconds = new ArrayList<>();
@@ -61,10 +61,14 @@ public class WorkoutBuilderUseCase {
         String generatedId = "generated-" + UUID.randomUUID();
         return new Workout(
                 generatedId,
-                "Generated Workout",
+                createGeneratedWorkoutName(),
                 1,
                 exerciseIds,
                 workSeconds,
                 restSeconds);
+    }
+
+    private String createGeneratedWorkoutName() {
+        return "Generated Workout - " + LocalDateTime.now().format(GENERATED_NAME_FORMATTER);
     }
 }

@@ -19,13 +19,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="@string/workout_builder_duration_label" />
+            android:text="@string/workout_builder_exercise_count_label" />
 
         <EditText
-            android:id="@+id/et_duration_minutes"
+            android:id="@+id/et_exercise_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/workout_builder_duration_hint"
+            android:hint="@string/workout_builder_exercise_count_hint"
             android:inputType="number" />
 
         <TextView
@@ -82,41 +82,47 @@
             android:layout_marginTop="16dp"
             android:text="@string/workout_builder_equipment_label" />
 
-        <CheckBox
-            android:id="@+id/cb_equipment_bodyweight"
-            android:layout_width="wrap_content"
+        <GridLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/equipment_bodyweight" />
+            android:columnCount="3">
 
-        <CheckBox
-            android:id="@+id/cb_equipment_dumbbells"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/equipment_dumbbells" />
+            <CheckBox
+                android:id="@+id/cb_equipment_bodyweight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/equipment_bodyweight" />
 
-        <CheckBox
-            android:id="@+id/cb_equipment_barbell"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/equipment_barbell" />
+            <CheckBox
+                android:id="@+id/cb_equipment_dumbbells"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/equipment_dumbbells" />
 
-        <CheckBox
-            android:id="@+id/cb_equipment_ez_curl_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/equipment_ez_curl_bar" />
+            <CheckBox
+                android:id="@+id/cb_equipment_barbell"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/equipment_barbell" />
 
-        <CheckBox
-            android:id="@+id/cb_equipment_machine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/equipment_machine" />
+            <CheckBox
+                android:id="@+id/cb_equipment_ez_curl_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/equipment_ez_curl_bar" />
 
-        <CheckBox
-            android:id="@+id/cb_equipment_cable"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/equipment_cable" />
+            <CheckBox
+                android:id="@+id/cb_equipment_machine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/equipment_machine" />
+
+            <CheckBox
+                android:id="@+id/cb_equipment_cable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/equipment_cable" />
+        </GridLayout>
 
         <Button
             android:id="@+id/btn_generate_workout"
