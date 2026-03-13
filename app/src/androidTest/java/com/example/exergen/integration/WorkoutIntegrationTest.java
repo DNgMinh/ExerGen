@@ -17,6 +17,7 @@ import com.example.exergen.model.Workout;
 import com.example.exergen.persistence.ExerciseRepositorySQLite;
 import com.example.exergen.persistence.WorkoutRepositorySQLite;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkoutIntegrationTest {
+    private static final String TEST_DB_NAME = "ExerGen_test.db";
 
     private WorkoutUseCase workoutUseCase;
     private Context context;
@@ -34,11 +36,10 @@ public class WorkoutIntegrationTest {
         context = ApplicationProvider.getApplicationContext();
         EnumMapper mapper = new EnumMapper();
 
-        // Reset database to ensure a clean state for each test
-        context.deleteDatabase("ExerGen.db");
+        context.deleteDatabase(TEST_DB_NAME);
 
-        WorkoutRepositorySQLite workoutRepo = new WorkoutRepositorySQLite(context);
-        ExerciseRepositorySQLite exerciseRepo = new ExerciseRepositorySQLite(context, mapper);
+        WorkoutRepositorySQLite workoutRepo = new WorkoutRepositorySQLite(context, TEST_DB_NAME);
+        ExerciseRepositorySQLite exerciseRepo = new ExerciseRepositorySQLite(context, mapper, TEST_DB_NAME);
         
         // Seed database with default content as required
         workoutRepo.seedData();
@@ -46,6 +47,11 @@ public class WorkoutIntegrationTest {
 
         ExerciseService exerciseService = new ExerciseService(exerciseRepo);
         workoutUseCase = new WorkoutUseCase(workoutRepo, exerciseService);
+    }
+
+    @After
+    public void tearDown() {
+        context.deleteDatabase(TEST_DB_NAME);
     }
 
     @Test

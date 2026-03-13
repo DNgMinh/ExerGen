@@ -28,7 +28,6 @@ import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -222,10 +221,10 @@ public class WorkoutBuilderFragment extends Fragment {
         String summaryText = getString(
                 R.string.workout_builder_summary_format,
                 constraints.getTargetExerciseCount(),
-                constraints.getTargetMuscleGroups().stream().map(MuscleGroup::name).collect(Collectors.joining(", ")),
+                constraints.getTargetMuscleGroups().stream().map(MuscleGroup::getLabel).collect(Collectors.joining(", ")),
                 constraints.getSelectedEquipment().isEmpty()
                         ? getString(R.string.workout_builder_equipment_any)
-                        : constraints.getSelectedEquipment().stream().map(EquipmentType::name).collect(Collectors.joining(", ")));
+                        : constraints.getSelectedEquipment().stream().map(EquipmentType::getLabel).collect(Collectors.joining(", ")));
 
         try {
             Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(constraints);
@@ -302,22 +301,22 @@ public class WorkoutBuilderFragment extends Fragment {
     private List<String> getSelectedMuscles() {
         List<String> muscles = new ArrayList<>();
         if (cbMuscleChest.isChecked()) {
-            muscles.add("Chest");
+            muscles.add(MuscleGroup.CHEST.getLabel());
         }
         if (cbMuscleLegs.isChecked()) {
-            muscles.add("Legs");
+            muscles.add(MuscleGroup.LEGS.getLabel());
         }
         if (cbMuscleBack.isChecked()) {
-            muscles.add("Back");
+            muscles.add(MuscleGroup.BACK.getLabel());
         }
         if (cbMuscleShoulders.isChecked()) {
-            muscles.add("Shoulders");
+            muscles.add(MuscleGroup.SHOULDERS.getLabel());
         }
         if (cbMuscleBiceps.isChecked()) {
-            muscles.add("Biceps");
+            muscles.add(MuscleGroup.BICEPS.getLabel());
         }
         if (cbMuscleTriceps.isChecked()) {
-            muscles.add("Triceps");
+            muscles.add(MuscleGroup.TRICEPS.getLabel());
         }
         return muscles;
     }
@@ -325,22 +324,22 @@ public class WorkoutBuilderFragment extends Fragment {
     private List<String> getSelectedEquipment() {
         List<String> equipment = new ArrayList<>();
         if (cbEquipmentBodyweight.isChecked()) {
-            equipment.add("Bodyweight");
+            equipment.add(EquipmentType.BODYWEIGHT.getLabel());
         }
         if (cbEquipmentDumbbells.isChecked()) {
-            equipment.add("Dumbbell");
+            equipment.add(EquipmentType.DUMBBELLS.getLabel());
         }
         if (cbEquipmentBarbell.isChecked()) {
-            equipment.add("Barbell");
+            equipment.add(EquipmentType.BARBELL.getLabel());
         }
         if (cbEquipmentEzCurlBar.isChecked()) {
-            equipment.add("E-Z Curl Bar");
+            equipment.add(EquipmentType.EZ_CURL_BAR.getLabel());
         }
         if (cbEquipmentMachine.isChecked()) {
-            equipment.add("Machine");
+            equipment.add(EquipmentType.MACHINE.getLabel());
         }
         if (cbEquipmentCable.isChecked()) {
-            equipment.add("Cable");
+            equipment.add(EquipmentType.CABLE.getLabel());
         }
         return equipment;
     }

@@ -27,8 +27,12 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     private final EnumMapper mapper;
 
     public ExerciseRepositorySQLite(Context context, EnumMapper mapper) {
+        this(context, mapper, DatabaseHelper.DEFAULT_DATABASE_NAME);
+    }
+
+    public ExerciseRepositorySQLite(Context context, EnumMapper mapper, String databaseName) {
         this.context = context;
-        this.dbHelper = new DatabaseHelper(context);
+        this.dbHelper = new DatabaseHelper(context, databaseName);
         this.mapper = mapper;
     }
 

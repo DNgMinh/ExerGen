@@ -16,6 +16,7 @@ import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.persistence.ExerciseRepositorySQLite;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +30,7 @@ import java.util.List;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExerciseIntegrationTest {
+    private static final String TEST_DB_NAME = "ExerGen_test.db";
 
     private ExerciseService exerciseService;
     private Context context;
@@ -39,15 +41,19 @@ public class ExerciseIntegrationTest {
         EnumMapper mapper = new EnumMapper();
         context = ApplicationProvider.getApplicationContext();
 
-        // Ensure clean state
-        context.deleteDatabase("ExerGen.db");
+        context.deleteDatabase(TEST_DB_NAME);
 
-        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, mapper);
+        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, mapper, TEST_DB_NAME);
         
         // Seed database from real CSV assets
         repo.seedData();
 
         exerciseService = new ExerciseService(repo);
+    }
+
+    @After
+    public void tearDown() {
+        context.deleteDatabase(TEST_DB_NAME);
     }
 
     @Test
