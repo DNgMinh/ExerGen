@@ -73,6 +73,13 @@
     <string name="btn_end_timer">End Timer</string>
     <string name="btn_pause">Pause</string>
     <string name="btn_back">Back</string>
+
+    <!-- Live Workout strings -->
+    <string name="live_workout_next_label">Next: %s</string>
+    <string name="live_workout_finished">Workout Finished!</string>
+    <string name="live_workout_exit_confirm">Quit workout?</string>
+    <string name="btn_exit">X</string>
+
     <string name="stats_title">Session History</string>
     <string name="stats_subtitle">Completed sessions</string>
     <string name="stats_dashboard_title">Statistics Dashboard</string>
