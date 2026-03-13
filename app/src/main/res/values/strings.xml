@@ -6,6 +6,6 @@
     <string name="timer_work">WORK!</string>
     <string name="timer_rest">REST</string>
     <string name="timer_done">Done!</string>
-    <string name="btn_start">Start</string>
+    <string name="btn_start">Begin</string>
     <string name="btn_resume">Resume</string>
 </resources>
