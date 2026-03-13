@@ -15,11 +15,13 @@ import java.util.List;
 
 public class WorkoutRepositorySQLite implements IWorkoutRepository {
     private final DatabaseHelper dbHelper;
-    private final Context context;
 
     public WorkoutRepositorySQLite(Context context) {
-        this.context = context;
-        this.dbHelper = new DatabaseHelper(context);
+        this(context, DatabaseHelper.DEFAULT_DATABASE_NAME);
+    }
+
+    public WorkoutRepositorySQLite(Context context, String databaseName) {
+        this.dbHelper = new DatabaseHelper(context, databaseName);
     }
 
     @Override
@@ -123,41 +125,10 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
     @Override
     public void seedData() {
         if (getAllWorkouts().isEmpty()) {
-            List<Workout> defaultWorkouts = loadWorkoutsFromAssets();
+            List<Workout> defaultWorkouts = DefaultWorkoutSeedData.createDefaultWorkouts();
             for (Workout w : defaultWorkouts) {
                 saveWorkout(w);
             }
         }
-    }
-
-    private List<Workout> loadWorkoutsFromAssets() {
-        List<Workout> list = new ArrayList<>();
-        List<String[]> rows = CSVParser.parseAssetCSV(context, "workouts.csv");
-
-        for (String[] tokens : rows) {
-            if (tokens.length >= 6) {
-                String id = tokens[0].trim();
-                String name = tokens[1].trim();
-                int rounds = Integer.parseInt(tokens[2].trim());
-
-                // Parse Exercise IDs
-                List<String> exerciseIds = Arrays.asList(tokens[3].split("\\|"));
-
-                // Parse Work Seconds
-                List<Integer> workSecs = new ArrayList<>();
-                for (String s : tokens[4].split("\\|")) {
-                    workSecs.add(Integer.parseInt(s.trim()));
-                }
-
-                // Parse Rest Seconds
-                List<Integer> restSecs = new ArrayList<>();
-                for (String s : tokens[5].split("\\|")) {
-                    restSecs.add(Integer.parseInt(s.trim()));
-                }
-
-                list.add(new Workout(id, name, rounds, exerciseIds, workSecs, restSecs));
-            }
-        }
-        return list;
     }
 }

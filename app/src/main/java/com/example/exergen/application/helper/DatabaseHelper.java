@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "ExerGen.db";
+    public static final String DEFAULT_DATABASE_NAME = "ExerGen.db";
     // FYI: We can change the DB version during testing if we add/remove from exercises.csv.
     // Just increment version # and restart emulator
     private static final int DATABASE_VERSION = 5;
@@ -16,7 +16,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_SESSION_HISTORY = "SessionHistory";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this(context, DEFAULT_DATABASE_NAME);
+    }
+
+    public DatabaseHelper(Context context, String databaseName) {
+        super(context, databaseName, null, DATABASE_VERSION);
     }
 
     /*

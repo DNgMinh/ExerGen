@@ -16,7 +16,11 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
     private final DatabaseHelper dbHelper;
 
     public SessionHistoryRepositorySQLite(Context context) {
-        this.dbHelper = new DatabaseHelper(context);
+        this(context, DatabaseHelper.DEFAULT_DATABASE_NAME);
+    }
+
+    public SessionHistoryRepositorySQLite(Context context, String databaseName) {
+        this.dbHelper = new DatabaseHelper(context, databaseName);
     }
 
     @Override

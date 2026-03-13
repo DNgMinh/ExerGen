@@ -65,11 +65,9 @@ public final class AppBootstrap {
             sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
         }
 
-        // Fix: Seed data in background to prevent UI freeze on first run
-        new Thread(() -> {
-            workoutRepository.seedData();
-            exerciseRepository.seedData();
-        }).start();
+        // Seed before exposing use cases so first-launch reads are deterministic.
+        workoutRepository.seedData();
+        exerciseRepository.seedData();
 
         // Dependency Injection into Business Services
         this.exerciseService = new ExerciseService(exerciseRepository);

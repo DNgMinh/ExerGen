@@ -13,6 +13,7 @@ import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.SessionRecord;
 import com.example.exergen.persistence.SessionHistoryRepositorySQLite;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class SessionHistoryIntegrationTest {
+    private static final String TEST_DB_NAME = "ExerGen_test.db";
 
     private SessionHistoryUseCase sessionHistoryUseCase;
     private Context context;
@@ -28,12 +30,15 @@ public class SessionHistoryIntegrationTest {
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
-        
-        // Ensure clean state
-        context.deleteDatabase("ExerGen.db");
+        context.deleteDatabase(TEST_DB_NAME);
 
-        SessionHistoryRepositorySQLite repository = new SessionHistoryRepositorySQLite(context);
+        SessionHistoryRepositorySQLite repository = new SessionHistoryRepositorySQLite(context, TEST_DB_NAME);
         sessionHistoryUseCase = new SessionHistoryUseCase(repository);
+    }
+
+    @After
+    public void tearDown() {
+        context.deleteDatabase(TEST_DB_NAME);
     }
 
     @Test
