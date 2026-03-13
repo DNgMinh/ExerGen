@@ -14,19 +14,19 @@ import java.util.List;
 public final class WorkoutGenerationConstraints {
     private final List<EquipmentType> selectedEquipment;
     private final List<MuscleGroup> targetMuscleGroups;
-    private final int desiredDurationMinutes;
+    private final int targetExerciseCount;
 
     public WorkoutGenerationConstraints(List<String> equipmentLabels,
                                         List<String> muscleLabels,
-                                        int desiredDurationMinutes) {
-        this(new EnumMapper(), equipmentLabels, muscleLabels, desiredDurationMinutes);
+                                        int targetExerciseCount) {
+        this(new EnumMapper(), equipmentLabels, muscleLabels, targetExerciseCount);
     }
 
     public WorkoutGenerationConstraints(
             EnumMapper mapper,
             List<String> equipmentLabels,
             List<String> muscleLabels,
-            int desiredDurationMinutes) {
+            int targetExerciseCount) {
 
         ValidationHelper.validateEquipment(equipmentLabels);
         ValidationHelper.validateMuscles(muscleLabels);
@@ -34,10 +34,10 @@ public final class WorkoutGenerationConstraints {
         this.selectedEquipment = Collections.unmodifiableList(mapper.toEquipmentEnums(equipmentLabels));
         this.targetMuscleGroups = Collections.unmodifiableList(mapper.toMuscleEnums(muscleLabels));
 
-        if (desiredDurationMinutes <= 0) {
-            throw new IllegalArgumentException("desiredDurationMinutes must be > 0");
+        if (targetExerciseCount <= 0) {
+            throw new IllegalArgumentException("targetExerciseCount must be > 0");
         }
-        this.desiredDurationMinutes = desiredDurationMinutes;
+        this.targetExerciseCount = targetExerciseCount;
     }
 
     public List<EquipmentType> getSelectedEquipment() {
@@ -48,8 +48,8 @@ public final class WorkoutGenerationConstraints {
         return targetMuscleGroups;
     }
 
-    public int getDesiredDurationMinutes() {
-        return desiredDurationMinutes;
+    public int getTargetExerciseCount() {
+        return targetExerciseCount;
     }
 
     public boolean matchesExercise(Exercise exercise) {

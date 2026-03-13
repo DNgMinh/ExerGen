@@ -16,20 +16,20 @@
     <string name="add_exercise_title">Select Exercise</string>
     <string name="exercise_attributes_format">Muscles: %1$s | Equipment: %2$s</string>
     <string name="workout_builder_title">Workout Builder</string>
-    <string name="workout_builder_duration_label">Desired Duration (minutes)</string>
-    <string name="workout_builder_duration_hint">e.g. 20</string>
+    <string name="workout_builder_exercise_count_label">Total Exercises</string>
+    <string name="workout_builder_exercise_count_hint">e.g. 6</string>
     <string name="workout_builder_muscle_label">Target Muscle Groups</string>
     <string name="workout_builder_equipment_label">Available Equipment (optional)</string>
     <string name="workout_builder_generate_button">Generate Workout</string>
     <string name="workout_builder_start_button">Start</string>
     <string name="workout_builder_regenerate_button">Regenerate</string>
     <string name="workout_builder_edit_button">Edit</string>
-    <string name="workout_builder_summary_format">Duration: %1$d min\nMuscles: %2$s\nEquipment: %3$s</string>
+    <string name="workout_builder_summary_format">Exercises: %1$d\nMuscles: %2$s\nEquipment: %3$s</string>
     <string name="workout_builder_equipment_any">Any</string>
     <string name="workout_builder_preview_header">Generated Workout Preview</string>
     <string name="workout_builder_preview_count_format">Exercises: %1$d</string>
-    <string name="workout_builder_error_duration_required">Please enter duration in minutes.</string>
-    <string name="workout_builder_error_duration_invalid">Duration must be a valid positive number.</string>
+    <string name="workout_builder_error_exercise_count_required">Please enter total exercises.</string>
+    <string name="workout_builder_error_exercise_count_invalid">Total exercises must be a valid positive number.</string>
     <string name="workout_builder_error_muscle_required">Select at least one target muscle group.</string>
     <string name="workout_builder_error_generate_first">Generate a workout before starting.</string>
     <string name="workout_builder_saved_message">Workout saved to Workouts.</string>
@@ -44,6 +44,9 @@
     <string name="equipment_bodyweight">Bodyweight</string>
     <string name="equipment_dumbbells">Dumbbell</string>
     <string name="equipment_barbell">Barbell</string>
+    <string name="equipment_ez_curl_bar">E-Z Curl Bar</string>
+    <string name="equipment_machine">Machine</string>
+    <string name="equipment_cable">Cable</string>
     <string name="nav_workouts">Workouts</string>
     <string name="nav_add">Add</string>
     <string name="nav_exercises">Exercises</string>
@@ -72,6 +75,27 @@
     <string name="btn_back">Back</string>
     <string name="stats_title">Session History</string>
     <string name="stats_subtitle">Completed sessions</string>
+    <string name="stats_dashboard_title">Statistics Dashboard</string>
+    <string name="stats_total_sessions_value_default">Total Sessions: 0</string>
+    <string name="stats_total_duration_value_default">Total Duration: 0 min 0 sec</string>
+    <string name="stats_average_duration_value_default">Average Session: 0 min 0 sec</string>
+    <string name="stats_total_calories_value_default">Estimated Calories: 0 kcal</string>
+    <string name="stats_average_calories_value_default">Avg Calories/Session: 0 kcal</string>
+    <string name="stats_total_sessions_value_format">Total Sessions: %1$d</string>
+    <string name="stats_total_duration_value_format">Total Duration: %1$d min %2$d sec</string>
+    <string name="stats_average_duration_value_format">Average Session: %1$d min %2$d sec</string>
+    <string name="stats_total_calories_value_format">Estimated Calories: %1$d kcal</string>
+    <string name="stats_average_calories_value_format">Avg Calories/Session: %1$d kcal</string>
+    <string name="stats_trend_title">Weekly Trends</string>
+    <string name="stats_trend_empty">No trend data available for this range.</string>
+    <string name="stats_trend_week_current">Current week</string>
+    <string name="stats_trend_week_ago_format">%1$d week(s) ago</string>
+    <string name="stats_trend_line_format">%1$s: %2$d sessions | Avg %3$d min %4$d sec</string>
+    <string-array name="stats_time_range_options">
+        <item>All-time</item>
+        <item>Last 7 days</item>
+        <item>Last 30 days</item>
+    </string-array>
     <string name="session_history_title">Session History</string>
     <string name="session_history_empty">No completed sessions yet.</string>
     <string name="session_history_item_summary_format">%1$s\nDuration: %2$d sec | Rounds: %3$d/%4$d</string>
