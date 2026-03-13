@@ -1,9 +1,5 @@
+﻿
 # ARCHITECTURE
-
-## Iteration 1 Diagram
-
-![architecture](architecture-1.png)
-
 ### Major Packages
 - **`presentation`** - User interface components and views
 - **`business`** - Business logic and use cases
