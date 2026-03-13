@@ -39,19 +39,26 @@ The project will be considered successful if the following conditions are met:
 
 ```
 app/src/main/java/com/example/exergen/
-
 │
-├── application/       // Composition root (ExerGenApp, AppBootstrap)
+├── application/         // Composition root and application-wide helpers
+│   ├── helper/          // Database helpers (DatabaseHelper)
+│   ├── ExerGenApp.java  // Application class
+│   └── AppBootstrap.java // Dependency injection container
 │
-├── business/          // Domain logic and services
-│   ├── service/       // Logic services (e.g., ExerciseService, IntervalTimer, SessionManager)
-│   └── usecase/       // High-level business rules (e.g., WorkoutUseCase)
+├── business/            // Domain logic and services
+│   ├── exception/       // Domain-specific exceptions
+│   ├── repository/      // Repository interfaces (IWorkoutRepository, etc.)
+│   ├── service/         // Logic services (ExerciseService, IntervalTimer, StatisticsAggregationService)
+│   ├── usecase/         // High-level business rules (WorkoutUseCase, SessionHistoryUseCase)
+│   └── validation/      // Logic for validating business rules
 │
-├── model/             // Plain data objects (Exercise, Workout)
+├── model/               // Plain data objects (Exercise, Workout, SessionRecord)
 │
-├── persistence/       // Repository interfaces, implementations, and stubs/fakes
+├── persistence/         // Concrete repository implementations
+│   ├── SQLite/          // SQL-based persistence (WorkoutRepositorySQLite, SessionHistoryRepositorySQLite, etc.)
+│   └── Stub/            // In-memory data for testing (WorkoutRepositoryStub, SessionHistoryRepositoryStub, etc.)
 │  
-└── presentation/      // Android UI (Activities, Fragments, Adapters)
+└── presentation/        // Android UI (Activities, Fragments, ViewModels, Adapters)
 ```
 
 * Our [Architecture](ARCHITECTURE.md) for this project
@@ -61,16 +68,16 @@ app/src/main/java/com/example/exergen/
 ### Dependency Rules
 
 * `presentation → business → persistence`
-* `application` wires concrete implementations together.
-* **No Android imports** (`android.*`, `androidx.*`) are allowed in `business`, `persistence`, or `model` layers.
+* `application` wires concrete implementations together using `AppBootstrap`.
+* **No Android imports** (`android.*`, `androidx.*`) are allowed in `business`, `persistence` (except for context in SQLite), or `model` layers.
 * Android-specific code belongs **only** in `presentation` and `application`.
 
 ---
 
 ## Persistence & Database
 
-* Currently using **Stub/Fake repository** for Iteration 1.
-* Future iterations will implement **SQLite** via `SupportSQLiteOpenHelper`.
+* **Iteration 1**: Used **Stub/Fake repository** for in-memory data.
+* **Iteration 2**: Implemented **SQLite** via `SupportSQLiteOpenHelper` for persistent storage of workouts, exercises, and session history.
 
 ---
 
@@ -79,25 +86,31 @@ app/src/main/java/com/example/exergen/
 ### Unit Tests
 **Location:** `app/src/test/java`
 
-* Verifies business logic in isolation (e.g., `ExerciseService`, `SessionManager`).
-* Uses JUnit 4.
-* Relies on Fake/Stub repositories to ensure tests run without Android dependencies.
+* Verifies business logic in isolation (e.g., `ExerciseService`, `WorkoutBuilderUseCase`).
+* Uses JUnit 4 and Mockito.
+* Relies on Stub repositories or Mocks to ensure tests run without Android dependencies.
+
+### Integration Tests
+**Location:** `app/src/androidTest/java`
+
+* Verifies that different layers (Presentation, Business, Persistence) work together correctly.
+* Uses AndroidJUnitRunner and Espresso for UI-related integration tests.
 
 **To run tests:**
 1. Open the project in **Android Studio**.
-2. In the Project view (left panel), navigate to `app/src/test/java`.
+2. In the Project view (left panel), navigate to `app/src/test/java` or `app/src/androidTest/java`.
 3. Right-click the `com.example.exergen` package.
 4. Select **Run 'Tests in 'com.example.exergen''**.
 
 ## SDK & Tooling Requirements
 
 ### Android SDK
-* `compileSdk = 35` (or as per build.gradle)
+* `compileSdk = 35`
 * `minSdk = 26`
 * `targetSdk = 35`
 
 ### Java
-* **Java 17** (or as per project configuration)
+* **Java 17**
 * Kotlin is **not used** in the logic/persistence layers of this project.
 
 ### Tools
@@ -108,4 +121,4 @@ app/src/main/java/com/example/exergen/
 
 ## Branching
 
-Our team employs a feature branch workflow to ensure code stability and organized collaboration throughout development. The `main` branch is strictly reserved for production-ready releases, while `dev` serves as the primary integration branch for ongoing work. All new features, such as the Exercise Library, are developed in isolation on dedicated branches created off of `dev`, using the naming convention `feature/feature-name`. These feature branches are only merged back into develop via merge requests after passing code review and successful unit tests.
+Our team employs a feature branch workflow to ensure code stability and organized collaboration throughout development. The `main` branch is strictly reserved for production-ready releases, while `dev` serves as the primary integration branch for ongoing work. All new features are developed in isolation on dedicated branches created off of `dev`, using the naming convention `feature/feature-name`. These feature branches are only merged back into develop via merge requests after passing code review and successful unit tests.
