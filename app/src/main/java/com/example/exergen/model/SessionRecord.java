@@ -1,5 +1,7 @@
 package com.example.exergen.model;
 
+import com.example.exergen.business.validation.ValidationHelper;
+
 public class SessionRecord {
     private final String id;
     private final String workoutId;
@@ -19,9 +21,9 @@ public class SessionRecord {
             int exerciseCount,
             int roundsPlanned,
             int roundsCompleted) {
-        this.id = ModelValidation.requireNonBlank(id, "Session id required");
-        this.workoutId = ModelValidation.requireNonBlank(workoutId, "Workout id required");
-        this.workoutName = ModelValidation.requireNonBlank(workoutName, "Workout name required");
+        this.id = ValidationHelper.requireNonBlank(id, "Session id required");
+        this.workoutId = ValidationHelper.requireNonBlank(workoutId, "Workout id required");
+        this.workoutName = ValidationHelper.requireNonBlank(workoutName, "Workout name required");
         if (completedAtEpochMs <= 0L) {
             throw new IllegalArgumentException("Completion timestamp must be > 0");
         }

@@ -39,12 +39,12 @@ public final class AppBootstrap {
     public final SessionHistoryUseCase sessionHistoryUseCase;
     public final StatisticsUseCase statisticsUseCase;
     public final ExerciseService exerciseService;
+    //public final EnumMapper mapper;
 
     private AppBootstrap(Application app) {
         IWorkoutRepository workoutRepository = new WorkoutRepositorySQLite(app);
         IExerciseRepository exerciseRepository = new ExerciseRepositorySQLite(app, new EnumMapper());
         ISessionHistoryRepository sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
-
         // Seed data for workout and exercise repositories
         workoutRepository.seedData();
         exerciseRepository.seedData();
