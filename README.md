@@ -35,6 +35,12 @@ The project will be considered successful if the following conditions are met:
 
 ---
 
+## Credits & Sources
+- We have used an open source resource to get the data and images for the exercises. Link provided below
+- [free-exercise-db](https://github.com/yuhonas/free-exercise-db)
+
+---
+
 ## Architecture & Package Structure
 
 ```
