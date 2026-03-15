@@ -14,7 +14,7 @@ import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
-import com.example.exergen.application.persistence.ExerciseRepositorySQLite;
+import com.example.exergen.persistence.ExerciseRepositorySQLite;
 
 import org.junit.After;
 import org.junit.Before;
@@ -60,8 +60,8 @@ public class ExerciseIntegrationTest {
     public void testFilterByConstraints_RetrievesFromRealDatabase() {
         // Based on the default exercises.csv, "Pushups" should be for "Chest" using "Bodyweight"
         List<Exercise> results = exerciseService.filterByConstraints(
-                Arrays.asList(EquipmentType.BODYWEIGHT),
-                Arrays.asList(MuscleGroup.CHEST)
+                List.of(EquipmentType.BODYWEIGHT),
+                List.of(MuscleGroup.CHEST)
         );
 
         assertNotNull(results);
@@ -84,8 +84,8 @@ public class ExerciseIntegrationTest {
         Exercise custom = new Exercise(
                 customId,
                 "Z-Press",
-                Arrays.asList(MuscleGroup.SHOULDERS),
-                Arrays.asList(EquipmentType.DUMBBELLS),
+                List.of(MuscleGroup.SHOULDERS),
+                List.of(EquipmentType.DUMBBELLS),
                 "Seated shoulder press",
                 4,
                 List.of("img")

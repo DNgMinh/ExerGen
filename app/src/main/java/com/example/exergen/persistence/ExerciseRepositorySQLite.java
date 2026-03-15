@@ -1,11 +1,11 @@
-package com.example.exergen.application.persistence;
+package com.example.exergen.persistence;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import androidx.annotation.NonNull;
+
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 

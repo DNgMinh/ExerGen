@@ -14,8 +14,8 @@ import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.model.Workout;
-import com.example.exergen.application.persistence.ExerciseRepositorySQLite;
-import com.example.exergen.application.persistence.WorkoutRepositorySQLite;
+import com.example.exergen.persistence.ExerciseRepositorySQLite;
+import com.example.exergen.persistence.WorkoutRepositorySQLite;
 
 import org.junit.After;
 import org.junit.Before;

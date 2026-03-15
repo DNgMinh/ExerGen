@@ -1,11 +1,9 @@
-package com.example.exergen.application.repository;
+package com.example.exergen.persistence;
 
 import com.example.exergen.business.exception.DuplicateExerciseException;
-import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
-import com.example.exergen.persistence.ExerciseRepositoryStub;
 
 import org.junit.Test;
 
