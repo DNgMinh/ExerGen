@@ -1,4 +1,4 @@
-package com.example.exergen.application.persistence;
+package com.example.exergen.persistence;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,7 +9,6 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.Workout;
 import com.example.exergen.business.repository.IWorkoutRepository;
-import com.example.exergen.persistence.DefaultWorkoutSeedData;
 
 import java.util.ArrayList;
 import java.util.Arrays;

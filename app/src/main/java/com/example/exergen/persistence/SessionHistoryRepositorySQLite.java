@@ -1,4 +1,4 @@
-package com.example.exergen.application.persistence;
+package com.example.exergen.persistence;
 
 import android.content.ContentValues;
 import android.content.Context;
