@@ -2,7 +2,6 @@ package com.example.exergen.application;
 
 import android.app.Application;
 
-import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.StatisticsUseCase;
