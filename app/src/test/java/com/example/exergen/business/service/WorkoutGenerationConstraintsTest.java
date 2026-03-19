@@ -21,17 +21,17 @@ public class WorkoutGenerationConstraintsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsNullTargetMuscles() {
-        new WorkoutGenerationConstraints(List.of("Dumbbells"), null, 20);
+        new WorkoutGenerationConstraints(List.of("Dumbbell"), null, 20);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsEmptyTargetMuscles() {
-        new WorkoutGenerationConstraints(List.of("Dumbbells"), List.of(), 20);
+        new WorkoutGenerationConstraints(List.of("Dumbbell"), List.of(), 20);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsNonPositiveExerciseCount() {
-        new WorkoutGenerationConstraints(List.of("Dumbbells"), List.of("Chest"), 0);
+        new WorkoutGenerationConstraints(List.of("Dumbbell"), List.of("Chest"), 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -42,7 +42,7 @@ public class WorkoutGenerationConstraintsTest {
     @Test
     public void testConstructorTrimsValuesAndStoresExerciseCount() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
-                List.of(" Dumbbells "), List.of(" Chest "), 25);
+                List.of(" Dumbbell "), List.of(" Chest "), 25);
 
         assertEquals(List.of(EquipmentType.DUMBBELLS), constraints.getSelectedEquipment());
         assertEquals(List.of(MuscleGroup.CHEST), constraints.getTargetMuscleGroups());
@@ -69,7 +69,7 @@ public class WorkoutGenerationConstraintsTest {
     @Test
     public void testMatchesExerciseReturnsFalseWhenMuscleDoesNotMatch() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
-                List.of("Dumbbells"), List.of("Legs"), 20);
+                List.of("Dumbbell"), List.of("Legs"), 20);
 
         Exercise exercise = new Exercise(
                 "ex-1",

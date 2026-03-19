@@ -26,16 +26,14 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     private static final String TAG = "ExerciseRepoSQLite";
     private final DatabaseHelper dbHelper;
     private final Context context;
-    private final EnumMapper mapper;
 
-    public ExerciseRepositorySQLite(Context context, EnumMapper mapper) {
-        this(context, mapper, DatabaseHelper.DEFAULT_DATABASE_NAME);
+    public ExerciseRepositorySQLite(Context context) {
+        this(context, DatabaseHelper.DEFAULT_DATABASE_NAME);
     }
 
-    public ExerciseRepositorySQLite(Context context, EnumMapper mapper, String databaseName) {
+    public ExerciseRepositorySQLite(Context context, String databaseName) {
         this.context = context;
         this.dbHelper = new DatabaseHelper(context, databaseName);
-        this.mapper = mapper;
     }
 
     @Override
@@ -165,8 +163,8 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         List<String> equipment = Arrays.asList(equipmentStr.split(","));
         List<String> imagePaths = Arrays.asList(imagePathsStr.split(","));
 
-        List<MuscleGroup> cleanMuscles = mapper.toMuscleEnums(muscleGroups);
-        List<EquipmentType> cleanEquipment = mapper.toEquipmentEnums(equipment);
+        List<MuscleGroup> cleanMuscles = EnumMapper.toMuscleEnums(muscleGroups);
+        List<EquipmentType> cleanEquipment = EnumMapper.toEquipmentEnums(equipment);
 
         return new Exercise(id, name, cleanMuscles, cleanEquipment, instructions, intensity, imagePaths);
     }
@@ -208,8 +206,8 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
                 String instructions = tokens[4].replaceAll("^\"|\"$", "");
 
-                List<MuscleGroup> cleanMuscles = mapper.toMuscleEnums(muscles);
-                List<EquipmentType> cleanEquipment = mapper.toEquipmentEnums(equipment);
+                List<MuscleGroup> cleanMuscles = EnumMapper.toMuscleEnums(muscles);
+                List<EquipmentType> cleanEquipment = EnumMapper.toEquipmentEnums(equipment);
 
                 list.add(new Exercise(
                         tokens[0], tokens[1], cleanMuscles, cleanEquipment, instructions,

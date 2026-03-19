@@ -34,12 +34,11 @@ public class WorkoutIntegrationTest {
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
-        EnumMapper mapper = new EnumMapper();
 
         context.deleteDatabase(TEST_DB_NAME);
 
         WorkoutRepositorySQLite workoutRepo = new WorkoutRepositorySQLite(context, TEST_DB_NAME);
-        ExerciseRepositorySQLite exerciseRepo = new ExerciseRepositorySQLite(context, mapper, TEST_DB_NAME);
+        ExerciseRepositorySQLite exerciseRepo = new ExerciseRepositorySQLite(context, TEST_DB_NAME);
         
         // Seed database with default content as required
         workoutRepo.seedData();

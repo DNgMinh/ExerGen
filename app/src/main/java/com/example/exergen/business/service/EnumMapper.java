@@ -4,66 +4,30 @@ import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.MuscleGroup;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class EnumMapper {
+public final class EnumMapper {
     public EnumMapper() {}
 
-    public List<MuscleGroup> toMuscleEnums(List<String> labels) {
-        List<MuscleGroup> results = new ArrayList<>();
-        if (labels == null) return results;
-
-        for (String label : labels) {
-            if (label != null && !label.trim().isEmpty()) {
-                String trimmed = label.trim();
-                MuscleGroup match = null;
-
-                for (MuscleGroup group : MuscleGroup.values()) {
-                    if (group.getLabel().equalsIgnoreCase(trimmed)) {
-                        match = group;
-                        break;
-                    }
-                }
-
-                if (match == null) {
-                    throw new IllegalArgumentException("Unknown muscle group: " + label);
-                }
-                results.add(match);
-            }
+    public static List<EquipmentType> toEquipmentEnums(List<String> labels) {
+        if (labels == null || labels.isEmpty()) {
+            return new ArrayList<>();
         }
-        return results;
+
+        return labels.stream()
+                .filter(label -> label != null && !label.trim().isEmpty())
+                .map(EquipmentType::fromString)
+                .collect(Collectors.toList());
     }
 
-    public List<EquipmentType> toEquipmentEnums(List<String> labels) {
-        List<EquipmentType> results = new ArrayList<>();
-
-        if (labels != null) {
-            for (String label : labels) {
-                if (label != null && !label.trim().isEmpty()) {
-                    String trimmed = label.trim();
-                    EquipmentType match = null;
-
-                    for (EquipmentType equipment : EquipmentType.values()) {
-                        if (equipment.getLabel().equalsIgnoreCase(trimmed) ||
-                                equipment.name().equalsIgnoreCase(trimmed) ||
-                                (equipment == EquipmentType.DUMBBELLS && (trimmed.equalsIgnoreCase("Dumbbell") || trimmed.equalsIgnoreCase("Dumbbells"))) ||
-                                (equipment == EquipmentType.EZ_CURL_BAR && trimmed.equalsIgnoreCase("EZ Curl Bar"))) {
-                            match = equipment;
-                            break;
-                        }
-                    }
-
-                    if (match == null) {
-                        throw new IllegalArgumentException("Unknown equipment: " + label);
-                    }
-                    results.add(match);
-                }
-            }
+    public static List<MuscleGroup> toMuscleEnums(List<String> labels) {
+        if (labels == null || labels.isEmpty()) {
+            return new ArrayList<>();
         }
 
-        if (results.isEmpty()) {
-            results.add(EquipmentType.BODYWEIGHT);
-        }
-
-        return results;
+        return labels.stream()
+                .filter(label -> label != null && !label.trim().isEmpty())
+                .map(MuscleGroup::fromString)
+                .collect(Collectors.toList());
     }
 }

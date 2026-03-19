@@ -38,12 +38,11 @@ public class ExerciseIntegrationTest {
 
     @Before
     public void setUp() {
-        EnumMapper mapper = new EnumMapper();
         context = ApplicationProvider.getApplicationContext();
 
         context.deleteDatabase(TEST_DB_NAME);
 
-        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, mapper, TEST_DB_NAME);
+        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, TEST_DB_NAME);
         
         // Seed database from real CSV assets
         repo.seedData();
@@ -96,8 +95,8 @@ public class ExerciseIntegrationTest {
 
         // Assert: Filter for the new constraints and see if SQLite finds it
         List<Exercise> results = exerciseService.filterByConstraints(
-                Arrays.asList(EquipmentType.DUMBBELLS),
-                Arrays.asList(MuscleGroup.SHOULDERS)
+                List.of(EquipmentType.DUMBBELLS),
+                List.of(MuscleGroup.SHOULDERS)
         );
 
         boolean foundCustom = false;

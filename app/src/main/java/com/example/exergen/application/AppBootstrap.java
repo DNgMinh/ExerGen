@@ -58,7 +58,7 @@ public final class AppBootstrap {
             sessionHistoryRepository = new SessionHistoryRepositoryStub();
         } else {
             workoutRepository = new WorkoutRepositorySQLite(app);
-            exerciseRepository = new ExerciseRepositorySQLite(app, new EnumMapper());
+            exerciseRepository = new ExerciseRepositorySQLite(app);
             sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
         }
 
