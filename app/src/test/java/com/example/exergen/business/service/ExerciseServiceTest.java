@@ -130,7 +130,7 @@ public class ExerciseServiceTest {
     public void filterByConstraints_noEquipmentMeansAnythingGoes() {
         List<Exercise> results = exerciseService.filterByConstraints(List.of(), List.of(MuscleGroup.CHEST));
         assertFalse(results.isEmpty());
-        // Should find bodyweight, bench press (if in stub), etc.
+
         assertTrue(results.size() >= 1);
     }
 

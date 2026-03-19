@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.model.Exercise;
 import java.util.List;
 
@@ -41,8 +42,8 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         holder.name.setText(exercise.getName());
 
         Context context = holder.itemView.getContext();
-        String muscles = TextUtils.join(", ", exercise.getMuscleGroups());
-        String equipment = TextUtils.join(", ", exercise.getEquipment());
+        String muscles = TextUtils.join(", ", EnumMapper.toMuscleLabels(exercise.getMuscleGroups()));
+        String equipment = TextUtils.join(", ", EnumMapper.toEquipmentLabels(exercise.getEquipment()));
 
         String attributes = context.getString(R.string.exercise_attributes_format, muscles, equipment);
         holder.attributes.setText(attributes);

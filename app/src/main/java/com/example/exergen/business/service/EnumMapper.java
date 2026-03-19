@@ -30,4 +30,22 @@ public final class EnumMapper {
                 .map(MuscleGroup::fromString)
                 .collect(Collectors.toList());
     }
+
+    public static List<String> toEquipmentLabels(List<EquipmentType> types) {
+        if (types == null || types.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return types.stream()
+                .map(EquipmentType::getLabel)
+                .collect(Collectors.toList());
+    }
+
+    public static List<String> toMuscleLabels(List<MuscleGroup> groups) {
+        if (groups == null || groups.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return groups.stream()
+                .map(MuscleGroup::getLabel)
+                .collect(Collectors.toList());
+    }
 }

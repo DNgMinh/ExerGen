@@ -77,4 +77,50 @@ public class EnumMapperTest {
     public void toMuscleEnums_InvalidInput_BubblesUpException() {
         EnumMapper.toMuscleEnums(Arrays.asList("Chest", "Brain"));
     }
+
+    @Test
+    public void toEquipmentLabels_NullInput_ReturnsEmptyList() {
+        List<String> result = EnumMapper.toEquipmentLabels(null);
+
+        assertTrue("Expected an empty list for null input", result.isEmpty());
+    }
+
+    @Test
+    public void toEquipmentLabels_EmptyListInput_ReturnsEmptyList() {
+        List<String> result = EnumMapper.toEquipmentLabels(Collections.emptyList());
+
+        assertTrue("Expected an empty list for empty input", result.isEmpty());
+    }
+
+    @Test
+    public void toEquipmentLabels_ValidEnums_ReturnsCorrectLabels() {
+        List<String> result = EnumMapper.toEquipmentLabels(Arrays.asList(EquipmentType.DUMBBELLS, EquipmentType.EZ_CURL_BAR));
+
+        assertEquals(2, result.size());
+        assertEquals("Dumbbells", result.get(0));
+        assertEquals("E-Z Curl Bar", result.get(1));
+    }
+
+    @Test
+    public void toMuscleLabels_NullInput_ReturnsEmptyList() {
+        List<String> result = EnumMapper.toMuscleLabels(null);
+
+        assertTrue("Expected an empty list for null input", result.isEmpty());
+    }
+
+    @Test
+    public void toMuscleLabels_EmptyListInput_ReturnsEmptyList() {
+        List<String> result = EnumMapper.toMuscleLabels(Collections.emptyList());
+
+        assertTrue("Expected an empty list for empty input", result.isEmpty());
+    }
+
+    @Test
+    public void toMuscleLabels_ValidEnums_ReturnsCorrectLabels() {
+        List<String> result = EnumMapper.toMuscleLabels(Arrays.asList(MuscleGroup.CHEST, MuscleGroup.FULL_BODY));
+
+        assertEquals(2, result.size());
+        assertEquals("Chest", result.get(0));
+        assertEquals("Full Body", result.get(1));
+    }
 }
