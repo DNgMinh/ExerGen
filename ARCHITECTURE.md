@@ -1,4 +1,4 @@
-﻿# ARCHITECTURE
+# ARCHITECTURE
 
 ![architecture](Architecture-Diagram.png)
 
@@ -32,9 +32,13 @@
 - **[`LiveWorkoutFragment`](app/src/main/java/com/example/exergen/presentation/LiveWorkoutFragment.java)**
   - Interactive screen that guides the user through an active workout session with a timer and exercise animations
 - **[`ExerciseAdapter`](app/src/main/java/com/example/exergen/presentation/ExerciseAdapter.java)**
-  - RecyclerView adapter for Exercise objects
+  - RecyclerView adapter that binds pre-mapped `ExerciseListItem` rows
 - **[`WorkoutAdapter`](app/src/main/java/com/example/exergen/presentation/WorkoutAdapter.java)**
   - RecyclerView adapter for Workout objects
+- **[`SessionHistoryAdapter`](app/src/main/java/com/example/exergen/presentation/SessionHistoryAdapter.java)**
+  - RecyclerView adapter that binds pre-mapped `SessionHistoryListItem` rows
+- **[`ExerciseListItem`](app/src/main/java/com/example/exergen/presentation/ExerciseListItem.java)** / **[`SessionHistoryListItem`](app/src/main/java/com/example/exergen/presentation/SessionHistoryListItem.java)**
+  - Presentation row models used to keep formatting/mapping out of adapters
 
 ### Business Layer
 
@@ -70,6 +74,8 @@
   
 ### Persistence Layer
 
+- **[`IExerciseRepository`](app/src/main/java/com/example/exergen/persistence/repository/IExerciseRepository.java)** / **[`IWorkoutRepository`](app/src/main/java/com/example/exergen/persistence/repository/IWorkoutRepository.java)** / **[`ISessionHistoryRepository`](app/src/main/java/com/example/exergen/persistence/repository/ISessionHistoryRepository.java)**
+    - Persistence-facing repository interfaces consumed by business layer use cases/services
 - **[`ExerciseRepositoryStub`](app/src/main/java/com/example/exergen/persistence/ExerciseRepositoryStub.java)**
     - In-memory implementation of the exercise repository
 - **[`WorkoutRepositoryStub`](app/src/main/java/com/example/exergen/persistence/WorkoutRepositoryStub.java)**
@@ -93,9 +99,11 @@
 - **[`Exercise`](app/src/main/java/com/example/exergen/model/Exercise.java)**
   - Domain model for an exercise (id, name, muscles, equipment, etc.)
 - **[`Workout`](app/src/main/java/com/example/exergen/model/Workout.java)**
-  - Domain model for a collection of exercises forming a routine
+  - Domain model for a workout that stores `sets` and an immutable list of `WorkoutStep`
+- **[`WorkoutStep`](app/src/main/java/com/example/exergen/model/WorkoutStep.java)**
+  - Domain model for a single workout step (`exerciseId`, `workSeconds`, `restSeconds`), replacing parallel lists
 - **[`SessionRecord`](app/src/main/java/com/example/exergen/model/SessionRecord.java)**
-  - Represents a completed workout session with timestamp and performance data
+  - Represents a completed workout session with timestamp, exercise count, and sets planned/completed
 - **[`StatisticsSummary`](app/src/main/java/com/example/exergen/model/StatisticsSummary.java)**
   - Value object holding aggregated statistical data
 - **[`WeeklyTrendPoint`](app/src/main/java/com/example/exergen/model/WeeklyTrendPoint.java)**
