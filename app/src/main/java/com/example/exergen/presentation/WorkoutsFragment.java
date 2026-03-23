@@ -60,11 +60,22 @@ public class WorkoutsFragment extends Fragment {
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
-            recyclerView.setAdapter(new WorkoutAdapter(workouts, 
+            recyclerView.setAdapter(new WorkoutAdapter(buildWorkoutItems(workouts),
                 this::showWorkoutDetails, 
                 this::confirmDeleteWorkout,
                 this::startLiveWorkout));
         }
+    }
+
+    private List<WorkoutListItem> buildWorkoutItems(List<Workout> workouts) {
+        List<WorkoutListItem> items = new ArrayList<>();
+        for (Workout workout : workouts) {
+            String details = getString(
+                    R.string.workout_details_exercises_only_format,
+                    workout.getSteps().size());
+            items.add(new WorkoutListItem(workout, workout.getName(), details));
+        }
+        return items;
     }
 
     private void showWorkoutDetails(Workout workout) {

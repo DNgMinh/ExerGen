@@ -1,6 +1,5 @@
 package com.example.exergen.presentation;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,35 +8,34 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.model.Workout;
 import java.util.List;
 
 // RecyclerView adapter for displaying a list of workout items,
 // binds workout domain models to the UI views
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder> {
-    private final List<Workout> workouts;
+    private final List<WorkoutListItem> workoutItems;
     private final OnWorkoutClickListener clickListener;
     private final OnWorkoutLongClickListener longClickListener;
     private final OnWorkoutPlayClickListener playClickListener;
 
     public interface OnWorkoutClickListener {
-        void onWorkoutClick(Workout workout);
+        void onWorkoutClick(com.example.exergen.model.Workout workout);
     }
 
     public interface OnWorkoutLongClickListener {
-        void onWorkoutLongClick(Workout workout);
+        void onWorkoutLongClick(com.example.exergen.model.Workout workout);
     }
 
     public interface OnWorkoutPlayClickListener {
-        void onWorkoutPlayClick(Workout workout);
+        void onWorkoutPlayClick(com.example.exergen.model.Workout workout);
     }
 
     // Initializes the adapter with a list of workouts
-    public WorkoutAdapter(List<Workout> workouts,
+    public WorkoutAdapter(List<WorkoutListItem> workoutItems,
             OnWorkoutClickListener clickListener,
             OnWorkoutLongClickListener longClickListener,
             OnWorkoutPlayClickListener playClickListener) {
-        this.workouts = workouts;
+        this.workoutItems = workoutItems;
         this.clickListener = clickListener;
         this.longClickListener = longClickListener;
         this.playClickListener = playClickListener;
@@ -52,37 +50,31 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
 
     @Override
     public void onBindViewHolder(@NonNull WorkoutViewHolder holder, int position) {
-        Workout workout = workouts.get(position);
-        holder.name.setText(workout.getName());
-
-        Context context = holder.itemView.getContext();
-        String details = context.getString(
-                R.string.workout_details_exercises_only_format,
-                workout.getSteps().size());
-
-        holder.details.setText(details);
+        WorkoutListItem item = workoutItems.get(position);
+        holder.name.setText(item.getName());
+        holder.details.setText(item.getDetails());
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) {
-                clickListener.onWorkoutClick(workout);
+                clickListener.onWorkoutClick(item.getWorkout());
             }
         });
         holder.itemView.setOnLongClickListener(v -> {
             if (longClickListener != null) {
-                longClickListener.onWorkoutLongClick(workout);
+                longClickListener.onWorkoutLongClick(item.getWorkout());
                 return true;
             }
             return false;
         });
         holder.btnPlay.setOnClickListener(v -> {
             if (playClickListener != null) {
-                playClickListener.onWorkoutPlayClick(workout);
+                playClickListener.onWorkoutPlayClick(item.getWorkout());
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return workouts.size();
+        return workoutItems.size();
     }
 
     static class WorkoutViewHolder extends RecyclerView.ViewHolder {

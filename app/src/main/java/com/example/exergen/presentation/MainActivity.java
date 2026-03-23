@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
+import com.example.exergen.application.AppBootstrap;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 // Entry point of the main navigation container and handles bottom navigation logic
@@ -43,9 +44,16 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_workouts) {
                 selectedFragment = new WorkoutsFragment();
             } else if (itemId == R.id.nav_add) {
-                selectedFragment = new WorkoutBuilderFragment();
+                WorkoutBuilderFragment fragment = new WorkoutBuilderFragment();
+                fragment.setDependencies(
+                        AppBootstrap.get().workoutBuilderUseCase,
+                        AppBootstrap.get().workoutUseCase,
+                        AppBootstrap.get().exerciseService);
+                selectedFragment = fragment;
             } else if (itemId == R.id.nav_exercises) {
-                selectedFragment = new AddFragment();
+                AddFragment fragment = new AddFragment();
+                fragment.setDependencies(AppBootstrap.get().exerciseService);
+                selectedFragment = fragment;
             } else if (itemId == R.id.nav_stats) {
                 selectedFragment = new StatsFragment();
             }

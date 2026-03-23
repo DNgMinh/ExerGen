@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
@@ -26,10 +25,8 @@ public class AddFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        exerciseService = AppBootstrap.get().exerciseService;
+    public void setDependencies(ExerciseService exerciseService) {
+        this.exerciseService = exerciseService;
     }
 
     @Override
@@ -40,6 +37,9 @@ public class AddFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (exerciseService == null) {
+            throw new IllegalStateException("AddFragment dependencies not provided");
+        }
 
         recyclerView = view.findViewById(R.id.exercise_recycler_view);
         emptyStateText = view.findViewById(R.id.empty_state_text);

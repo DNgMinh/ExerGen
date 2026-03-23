@@ -17,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
 import com.example.exergen.business.service.WorkoutPreviewData;
@@ -81,14 +80,25 @@ public class WorkoutBuilderFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (workoutBuilderUseCase == null || workoutUseCase == null || exerciseService == null) {
-            workoutBuilderUseCase = AppBootstrap.get().workoutBuilderUseCase;
-            workoutUseCase = AppBootstrap.get().workoutUseCase;
-            exerciseService = AppBootstrap.get().exerciseService;
-        }
         if (workoutPreviewMapper == null) {
             workoutPreviewMapper = new WorkoutPreviewMapper();
         }
+    }
+
+    public void setDependencies(WorkoutBuilderUseCase workoutBuilderUseCase,
+            WorkoutUseCase workoutUseCase,
+            ExerciseService exerciseService) {
+        setDependencies(workoutBuilderUseCase, workoutUseCase, exerciseService, new WorkoutPreviewMapper());
+    }
+
+    public void setDependencies(WorkoutBuilderUseCase workoutBuilderUseCase,
+            WorkoutUseCase workoutUseCase,
+            ExerciseService exerciseService,
+            WorkoutPreviewMapper workoutPreviewMapper) {
+        this.workoutBuilderUseCase = workoutBuilderUseCase;
+        this.workoutUseCase = workoutUseCase;
+        this.exerciseService = exerciseService;
+        this.workoutPreviewMapper = workoutPreviewMapper;
     }
 
     public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
@@ -101,10 +111,7 @@ public class WorkoutBuilderFragment extends Fragment {
             WorkoutUseCase workoutUseCase,
             ExerciseService exerciseService,
             WorkoutPreviewMapper workoutPreviewMapper) {
-        this.workoutBuilderUseCase = workoutBuilderUseCase;
-        this.workoutUseCase = workoutUseCase;
-        this.exerciseService = exerciseService;
-        this.workoutPreviewMapper = workoutPreviewMapper;
+        setDependencies(workoutBuilderUseCase, workoutUseCase, exerciseService, workoutPreviewMapper);
     }
 
     @Nullable
@@ -118,6 +125,9 @@ public class WorkoutBuilderFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (workoutBuilderUseCase == null || workoutUseCase == null || exerciseService == null) {
+            throw new IllegalStateException("WorkoutBuilderFragment dependencies not provided");
+        }
         bindViews(view);
         restoreState(savedInstanceState);
 
