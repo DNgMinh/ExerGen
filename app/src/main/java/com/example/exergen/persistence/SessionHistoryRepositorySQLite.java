@@ -8,7 +8,7 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.SessionRecord;
-import com.example.exergen.business.repository.ISessionHistoryRepository;
+import com.example.exergen.persistence.repository.ISessionHistoryRepository;
 
 import java.util.ArrayList;
 import java.util.List;

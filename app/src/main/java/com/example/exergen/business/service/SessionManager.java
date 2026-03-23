@@ -4,7 +4,7 @@ import com.example.exergen.business.exception.ExerciseNotFoundException;
 import com.example.exergen.business.exception.SessionCompletedException;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
-import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.persistence.repository.IExerciseRepository;
 
 public class SessionManager {
 

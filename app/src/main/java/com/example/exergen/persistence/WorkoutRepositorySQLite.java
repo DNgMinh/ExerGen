@@ -8,7 +8,7 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.Workout;
-import com.example.exergen.business.repository.IWorkoutRepository;
+import com.example.exergen.persistence.repository.IWorkoutRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;

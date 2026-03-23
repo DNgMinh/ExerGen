@@ -1,6 +1,6 @@
 package com.example.exergen.persistence;
 
-import com.example.exergen.business.repository.ISessionHistoryRepository;
+import com.example.exergen.persistence.repository.ISessionHistoryRepository;
 import com.example.exergen.model.SessionRecord;
 
 import java.util.ArrayList;

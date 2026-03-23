@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.example.exergen.business.service.ExerciseService;
-import com.example.exergen.business.repository.IWorkoutRepository;
+import com.example.exergen.persistence.repository.IWorkoutRepository;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-import com.example.exergen.business.repository.ISessionHistoryRepository;
+import com.example.exergen.persistence.repository.ISessionHistoryRepository;
 import com.example.exergen.model.SessionRecord;
 
 import org.junit.Before;
