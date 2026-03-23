@@ -79,8 +79,8 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
                 cursor.getString(cursor.getColumnIndexOrThrow("workout_name")),
                 cursor.getLong(cursor.getColumnIndexOrThrow("completed_at_epoch_ms")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("total_duration_seconds")),
-                cursor.getInt(cursor.getColumnIndexOrThrow("rounds_planned")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("exercise_count")),
+                cursor.getInt(cursor.getColumnIndexOrThrow("rounds_planned")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("rounds_completed"))
         );
     }

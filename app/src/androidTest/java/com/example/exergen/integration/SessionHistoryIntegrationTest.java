@@ -78,6 +78,28 @@ public class SessionHistoryIntegrationTest {
         assertEquals("s1", history.get(1).getId());
     }
 
+    @Test
+    public void testGetSessionHistory_MapsTimerStyleRecordWithoutValidationCrash() {
+        SessionRecord timerStyleRecord = new SessionRecord(
+                "timer-session-1",
+                "manual-timer",
+                "Manual Interval Timer",
+                1700000010000L,
+                300,
+                1,
+                3,
+                3
+        );
+
+        sessionHistoryUseCase.saveCompletedSession(timerStyleRecord);
+
+        List<SessionRecord> history = sessionHistoryUseCase.getSessionHistory();
+        assertEquals(1, history.size());
+        assertEquals(1, history.get(0).getExerciseCount());
+        assertEquals(3, history.get(0).getRoundsPlanned());
+        assertEquals(3, history.get(0).getRoundsCompleted());
+    }
+
     private SessionRecord createRecord(String id, long completedAtMs) {
         return new SessionRecord(
                 id, "w1", "Workout", completedAtMs, 600, 5, 3, 3);
