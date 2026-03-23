@@ -85,7 +85,7 @@ public class WorkoutsFragment extends Fragment {
         String detailText = getString(
                 R.string.workout_detail_body_format,
                 workout.getName(),
-                workout.getRounds(),
+                workout.getSets(),
                 workout.getExerciseIds().size(),
                 totalSeconds,
                 String.join(", ", names));

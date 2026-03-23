@@ -200,8 +200,8 @@ public class StatsFragment extends Fragment {
                 completedAtText,
                 record.getTotalDurationSeconds(),
                 record.getExerciseCount(),
-                record.getRoundsCompleted(),
-                record.getRoundsPlanned());
+                record.getSetsCompleted(),
+                record.getSetsPlanned());
 
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.session_history_detail_title)

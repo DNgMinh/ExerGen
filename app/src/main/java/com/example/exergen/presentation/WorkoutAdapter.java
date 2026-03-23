@@ -9,14 +9,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.business.service.WorkoutMetricsService;
 import com.example.exergen.model.Workout;
 import java.util.List;
 
 // RecyclerView adapter for displaying a list of workout items,
 // binds workout domain models to the UI views
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder> {
-
     private final List<Workout> workouts;
     private final OnWorkoutClickListener clickListener;
     private final OnWorkoutLongClickListener longClickListener;
@@ -57,11 +55,10 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
         Workout workout = workouts.get(position);
         holder.name.setText(workout.getName());
 
-        int totalDuration = WorkoutMetricsService.calculateTotalDurationSeconds(workout);
         Context context = holder.itemView.getContext();
-        String details = context.getString(R.string.workout_details_format,
-                workout.getExerciseIds().size(),
-                totalDuration / 60);
+        String details = context.getString(
+                R.string.workout_details_exercises_only_format,
+                workout.getExerciseIds().size());
 
         holder.details.setText(details);
         holder.itemView.setOnClickListener(v -> {

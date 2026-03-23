@@ -1,13 +1,12 @@
 package com.example.exergen.model;
 
-import com.example.exergen.business.validation.ValidationHelper;
 import java.util.List;
 
 public class Workout {
 
     private final String id;
     private final String name;
-    private final int rounds;
+    private final int sets;
 
     private final List<String> exerciseIds;
     private final List<Integer> workSeconds;
@@ -15,22 +14,22 @@ public class Workout {
 
     public Workout(String id,
             String name,
-            int rounds,
+            int sets,
             List<String> exerciseIds,
             List<Integer> workSeconds,
             List<Integer> restSeconds) {
-        this.id = ValidationHelper.requireNonBlank(id, "ID required");
-        this.name = ValidationHelper.requireNonBlank(name, "Workout name required");
-        if (rounds <= 0)
-            throw new IllegalArgumentException("Rounds must be > 0");
-        ValidationHelper.requireNonEmptyList(exerciseIds, "exerciseIds required");
-        ValidationHelper.requireNonEmptyList(workSeconds, "workSeconds required");
-        ValidationHelper.requireNonEmptyList(restSeconds, "restSeconds required");
+        this.id = ModelValidation.requireNonBlank(id, "ID required");
+        this.name = ModelValidation.requireNonBlank(name, "Workout name required");
+        if (sets <= 0)
+            throw new IllegalArgumentException("Sets must be > 0");
+        ModelValidation.requireNonEmptyList(exerciseIds, "exerciseIds required");
+        ModelValidation.requireNonEmptyList(workSeconds, "workSeconds required");
+        ModelValidation.requireNonEmptyList(restSeconds, "restSeconds required");
         if (workSeconds.size() != exerciseIds.size())
             throw new IllegalArgumentException("WorkSeconds mismatch");
         if (restSeconds.size() != exerciseIds.size())
             throw new IllegalArgumentException("RestSeconds mismatch");
-        this.rounds = rounds;
+        this.sets = sets;
         this.exerciseIds = List.copyOf(exerciseIds);
         this.workSeconds = List.copyOf(workSeconds);
         this.restSeconds = List.copyOf(restSeconds);
@@ -44,8 +43,8 @@ public class Workout {
         return name;
     }
 
-    public int getRounds() {
-        return rounds;
+    public int getSets() {
+        return sets;
     }
 
     public List<String> getExerciseIds() {

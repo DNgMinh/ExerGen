@@ -29,28 +29,41 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     private Workout workout;
     private int workDuration;
     private int restDuration;
+    private int configuredSets;
     
     private ExerciseService exerciseService;
     private SessionHistoryUseCase sessionHistoryUseCase;
 
     public void init(Workout workout, int workSeconds, int restSeconds) {
-        init(workout, workSeconds, restSeconds, 
-             AppBootstrap.get().exerciseService, 
-             AppBootstrap.get().sessionHistoryUseCase);
+        init(workout, workSeconds, restSeconds, workout.getSets());
+    }
+
+    public void init(Workout workout, int workSeconds, int restSeconds, int selectedSets) {
+        init(workout, workSeconds, restSeconds, selectedSets,
+                AppBootstrap.get().exerciseService,
+                AppBootstrap.get().sessionHistoryUseCase);
     }
 
     public void init(Workout workout, int workSeconds, int restSeconds, 
                      ExerciseService exerciseService, 
+                     SessionHistoryUseCase sessionHistoryUseCase) {
+        init(workout, workSeconds, restSeconds, workout.getSets(), exerciseService, sessionHistoryUseCase);
+    }
+
+    public void init(Workout workout, int workSeconds, int restSeconds,
+                     int selectedSets,
+                     ExerciseService exerciseService,
                      SessionHistoryUseCase sessionHistoryUseCase) {
         if (this.workout != null) return; // Already initialized
 
         this.workout = workout;
         this.workDuration = workSeconds;
         this.restDuration = restSeconds;
+        this.configuredSets = selectedSets;
         this.exerciseService = exerciseService;
         this.sessionHistoryUseCase = sessionHistoryUseCase;
 
-        int totalSets = workout.getRounds() * workout.getExerciseIds().size();
+        int totalSets = selectedSets * workout.getExerciseIds().size();
         this.intervalTimer = new IntervalTimer(workSeconds, restSeconds, totalSets, this);
         
         timeLeft.setValue(workSeconds);
@@ -136,9 +149,9 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
                 workout.getName(),
                 System.currentTimeMillis(),
                 totalDuration,
-                workout.getRounds(),
                 workout.getExerciseIds().size(),
-                workout.getExerciseIds().size()
+                configuredSets,
+                configuredSets
         );
         
         sessionHistoryUseCase.saveCompletedSession(record);

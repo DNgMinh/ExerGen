@@ -96,8 +96,8 @@ public class SessionHistoryIntegrationTest {
         List<SessionRecord> history = sessionHistoryUseCase.getSessionHistory();
         assertEquals(1, history.size());
         assertEquals(1, history.get(0).getExerciseCount());
-        assertEquals(3, history.get(0).getRoundsPlanned());
-        assertEquals(3, history.get(0).getRoundsCompleted());
+        assertEquals(3, history.get(0).getSetsPlanned());
+        assertEquals(3, history.get(0).getSetsCompleted());
     }
 
     private SessionRecord createRecord(String id, long completedAtMs) {

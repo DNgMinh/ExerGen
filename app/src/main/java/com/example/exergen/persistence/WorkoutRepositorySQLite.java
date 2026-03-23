@@ -48,7 +48,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
 
         values.put("id", workout.getId());
         values.put("name", workout.getName());
-        values.put("rounds", workout.getRounds());
+        values.put("sets", workout.getSets());
         values.put("exercise_ids", exerciseIdsStr);
         values.put("work_seconds", workSecStr.toString());
         values.put("rest_seconds", restSecStr.toString());
@@ -98,7 +98,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
     private Workout parseCursorToWorkout(Cursor cursor) {
         String id = cursor.getString(cursor.getColumnIndexOrThrow("id"));
         String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
-        int rounds = cursor.getInt(cursor.getColumnIndexOrThrow("rounds"));
+        int sets = cursor.getInt(cursor.getColumnIndexOrThrow("sets"));
         String exIdsStr = cursor.getString(cursor.getColumnIndexOrThrow("exercise_ids"));
         String workSecStr = cursor.getString(cursor.getColumnIndexOrThrow("work_seconds"));
         String restSecStr = cursor.getString(cursor.getColumnIndexOrThrow("rest_seconds"));
@@ -117,7 +117,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
                 restSeconds.add(Integer.parseInt(s.trim()));
         }
 
-        return new Workout(id, name, rounds, exerciseIds, workSeconds, restSeconds);
+        return new Workout(id, name, sets, exerciseIds, workSeconds, restSeconds);
     }
 
     @Override

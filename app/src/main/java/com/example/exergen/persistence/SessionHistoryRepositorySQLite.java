@@ -35,8 +35,8 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
         values.put("completed_at_epoch_ms", record.getCompletedAtEpochMs());
         values.put("total_duration_seconds", record.getTotalDurationSeconds());
         values.put("exercise_count", record.getExerciseCount());
-        values.put("rounds_planned", record.getRoundsPlanned());
-        values.put("rounds_completed", record.getRoundsCompleted());
+        values.put("sets_planned", record.getSetsPlanned());
+        values.put("sets_completed", record.getSetsCompleted());
 
         db.insert(DatabaseHelper.TABLE_SESSION_HISTORY, android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE, values);
     }
@@ -80,8 +80,8 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
                 cursor.getLong(cursor.getColumnIndexOrThrow("completed_at_epoch_ms")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("total_duration_seconds")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("exercise_count")),
-                cursor.getInt(cursor.getColumnIndexOrThrow("rounds_planned")),
-                cursor.getInt(cursor.getColumnIndexOrThrow("rounds_completed"))
+                cursor.getInt(cursor.getColumnIndexOrThrow("sets_planned")),
+                cursor.getInt(cursor.getColumnIndexOrThrow("sets_completed"))
         );
     }
 }

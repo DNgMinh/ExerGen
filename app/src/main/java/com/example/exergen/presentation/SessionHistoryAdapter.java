@@ -46,8 +46,8 @@ public class SessionHistoryAdapter extends RecyclerView.Adapter<SessionHistoryAd
                 R.string.session_history_item_summary_format,
                 completedAtText,
                 session.getTotalDurationSeconds(),
-                session.getRoundsCompleted(),
-                session.getRoundsPlanned());
+                session.getSetsCompleted(),
+                session.getSetsPlanned());
         holder.summary.setText(summary);
 
         holder.itemView.setOnClickListener(v -> {

@@ -21,7 +21,7 @@ public class WorkoutTest {
 
         assertEquals("w1", workout.getId());
         assertEquals("Morning Routine", workout.getName());
-        assertEquals(3, workout.getRounds());
+        assertEquals(3, workout.getSets());
         assertEquals(2, workout.getExerciseIds().size());
     }
 
@@ -36,7 +36,7 @@ public class WorkoutTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void invalidRounds_throwsException() {
+    public void invalidSets_throwsException() {
         new Workout("w1", "Name", 0, List.of("e1"), List.of(30), List.of(10));
     }
 

@@ -48,7 +48,7 @@ public class LiveWorkoutFragment extends Fragment {
     private ImageButton btnExit;
     private LinearLayout setupContainer;
     private View activeContainer;
-    private NumberPicker npWork, npRest;
+    private NumberPicker npWork, npRest, npSets;
 
     private final List<Drawable> animationDrawables = new ArrayList<>();
     private final Handler animationHandler = new Handler(Looper.getMainLooper());
@@ -120,6 +120,7 @@ public class LiveWorkoutFragment extends Fragment {
         activeContainer = view.findViewById(R.id.active_exercise_container);
         npWork = view.findViewById(R.id.np_live_work);
         npRest = view.findViewById(R.id.np_live_rest);
+        npSets = view.findViewById(R.id.np_live_sets);
     }
 
     private void setupPickers() {
@@ -129,12 +130,15 @@ public class LiveWorkoutFragment extends Fragment {
         npRest.setMinValue(0);
         npRest.setMaxValue(300);
         npRest.setValue(10);
+        npSets.setMinValue(1);
+        npSets.setMaxValue(20);
+        npSets.setValue(workout != null ? workout.getSets() : 1);
     }
 
     private void setupButtons() {
         btnStart.setOnClickListener(v -> {
             if (workout != null) {
-                viewModel.init(workout, npWork.getValue(), npRest.getValue());
+                viewModel.init(workout, npWork.getValue(), npRest.getValue(), npSets.getValue());
                 viewModel.start();
                 setupContainer.setVisibility(View.GONE);
                 activeContainer.setVisibility(View.VISIBLE);

@@ -78,7 +78,7 @@ public class WorkoutIntegrationTest {
         Workout retrieved = workoutUseCase.getWorkoutById(workoutId);
         assertNotNull(retrieved);
         assertEquals("Integration Test Workout", retrieved.getName());
-        assertEquals(2, retrieved.getRounds());
+        assertEquals(2, retrieved.getSets());
     }
 
     @Test

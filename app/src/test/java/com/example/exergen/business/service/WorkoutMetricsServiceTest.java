@@ -11,7 +11,7 @@ import java.util.List;
 public class WorkoutMetricsServiceTest {
 
     @Test
-    public void calculateTotalDurationSecondsComputesAcrossRounds() {
+    public void calculateTotalDurationSecondsComputesAcrossSets() {
         Workout workout = new Workout(
                 "w1",
                 "Test",

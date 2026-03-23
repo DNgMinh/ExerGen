@@ -11,10 +11,10 @@ public final class WorkoutMetricsService {
             throw new IllegalArgumentException("workout required");
         }
 
-        int perRound = 0;
+        int perSet = 0;
         for (int i = 0; i < workout.getExerciseIds().size(); i++) {
-            perRound += workout.getWorkSeconds().get(i) + workout.getRestSeconds().get(i);
+            perSet += workout.getWorkSeconds().get(i) + workout.getRestSeconds().get(i);
         }
-        return perRound * workout.getRounds();
+        return perSet * workout.getSets();
     }
 }
