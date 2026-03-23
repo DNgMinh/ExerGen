@@ -12,8 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.service.ExerciseService;
+import android.text.TextUtils;
+import java.util.ArrayList;
 import java.util.List;
 
 // Fragment responsible for displaying the list of available exercises
@@ -54,8 +57,19 @@ public class AddFragment extends Fragment {
         else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
-            recyclerView.setAdapter(new ExerciseAdapter(exercises, this::openExerciseDetail));
+            recyclerView.setAdapter(new ExerciseAdapter(buildExerciseItems(exercises), this::openExerciseDetail));
         }
+    }
+
+    private List<ExerciseListItem> buildExerciseItems(List<Exercise> exercises) {
+        List<ExerciseListItem> items = new ArrayList<>();
+        for (Exercise exercise : exercises) {
+            String muscles = TextUtils.join(", ", EnumMapper.toMuscleLabels(exercise.getMuscleGroups()));
+            String equipment = TextUtils.join(", ", EnumMapper.toEquipmentLabels(exercise.getEquipment()));
+            String attributes = getString(R.string.exercise_attributes_format, muscles, equipment);
+            items.add(new ExerciseListItem(exercise, exercise.getName(), attributes));
+        }
+        return items;
     }
 
     private void openExerciseDetail(Exercise exercise) {

@@ -58,7 +58,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
         Context context = holder.itemView.getContext();
         String details = context.getString(
                 R.string.workout_details_exercises_only_format,
-                workout.getExerciseIds().size());
+                workout.getSteps().size());
 
         holder.details.setText(details);
         holder.itemView.setOnClickListener(v -> {

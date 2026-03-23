@@ -13,6 +13,7 @@ import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.SessionRecord;
 import com.example.exergen.model.Workout;
+import com.example.exergen.model.WorkoutStep;
 
 import java.util.UUID;
 
@@ -63,7 +64,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
         this.exerciseService = exerciseService;
         this.sessionHistoryUseCase = sessionHistoryUseCase;
 
-        int totalSets = selectedSets * workout.getExerciseIds().size();
+        int totalSets = selectedSets * workout.getSteps().size();
         this.intervalTimer = new IntervalTimer(workSeconds, restSeconds, totalSets, this);
         
         timeLeft.setValue(workSeconds);
@@ -121,17 +122,19 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
         if (workout == null || intervalTimer == null || exerciseService == null) return;
 
         int currentSetIndex = intervalTimer.getCurrentSet() - 1;
-        int exerciseCount = workout.getExerciseIds().size();
+        int exerciseCount = workout.getSteps().size();
         
         // Current Exercise
-        String currentExId = workout.getExerciseIds().get(currentSetIndex % exerciseCount);
+        WorkoutStep currentStep = workout.getSteps().get(currentSetIndex % exerciseCount);
+        String currentExId = currentStep.getExerciseId();
         Exercise currentEx = exerciseService.getExerciseById(currentExId);
         currentExercise.postValue(currentEx);
 
         // Next Exercise
         int nextSetIndex = currentSetIndex + 1;
         if (nextSetIndex < intervalTimer.getTotalSets()) {
-            String nextExId = workout.getExerciseIds().get(nextSetIndex % exerciseCount);
+            WorkoutStep nextStep = workout.getSteps().get(nextSetIndex % exerciseCount);
+            String nextExId = nextStep.getExerciseId();
             Exercise nextEx = exerciseService.getExerciseById(nextExId);
             nextExercise.postValue(nextEx);
         } else {
@@ -149,7 +152,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
                 workout.getName(),
                 System.currentTimeMillis(),
                 totalDuration,
-                workout.getExerciseIds().size(),
+                workout.getSteps().size(),
                 configuredSets,
                 configuredSets
         );

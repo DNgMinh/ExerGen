@@ -4,6 +4,7 @@ import com.example.exergen.persistence.repository.IWorkoutRepository;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
+import com.example.exergen.model.WorkoutStep;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +45,9 @@ public class WorkoutUseCase {
 
     public List<Exercise> getExercisesForWorkout(Workout workout) {
         List<Exercise> exercises = new ArrayList<>();
-        if (workout != null && workout.getExerciseIds() != null) {
-            for (String id : workout.getExerciseIds()) {
+        if (workout != null && workout.getSteps() != null) {
+            for (WorkoutStep step : workout.getSteps()) {
+                String id = step.getExerciseId();
                 Exercise exercise = exerciseService.getExerciseById(id);
                 if (exercise != null) {
                     exercises.add(exercise);

@@ -9,21 +9,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.exergen.R;
-import com.example.exergen.model.SessionRecord;
-
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class SessionHistoryAdapter extends RecyclerView.Adapter<SessionHistoryAdapter.SessionViewHolder> {
     public interface OnSessionClickListener {
-        void onSessionClick(SessionRecord sessionRecord);
+        void onSessionClick(String sessionId);
     }
 
-    private final List<SessionRecord> sessions;
+    private final List<SessionHistoryListItem> sessions;
     private final OnSessionClickListener onSessionClickListener;
 
-    public SessionHistoryAdapter(List<SessionRecord> sessions, OnSessionClickListener onSessionClickListener) {
+    public SessionHistoryAdapter(List<SessionHistoryListItem> sessions, OnSessionClickListener onSessionClickListener) {
         this.sessions = sessions;
         this.onSessionClickListener = onSessionClickListener;
     }
@@ -38,21 +34,13 @@ public class SessionHistoryAdapter extends RecyclerView.Adapter<SessionHistoryAd
 
     @Override
     public void onBindViewHolder(@NonNull SessionViewHolder holder, int position) {
-        SessionRecord session = sessions.get(position);
+        SessionHistoryListItem session = sessions.get(position);
         holder.workoutName.setText(session.getWorkoutName());
-
-        String completedAtText = DateFormat.getDateTimeInstance().format(new Date(session.getCompletedAtEpochMs()));
-        String summary = holder.itemView.getContext().getString(
-                R.string.session_history_item_summary_format,
-                completedAtText,
-                session.getTotalDurationSeconds(),
-                session.getSetsCompleted(),
-                session.getSetsPlanned());
-        holder.summary.setText(summary);
+        holder.summary.setText(session.getSummary());
 
         holder.itemView.setOnClickListener(v -> {
             if (onSessionClickListener != null) {
-                onSessionClickListener.onSessionClick(session);
+                onSessionClickListener.onSessionClick(session.getSessionId());
             }
         });
     }

@@ -1,6 +1,7 @@
 package com.example.exergen.business.service;
 
 import com.example.exergen.model.Workout;
+import com.example.exergen.model.WorkoutStep;
 
 public final class WorkoutMetricsService {
     private WorkoutMetricsService() {
@@ -12,8 +13,8 @@ public final class WorkoutMetricsService {
         }
 
         int perSet = 0;
-        for (int i = 0; i < workout.getExerciseIds().size(); i++) {
-            perSet += workout.getWorkSeconds().get(i) + workout.getRestSeconds().get(i);
+        for (WorkoutStep step : workout.getSteps()) {
+            perSet += step.getWorkSeconds() + step.getRestSeconds();
         }
         return perSet * workout.getSets();
     }

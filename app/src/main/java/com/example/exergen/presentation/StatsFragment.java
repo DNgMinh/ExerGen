@@ -26,6 +26,7 @@ import com.example.exergen.model.WeeklyTrendPoint;
 import com.example.exergen.model.SessionRecord;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -180,15 +181,30 @@ public class StatsFragment extends Fragment {
 
         emptyStateText.setVisibility(View.GONE);
         sessionHistoryRecyclerView.setVisibility(View.VISIBLE);
-        sessionHistoryRecyclerView.setAdapter(new SessionHistoryAdapter(sessions, this::showSessionDetails));
+        sessionHistoryRecyclerView.setAdapter(new SessionHistoryAdapter(buildSessionItems(sessions), this::showSessionDetails));
     }
 
-    private void showSessionDetails(SessionRecord selectedItem) {
-        if (selectedItem == null || getContext() == null) {
+    private List<SessionHistoryListItem> buildSessionItems(List<SessionRecord> sessions) {
+        List<SessionHistoryListItem> items = new ArrayList<>();
+        for (SessionRecord session : sessions) {
+            String completedAtText = DateFormat.getDateTimeInstance().format(new Date(session.getCompletedAtEpochMs()));
+            String summary = getString(
+                    R.string.session_history_item_summary_format,
+                    completedAtText,
+                    session.getTotalDurationSeconds(),
+                    session.getSetsCompleted(),
+                    session.getSetsPlanned());
+            items.add(new SessionHistoryListItem(session.getId(), session.getWorkoutName(), summary));
+        }
+        return items;
+    }
+
+    private void showSessionDetails(String sessionId) {
+        if (sessionId == null || getContext() == null) {
             return;
         }
 
-        SessionRecord record = sessionHistoryUseCase.getSessionById(selectedItem.getId());
+        SessionRecord record = sessionHistoryUseCase.getSessionById(sessionId);
         if (record == null) {
             return;
         }
