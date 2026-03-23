@@ -62,39 +62,10 @@ public class ExerciseService {
         List<Exercise> filtered = new ArrayList<>();
 
         for (Exercise exercise : all) {
-            if (matches(exercise, equipment, muscleGroups)) {
+            if (ExerciseConstraintMatcher.matches(exercise, equipment, muscleGroups)) {
                 filtered.add(exercise);
             }
         }
         return filtered;
-    }
-
-    private boolean matches(Exercise exercise, List<EquipmentType> equipment, List<MuscleGroup> muscleGroups) {
-        boolean matchesMuscle = false;
-        for (MuscleGroup target : muscleGroups) {
-            for (MuscleGroup exerciseMuscle : exercise.getMuscleGroups()) {
-                if (target == exerciseMuscle) {
-                    matchesMuscle = true;
-                    break;
-                }
-            }
-            if (matchesMuscle)
-                break;
-        }
-
-        if (!matchesMuscle)
-            return false;
-
-        if (equipment == null || equipment.isEmpty())
-            return true;
-
-        for (EquipmentType selected : equipment) {
-            for (EquipmentType exerciseEquipment : exercise.getEquipment()) {
-                if (selected == exerciseEquipment) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }
