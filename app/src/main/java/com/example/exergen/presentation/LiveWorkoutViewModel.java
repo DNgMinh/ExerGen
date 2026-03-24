@@ -25,6 +25,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     private final MutableLiveData<Exercise> nextExercise = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isRunning = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isFinished = new MutableLiveData<>(false);
+    private final MutableLiveData<LiveWorkoutUiState> uiState = new MutableLiveData<>(LiveWorkoutUiState.setup());
 
     private IntervalTimer intervalTimer;
     private Workout workout;
@@ -78,11 +79,18 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     public LiveData<Exercise> getNextExercise() { return nextExercise; }
     public LiveData<Boolean> getIsRunning() { return isRunning; }
     public LiveData<Boolean> getIsFinished() { return isFinished; }
+    public LiveData<LiveWorkoutUiState> getUiState() { return uiState; }
+
+    public void startWorkout(Workout workout, int workSeconds, int restSeconds, int selectedSets) {
+        init(workout, workSeconds, restSeconds, selectedSets);
+        start();
+    }
 
     public void start() {
         if (intervalTimer != null && !intervalTimer.isRunning()) {
             intervalTimer.start();
             isRunning.setValue(true);
+            uiState.setValue(LiveWorkoutUiState.activeRunning());
         }
     }
 
@@ -90,6 +98,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
         if (intervalTimer != null && intervalTimer.isRunning()) {
             intervalTimer.pause();
             isRunning.setValue(false);
+            uiState.setValue(LiveWorkoutUiState.activePaused());
         }
     }
 
@@ -97,6 +106,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
         if (intervalTimer != null) {
             intervalTimer.cancel();
             isRunning.setValue(false);
+            uiState.setValue(LiveWorkoutUiState.setup());
         }
     }
 
@@ -115,6 +125,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     public void onFinish() {
         isRunning.postValue(false);
         isFinished.postValue(true);
+        uiState.postValue(LiveWorkoutUiState.finished());
         saveSession();
     }
 

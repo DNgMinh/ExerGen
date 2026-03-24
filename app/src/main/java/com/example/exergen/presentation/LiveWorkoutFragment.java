@@ -1,6 +1,5 @@
 package com.example.exergen.presentation;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -124,12 +123,7 @@ public class LiveWorkoutFragment extends Fragment {
     private void setupButtons() {
         btnStart.setOnClickListener(v -> {
             if (workout != null) {
-                viewModel.init(workout, npWork.getValue(), npRest.getValue(), npSets.getValue());
-                viewModel.start();
-                setupContainer.setVisibility(View.GONE);
-                activeContainer.setVisibility(View.VISIBLE);
-                btnPause.setVisibility(View.VISIBLE);
-                btnCancel.setVisibility(View.GONE);
+                viewModel.startWorkout(workout, npWork.getValue(), npRest.getValue(), npSets.getValue());
             }
         });
         btnPause.setOnClickListener(v -> viewModel.pause());
@@ -142,7 +136,7 @@ public class LiveWorkoutFragment extends Fragment {
             String timeString = String.format(java.util.Locale.getDefault(), "%02d:%02d",
                     seconds / 60, seconds % 60);
             tvTimer.setText(timeString);
-            if (seconds > 0 && seconds <= 3) {
+            if (Boolean.TRUE.equals(viewModel.getIsRunning().getValue()) && seconds > 0 && seconds <= 3) {
                 soundFeedbackHelper.playCountdownBeep();
             }
         });
@@ -179,42 +173,38 @@ public class LiveWorkoutFragment extends Fragment {
             }
         });
 
-        viewModel.getIsRunning().observe(getViewLifecycleOwner(), isRunning -> {
-            if (isRunning) {
-                btnStart.setVisibility(View.GONE);
-                btnPause.setEnabled(true);
+        viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
+            if (state == null) return;
+            setupContainer.setVisibility(state.isSetupVisible() ? View.VISIBLE : View.GONE);
+            activeContainer.setVisibility(state.isActiveVisible() ? View.VISIBLE : View.GONE);
+            btnStart.setVisibility(state.isStartVisible() ? View.VISIBLE : View.GONE);
+            btnPause.setVisibility(state.isPauseVisible() ? View.VISIBLE : View.GONE);
+            btnCancel.setVisibility(state.isCancelVisible() ? View.VISIBLE : View.GONE);
+            btnPause.setEnabled(state.isPauseEnabled());
+            btnStart.setText(getString(state.getStartTextResId()));
+            btnCancel.setText(state.getCancelTextResId());
+            tvTimer.setVisibility(state.isTimerVisible() ? View.VISIBLE : View.GONE);
+
+            if (state.isRunning()) {
                 if (viewModel.getPhase().getValue() == TimerPhase.WORK) {
                     animationManager.resume();
                 }
-            }
-            else {
-                if (setupContainer.getVisibility() == View.VISIBLE) {
-                    btnStart.setText(getString(R.string.btn_start));
-                } else {
-                    btnStart.setText(getString(R.string.btn_resume));
+            } else {
+                animationManager.pause();
+                if (!state.isFinished() && !state.isSetupVisible()) {
                     tvPhase.setText(getString(R.string.timer_paused));
                 }
-                btnStart.setVisibility(View.VISIBLE);
-                btnPause.setEnabled(false);
-                animationManager.pause();
             }
-        });
 
-        viewModel.getIsFinished().observe(getViewLifecycleOwner(), isFinished -> {
-            if (isFinished) {
+            if (state.isFinished()) {
                 tvPhase.setText(getString(R.string.live_workout_finished));
                 tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                tvTimer.setVisibility(View.GONE);
                 tvCurrentExercise.setText("");
                 tvNextExercise.setText("");
                 animationManager.stop();
                 ivAnimation.setImageResource(R.drawable.ic_check_circle);
-                btnPause.setVisibility(View.GONE);
-                btnStart.setVisibility(View.GONE);
-                btnCancel.setText(R.string.btn_back);
-                btnCancel.setVisibility(View.VISIBLE);
-                setBottomNavVisibility(View.VISIBLE);
             }
+            setBottomNavVisibility(state.isShowBottomNav() ? View.VISIBLE : View.GONE);
         });
     }
 
