@@ -8,20 +8,19 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.example.exergen.R;
-import com.example.exergen.business.service.IntervalTimer;
 import com.example.exergen.business.service.TimerPhase;
-import com.example.exergen.business.service.TimerObserver;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.SessionRecord;
 
-import java.util.UUID;
-
-public class TimerFragment extends Fragment implements TimerObserver {
+public class TimerFragment extends Fragment {
     private static final String KEY_WORK = "key_work";
     private static final String KEY_REST = "key_rest";
     private static final String KEY_SETS = "key_sets";
@@ -39,11 +38,9 @@ public class TimerFragment extends Fragment implements TimerObserver {
     private LinearLayout pickerContainer;
     private NumberPicker npWork, npRest, npSets;
 
-    private IntervalTimer intervalTimer;
-    private SoundFeedbackHelper soundFeedbackHelper;
-    private boolean isTimerActive;
-    private Bundle savedState;
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private SoundFeedbackHelper soundFeedbackHelper;
+    private TimerViewModel viewModel;
 
     public void setDependencies(SessionHistoryUseCase sessionHistoryUseCase) {
         this.sessionHistoryUseCase = sessionHistoryUseCase;
@@ -56,7 +53,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
             throw new IllegalStateException("TimerFragment dependencies not provided");
         }
         soundFeedbackHelper = new SoundFeedbackHelper();
-        savedState = savedInstanceState;
+        viewModel = new ViewModelProvider(this).get(TimerViewModel.class);
+        viewModel.init(sessionHistoryUseCase);
     }
 
     @Nullable
@@ -67,8 +65,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
         initializeViews(view);
         setupPickers();
         setupButtons();
-        restoreUiState(savedState);
-
+        setupObservers();
+        restoreUiState(savedInstanceState);
         return view;
     }
 
@@ -97,67 +95,58 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     private void setupButtons() {
-        btnStart.setOnClickListener(v -> startOrResumeTimer());
-        btnPause.setOnClickListener(v -> pauseTimer());
-        btnStop.setOnClickListener(v -> stopTimer());
+        btnStart.setOnClickListener(v -> {
+            viewModel.startOrResume(npWork.getValue(), npRest.getValue(), npSets.getValue());
+            btnStart.setText(getString(R.string.btn_resume));
+        });
+        btnPause.setOnClickListener(v -> viewModel.pause());
+        btnStop.setOnClickListener(v -> viewModel.stop());
         updateButtonStates();
     }
 
-    private void startOrResumeTimer() {
-        if (intervalTimer == null) {
-            int work = npWork.getValue();
-            int rest = npRest.getValue();
-            int sets = npSets.getValue();
+    private void setupObservers() {
+        viewModel.getSecondsRemaining().observe(getViewLifecycleOwner(), seconds -> {
+            updateTimerText(seconds);
+            if (viewModel.isTimerRunning() && seconds > 0 && seconds <= 3) {
+                soundFeedbackHelper.playCountdownBeep();
+            }
+        });
 
-            intervalTimer = new IntervalTimer(work, rest, sets, this);
-            setSetupModeVisible(false);
-        }
+        viewModel.getPhase().observe(getViewLifecycleOwner(), phase -> {
+            updatePhaseText(phase);
+            if (viewModel.isTimerRunning()) {
+                soundFeedbackHelper.playTransitionBeep();
+            }
+        });
 
-        if (intervalTimer.isRunning()) {
-            // Ignore duplicate start/resume taps while already active.
-            return;
-        }
-
-        intervalTimer.start();
-        isTimerActive = true;
-        updateButtonStates();
-
-        btnStart.setText(getString(R.string.btn_resume));
-    }
-
-    private void pauseTimer() {
-        if (intervalTimer != null) {
-            intervalTimer.pause();
-            isTimerActive = false;
+        viewModel.getHasTimer().observe(getViewLifecycleOwner(), hasTimer -> {
+            boolean active = Boolean.TRUE.equals(hasTimer);
+            setSetupModeVisible(!active);
+            if (!active) {
+                resetToDefaultState();
+            }
             updateButtonStates();
-            tvPhase.setText(getString(R.string.timer_paused));
-        }
-    }
+        });
 
-    private void stopTimer() {
-        isTimerActive = false;
-        if (intervalTimer != null) {
-            intervalTimer.cancel();
-            intervalTimer = null;
-        }
-        resetToDefaultState();
-        updateButtonStates();
+        viewModel.getIsRunning().observe(getViewLifecycleOwner(), running -> {
+            if (!Boolean.TRUE.equals(running) && viewModel.hasActiveTimer()) {
+                tvPhase.setText(getString(R.string.timer_paused));
+            }
+            updateButtonStates();
+        });
     }
 
     private void setSetupModeVisible(boolean isVisible) {
         pickerContainer.setVisibility(isVisible ? View.VISIBLE : View.GONE);
-
-        // If setup is visible hide the stop button
         btnStop.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-
         if (isVisible) {
             btnStart.setText(getString(R.string.btn_start));
         }
     }
 
     private void updateButtonStates() {
-        btnPause.setEnabled(isTimerActive);
-        btnStop.setEnabled(intervalTimer != null);
+        btnPause.setEnabled(viewModel != null && viewModel.isTimerRunning());
+        btnStop.setEnabled(viewModel != null && viewModel.hasActiveTimer());
     }
 
     private void updateTimerText(long secondsRemaining) {
@@ -167,6 +156,9 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     private void updatePhaseText(TimerPhase phase) {
+        if (phase == null) {
+            return;
+        }
         if (phase == TimerPhase.WORK) {
             tvPhase.setText(getString(R.string.timer_work));
             tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
@@ -177,57 +169,11 @@ public class TimerFragment extends Fragment implements TimerObserver {
     }
 
     private void resetToDefaultState() {
-        safeRunOnUiThread(() -> {
-            tvTimer.setText(getString(R.string.timer_default));
-            tvPhase.setText(getString(R.string.timer_ready));
-            setSetupModeVisible(true);
-            intervalTimer = null;
-            isTimerActive = false;
-            updateButtonStates();
-        });
-    }
-
-    @Override
-    public void onTick(long secondsRemaining) {
-        safeRunOnUiThread(() -> {
-            updateTimerText(secondsRemaining);
-            // Play beeps on 3, 2, 1
-            if (isTimerActive && secondsRemaining > 0 && secondsRemaining <= 3) {
-                soundFeedbackHelper.playCountdownBeep();
-            }
-        });
-    }
-
-    @Override
-    public void onPhaseChange(TimerPhase phase) {
-        safeRunOnUiThread(() -> {
-            updatePhaseText(phase);
-            // Transition beep
-            if (isTimerActive) {
-                soundFeedbackHelper.playTransitionBeep();
-            }
-        });
-    }
-
-    @Override
-    public void onFinish() {
-        saveCompletedTimerSession();
-        isTimerActive = false;
-        resetToDefaultState();
-    }
-
-    private void saveCompletedTimerSession() {
-        if (intervalTimer == null) {
-            return;
-        }
-
-        SessionRecord sessionRecord = buildSessionRecordForCompletedTimer(
-                intervalTimer.getWorkDurationSeconds(),
-                intervalTimer.getRestDurationSeconds(),
-                intervalTimer.getTotalSets(),
-                System.currentTimeMillis(),
-                "session-" + UUID.randomUUID());
-        sessionHistoryUseCase.saveCompletedSession(sessionRecord);
+        tvTimer.setText(getString(R.string.timer_default));
+        tvPhase.setText(getString(R.string.timer_ready));
+        btnStart.setText(getString(R.string.btn_start));
+        setSetupModeVisible(true);
+        updateButtonStates();
     }
 
     static SessionRecord buildSessionRecordForCompletedTimer(
@@ -236,22 +182,8 @@ public class TimerFragment extends Fragment implements TimerObserver {
             int totalSets,
             long completedAtEpochMs,
             String sessionId) {
-        int totalDurationSeconds = totalSets * (workSeconds + restSeconds);
-        return new SessionRecord(
-                sessionId,
-                "manual-timer",
-                "Manual Interval Timer",
-                completedAtEpochMs,
-                totalDurationSeconds,
-                1,
-                totalSets,
-                totalSets);
-    }
-
-    private void safeRunOnUiThread(Runnable action) {
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(action);
-        }
+        return TimerViewModel.buildSessionRecordForCompletedTimer(
+                workSeconds, restSeconds, totalSets, completedAtEpochMs, sessionId);
     }
 
     @Override
@@ -269,17 +201,17 @@ public class TimerFragment extends Fragment implements TimerObserver {
         outState.putInt(KEY_REST, npRest.getValue());
         outState.putInt(KEY_SETS, npSets.getValue());
 
-        boolean hasTimer = intervalTimer != null;
+        boolean hasTimer = viewModel != null && viewModel.hasActiveTimer();
         outState.putBoolean(KEY_HAS_TIMER, hasTimer);
         if (hasTimer) {
-            outState.putBoolean(KEY_RUNNING, intervalTimer.isRunning());
-            outState.putInt(KEY_TIMER_WORK, intervalTimer.getWorkDurationSeconds());
-            outState.putInt(KEY_TIMER_REST, intervalTimer.getRestDurationSeconds());
-            outState.putInt(KEY_TIMER_SETS, intervalTimer.getTotalSets());
-            outState.putInt(KEY_TIMER_CURRENT_SET, intervalTimer.getCurrentSet());
-            outState.putString(KEY_TIMER_PHASE, intervalTimer.getCurrentPhase().name());
-            outState.putInt(KEY_TIMER_REMAINING, intervalTimer.getRemainingSeconds());
-            intervalTimer.pause();
+            outState.putBoolean(KEY_RUNNING, viewModel.isTimerRunning());
+            outState.putInt(KEY_TIMER_WORK, viewModel.getWorkDurationSeconds());
+            outState.putInt(KEY_TIMER_REST, viewModel.getRestDurationSeconds());
+            outState.putInt(KEY_TIMER_SETS, viewModel.getTotalSets());
+            outState.putInt(KEY_TIMER_CURRENT_SET, viewModel.getCurrentSet());
+            outState.putString(KEY_TIMER_PHASE, viewModel.getCurrentPhase().name());
+            outState.putInt(KEY_TIMER_REMAINING, viewModel.getRemainingSeconds());
+            viewModel.pause();
         }
     }
 
@@ -301,29 +233,20 @@ public class TimerFragment extends Fragment implements TimerObserver {
             return;
         }
 
-        intervalTimer = new IntervalTimer(
+        TimerPhase phase = TimerPhase.valueOf(state.getString(KEY_TIMER_PHASE, TimerPhase.WORK.name()));
+        viewModel.restoreTimerState(
                 state.getInt(KEY_TIMER_WORK, npWork.getValue()),
                 state.getInt(KEY_TIMER_REST, npRest.getValue()),
                 state.getInt(KEY_TIMER_SETS, npSets.getValue()),
-                this);
-
-        TimerPhase phase = TimerPhase.valueOf(state.getString(KEY_TIMER_PHASE, TimerPhase.WORK.name()));
-        intervalTimer.restoreState(
                 state.getInt(KEY_TIMER_CURRENT_SET, 1),
                 phase,
-                state.getInt(KEY_TIMER_REMAINING, intervalTimer.getRemainingSeconds()));
+                state.getInt(KEY_TIMER_REMAINING, npWork.getValue()),
+                state.getBoolean(KEY_RUNNING, false));
 
         setSetupModeVisible(false);
-        updateTimerText(intervalTimer.getRemainingSeconds());
+        updateTimerText(viewModel.getRemainingSeconds());
         updatePhaseText(phase);
-
-        if (state.getBoolean(KEY_RUNNING, false)) {
-            isTimerActive = true;
-            intervalTimer.start();
-            btnStart.setText(getString(R.string.btn_resume));
-        } else {
-            isTimerActive = false;
-        }
+        btnStart.setText(getString(R.string.btn_resume));
         updateButtonStates();
     }
 }
