@@ -8,41 +8,54 @@ import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
 public class WorkoutGenerationConstraintsTest {
 
+    private IEnumMapper enumMapper;
+
+    @Before
+    public void setUp() {
+        enumMapper = new EnumMapper();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorRejectsNullEnumMapper() {
+        new WorkoutGenerationConstraints(null, List.of("Dumbbell"), List.of("Chest"), 20);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsNullSelectedEquipment() {
-        new WorkoutGenerationConstraints(null, List.of("Chest"), 20);
+        new WorkoutGenerationConstraints(enumMapper, null, List.of("Chest"), 20);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsNullTargetMuscles() {
-        new WorkoutGenerationConstraints(List.of("Dumbbell"), null, 20);
+        new WorkoutGenerationConstraints(enumMapper, List.of("Dumbbell"), null, 20);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsEmptyTargetMuscles() {
-        new WorkoutGenerationConstraints(List.of("Dumbbell"), List.of(), 20);
+        new WorkoutGenerationConstraints(enumMapper, List.of("Dumbbell"), List.of(), 20);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsNonPositiveExerciseCount() {
-        new WorkoutGenerationConstraints(List.of("Dumbbell"), List.of("Chest"), 0);
+        new WorkoutGenerationConstraints(enumMapper, List.of("Dumbbell"), List.of("Chest"), 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorRejectsBlankConstraintValues() {
-        new WorkoutGenerationConstraints(List.of(" "), List.of("Chest"), 20);
+        new WorkoutGenerationConstraints(enumMapper, List.of(" "), List.of("Chest"), 20);
     }
 
     @Test
     public void testConstructorTrimsValuesAndStoresExerciseCount() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
-                List.of(" Dumbbell "), List.of(" Chest "), 25);
+                enumMapper, List.of(" Dumbbell "), List.of(" Chest "), 25);
 
         assertEquals(List.of(EquipmentType.DUMBBELLS), constraints.getSelectedEquipment());
         assertEquals(List.of(MuscleGroup.CHEST), constraints.getTargetMuscleGroups());
@@ -52,7 +65,7 @@ public class WorkoutGenerationConstraintsTest {
     @Test
     public void testMatchesExerciseReturnsTrueWhenEquipmentAndMuscleMatch() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
-                List.of("Dumbbells"), List.of("Chest"), 20);
+                enumMapper, List.of("Dumbbells"), List.of("Chest"), 20);
 
         Exercise exercise = new Exercise(
                 "ex-1",
@@ -69,7 +82,7 @@ public class WorkoutGenerationConstraintsTest {
     @Test
     public void testMatchesExerciseReturnsFalseWhenMuscleDoesNotMatch() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
-                List.of("Dumbbell"), List.of("Legs"), 20);
+                enumMapper, List.of("Dumbbell"), List.of("Legs"), 20);
 
         Exercise exercise = new Exercise(
                 "ex-1",
@@ -86,7 +99,7 @@ public class WorkoutGenerationConstraintsTest {
     @Test
     public void testMatchesExerciseAllowsAnyEquipmentWhenNoEquipmentSelected() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
-                List.of(), List.of("Chest"), 20);
+                enumMapper, List.of(), List.of("Chest"), 20);
 
         Exercise exercise = new Exercise(
                 "ex-1",

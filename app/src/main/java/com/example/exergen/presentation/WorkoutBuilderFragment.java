@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
 import com.example.exergen.business.service.WorkoutPreviewData;
 import com.example.exergen.business.service.WorkoutPreviewItem;
@@ -55,6 +56,7 @@ public class WorkoutBuilderFragment extends Fragment {
     private WorkoutUseCase workoutUseCase;
     private ExerciseService exerciseService;
     private WorkoutPreviewMapper workoutPreviewMapper;
+    private IEnumMapper enumMapper;
     private Workout lastGeneratedWorkout;
 
     private EditText etExerciseCount;
@@ -81,10 +83,11 @@ public class WorkoutBuilderFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (workoutBuilderUseCase == null || workoutUseCase == null || exerciseService == null) {
+        if (workoutBuilderUseCase == null || workoutUseCase == null || exerciseService == null || enumMapper == null) {
             workoutBuilderUseCase = AppBootstrap.get().workoutBuilderUseCase;
             workoutUseCase = AppBootstrap.get().workoutUseCase;
             exerciseService = AppBootstrap.get().exerciseService;
+            enumMapper = AppBootstrap.get().enumMapper;
         }
         if (workoutPreviewMapper == null) {
             workoutPreviewMapper = new WorkoutPreviewMapper();
@@ -94,17 +97,19 @@ public class WorkoutBuilderFragment extends Fragment {
     public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
             WorkoutUseCase workoutUseCase,
             ExerciseService exerciseService) {
-        setDependenciesForTesting(workoutBuilderUseCase, workoutUseCase, exerciseService, new WorkoutPreviewMapper());
+        setDependenciesForTesting(workoutBuilderUseCase, workoutUseCase, exerciseService, new WorkoutPreviewMapper(), AppBootstrap.get().enumMapper);
     }
 
     public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
             WorkoutUseCase workoutUseCase,
             ExerciseService exerciseService,
-            WorkoutPreviewMapper workoutPreviewMapper) {
+            WorkoutPreviewMapper workoutPreviewMapper,
+            IEnumMapper enumMapper) {
         this.workoutBuilderUseCase = workoutBuilderUseCase;
         this.workoutUseCase = workoutUseCase;
         this.exerciseService = exerciseService;
         this.workoutPreviewMapper = workoutPreviewMapper;
+        this.enumMapper = enumMapper;
     }
 
     @Nullable
@@ -215,7 +220,7 @@ public class WorkoutBuilderFragment extends Fragment {
         }
 
         List<String> selectedEquipment = getSelectedEquipment();
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(selectedEquipment, targetMuscles,
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(enumMapper, selectedEquipment, targetMuscles,
                 exerciseCount);
 
         String summaryText = getString(

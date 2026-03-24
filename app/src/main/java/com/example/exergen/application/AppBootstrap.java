@@ -2,6 +2,8 @@ package com.example.exergen.application;
 
 import android.app.Application;
 
+import com.example.exergen.business.service.EnumMapper;
+import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.StatisticsUseCase;
@@ -45,11 +47,14 @@ public final class AppBootstrap {
     public final SessionHistoryUseCase sessionHistoryUseCase;
     public final StatisticsUseCase statisticsUseCase;
     public final ExerciseService exerciseService;
+    public final IEnumMapper enumMapper;
 
     private AppBootstrap(Application app) {
         IWorkoutRepository workoutRepository;
         IExerciseRepository exerciseRepository;
         ISessionHistoryRepository sessionHistoryRepository;
+
+        this.enumMapper = new EnumMapper();
 
         if (USE_STUB) {
             workoutRepository = new WorkoutRepositoryStub();
@@ -57,7 +62,7 @@ public final class AppBootstrap {
             sessionHistoryRepository = new SessionHistoryRepositoryStub();
         } else {
             workoutRepository = new WorkoutRepositorySQLite(app);
-            exerciseRepository = new ExerciseRepositorySQLite(app);
+            exerciseRepository = new ExerciseRepositorySQLite(app, enumMapper);
             sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
         }
 

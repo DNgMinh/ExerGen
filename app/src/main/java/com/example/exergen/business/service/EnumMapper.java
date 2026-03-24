@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class EnumMapper {
+public class EnumMapper implements IEnumMapper {
     public EnumMapper() {}
 
-    public static List<EquipmentType> toEquipmentEnums(List<String> labels) {
+    @Override
+    public List<EquipmentType> toEquipmentEnums(List<String> labels) {
         if (labels == null || labels.isEmpty()) {
             return new ArrayList<>();
         }
@@ -20,7 +21,8 @@ public final class EnumMapper {
                 .collect(Collectors.toList());
     }
 
-    public static List<MuscleGroup> toMuscleEnums(List<String> labels) {
+    @Override
+    public List<MuscleGroup> toMuscleEnums(List<String> labels) {
         if (labels == null || labels.isEmpty()) {
             return new ArrayList<>();
         }
@@ -31,7 +33,8 @@ public final class EnumMapper {
                 .collect(Collectors.toList());
     }
 
-    public static List<String> toEquipmentLabels(List<EquipmentType> types) {
+    @Override
+    public List<String> toEquipmentLabels(List<EquipmentType> types) {
         if (types == null || types.isEmpty()) {
             return new ArrayList<>();
         }
@@ -40,7 +43,8 @@ public final class EnumMapper {
                 .collect(Collectors.toList());
     }
 
-    public static List<String> toMuscleLabels(List<MuscleGroup> groups) {
+    @Override
+    public List<String> toMuscleLabels(List<MuscleGroup> groups) {
         if (groups == null || groups.isEmpty()) {
             return new ArrayList<>();
         }

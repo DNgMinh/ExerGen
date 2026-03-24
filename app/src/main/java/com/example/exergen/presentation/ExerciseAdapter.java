@@ -9,7 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.business.service.EnumMapper;
+import com.example.exergen.application.AppBootstrap;
+import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.model.Exercise;
 import java.util.List;
 
@@ -19,14 +20,20 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     private List<Exercise> exercises;
     private OnExerciseClickListener clickListener;
+    private IEnumMapper enumMapper;
 
     public interface OnExerciseClickListener {
         void onExerciseClick(Exercise exercise);
     }
 
     public ExerciseAdapter(List<Exercise> exercises, OnExerciseClickListener clickListener) {
+        this(exercises, clickListener, AppBootstrap.get().enumMapper);
+    }
+
+    public ExerciseAdapter(List<Exercise> exercises, OnExerciseClickListener clickListener, IEnumMapper enumMapper) {
         this.exercises = exercises;
         this.clickListener = clickListener;
+        this.enumMapper = enumMapper;
     }
 
     @NonNull
@@ -42,8 +49,8 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         holder.name.setText(exercise.getName());
 
         Context context = holder.itemView.getContext();
-        String muscles = TextUtils.join(", ", EnumMapper.toMuscleLabels(exercise.getMuscleGroups()));
-        String equipment = TextUtils.join(", ", EnumMapper.toEquipmentLabels(exercise.getEquipment()));
+        String muscles = TextUtils.join(", ", enumMapper.toMuscleLabels(exercise.getMuscleGroups()));
+        String equipment = TextUtils.join(", ", enumMapper.toEquipmentLabels(exercise.getEquipment()));
 
         String attributes = context.getString(R.string.exercise_attributes_format, muscles, equipment);
         holder.attributes.setText(attributes);

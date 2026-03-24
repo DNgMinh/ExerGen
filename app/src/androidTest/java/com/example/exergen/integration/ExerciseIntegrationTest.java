@@ -9,7 +9,9 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
@@ -40,7 +42,8 @@ public class ExerciseIntegrationTest {
 
         context.deleteDatabase(TEST_DB_NAME);
 
-        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, TEST_DB_NAME);
+        IEnumMapper enumMapper = new EnumMapper();
+        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, TEST_DB_NAME, enumMapper);
         
         // Seed database from real CSV assets
         repo.seedData();

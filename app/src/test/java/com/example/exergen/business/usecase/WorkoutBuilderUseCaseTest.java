@@ -7,7 +7,9 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
+import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
@@ -25,6 +27,7 @@ import java.util.List;
 public class WorkoutBuilderUseCaseTest {
 
     private WorkoutBuilderUseCase workoutBuilderUseCase;
+    private IEnumMapper enumMapper;
 
     @Mock
     private ExerciseService mockExerciseService;
@@ -33,6 +36,7 @@ public class WorkoutBuilderUseCaseTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         workoutBuilderUseCase = new WorkoutBuilderUseCase(mockExerciseService);
+        enumMapper = new EnumMapper();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -43,6 +47,7 @@ public class WorkoutBuilderUseCaseTest {
     @Test(expected = IllegalArgumentException.class)
     public void generateWorkoutRejectsNoMatchingExercises() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                enumMapper,
                 List.of("Kettlebell"),
                 List.of("Shoulders"),
                 10
@@ -56,6 +61,7 @@ public class WorkoutBuilderUseCaseTest {
     @Test
     public void generateWorkoutBuildsRoutineForExerciseCountAndConstraints() {
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                enumMapper,
                 List.of("Dumbbells"),
                 List.of("Chest"),
                 3
@@ -78,7 +84,7 @@ public class WorkoutBuilderUseCaseTest {
 
     @Test
     public void generateWorkoutAllowsEmptyEquipmentSelection() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Legs"), 2);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(enumMapper, List.of(), List.of("Legs"), 2);
         Exercise e1 = new Exercise("ex-legs-bw", "Air Squat", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img"));
 
         when(mockExerciseService.filterByConstraints(anyList(), anyList()))
@@ -92,7 +98,7 @@ public class WorkoutBuilderUseCaseTest {
 
     @Test
     public void generateWorkoutCyclesMatchingExercisesWhenCountRequiresMoreSlots() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of(), List.of("Chest", "Legs"), 3);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(enumMapper, List.of(), List.of("Chest", "Legs"), 3);
 
         Exercise e1 = new Exercise("e1", "E1", List.of(MuscleGroup.CHEST), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img1"));
         Exercise e2 = new Exercise("e2", "E2", List.of(MuscleGroup.LEGS), List.of(EquipmentType.BODYWEIGHT), "", 2, List.of("img2"));
@@ -117,7 +123,7 @@ public class WorkoutBuilderUseCaseTest {
 
     @Test
     public void generateWorkoutAssignsUniqueIdsAcrossGenerations() {
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(List.of("Dumbbells"), List.of("Chest"), 2);
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(enumMapper, List.of("Dumbbells"), List.of("Chest"), 2);
         Exercise e1 = new Exercise("e1", "E1", List.of(MuscleGroup.CHEST), List.of(EquipmentType.DUMBBELLS), "", 2, List.of("img1"));
 
         when(mockExerciseService.filterByConstraints(anyList(), anyList()))

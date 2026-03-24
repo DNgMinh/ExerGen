@@ -17,15 +17,17 @@ public final class WorkoutGenerationConstraints {
     private final int targetExerciseCount;
 
 
-    public WorkoutGenerationConstraints(List<String> equipmentLabels,
+    public WorkoutGenerationConstraints(IEnumMapper enumMapper,
+            List<String> equipmentLabels,
             List<String> muscleLabels,
             int targetExerciseCount) {
 
+        ValidationHelper.requireNonNull(enumMapper, "enumMapper required");
         ValidationHelper.validateEquipment(equipmentLabels);
         ValidationHelper.validateMuscles(muscleLabels);
 
-        this.selectedEquipment = Collections.unmodifiableList(EnumMapper.toEquipmentEnums(equipmentLabels));
-        this.targetMuscleGroups = Collections.unmodifiableList(EnumMapper.toMuscleEnums(muscleLabels));
+        this.selectedEquipment = Collections.unmodifiableList(enumMapper.toEquipmentEnums(equipmentLabels));
+        this.targetMuscleGroups = Collections.unmodifiableList(enumMapper.toMuscleEnums(muscleLabels));
 
         if (targetExerciseCount <= 0) {
             throw new IllegalArgumentException("targetExerciseCount must be > 0");

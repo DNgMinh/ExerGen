@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.example.exergen.application.helper.DatabaseHelper;
-import com.example.exergen.business.service.EnumMapper;
+import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.repository.IExerciseRepository;
@@ -26,14 +26,16 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     private static final String TAG = "ExerciseRepoSQLite";
     private final DatabaseHelper dbHelper;
     private final Context context;
+    private final IEnumMapper enumMapper;
 
-    public ExerciseRepositorySQLite(Context context) {
-        this(context, DatabaseHelper.DEFAULT_DATABASE_NAME);
+    public ExerciseRepositorySQLite(Context context, IEnumMapper enumMapper) {
+        this(context, DatabaseHelper.DEFAULT_DATABASE_NAME, enumMapper);
     }
 
-    public ExerciseRepositorySQLite(Context context, String databaseName) {
+    public ExerciseRepositorySQLite(Context context, String databaseName, IEnumMapper enumMapper) {
         this.context = context;
         this.dbHelper = new DatabaseHelper(context, databaseName);
+        this.enumMapper = enumMapper;
     }
 
     @Override
@@ -163,8 +165,8 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         List<String> equipment = Arrays.asList(equipmentStr.split(","));
         List<String> imagePaths = Arrays.asList(imagePathsStr.split(","));
 
-        List<MuscleGroup> cleanMuscles = EnumMapper.toMuscleEnums(muscleGroups);
-        List<EquipmentType> cleanEquipment = EnumMapper.toEquipmentEnums(equipment);
+        List<MuscleGroup> cleanMuscles = enumMapper.toMuscleEnums(muscleGroups);
+        List<EquipmentType> cleanEquipment = enumMapper.toEquipmentEnums(equipment);
 
         return new Exercise(id, name, cleanMuscles, cleanEquipment, instructions, intensity, imagePaths);
     }
@@ -206,8 +208,8 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
                 String instructions = tokens[4].replaceAll("^\"|\"$", "");
 
-                List<MuscleGroup> cleanMuscles = EnumMapper.toMuscleEnums(muscles);
-                List<EquipmentType> cleanEquipment = EnumMapper.toEquipmentEnums(equipment);
+                List<MuscleGroup> cleanMuscles = enumMapper.toMuscleEnums(muscles);
+                List<EquipmentType> cleanEquipment = enumMapper.toEquipmentEnums(equipment);
 
                 list.add(new Exercise(
                         tokens[0], tokens[1], cleanMuscles, cleanEquipment, instructions,
