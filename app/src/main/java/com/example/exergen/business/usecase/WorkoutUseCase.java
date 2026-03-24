@@ -56,4 +56,15 @@ public class WorkoutUseCase {
         }
         return exercises;
     }
+
+    public int getTotalDurationSeconds(Workout workout) {
+        if (workout == null) {
+            throw new IllegalArgumentException("workout required");
+        }
+        int perSet = 0;
+        for (WorkoutStep step : workout.getSteps()) {
+            perSet += step.getWorkSeconds() + step.getRestSeconds();
+        }
+        return perSet * workout.getSets();
+    }
 }

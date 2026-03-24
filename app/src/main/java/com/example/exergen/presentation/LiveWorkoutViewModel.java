@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.IntervalTimer;
 import com.example.exergen.business.service.TimerObserver;
 import com.example.exergen.business.service.TimerPhase;
@@ -35,16 +34,6 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     
     private ExerciseUseCase exerciseUseCase;
     private SessionHistoryUseCase sessionHistoryUseCase;
-
-    public void init(Workout workout, int workSeconds, int restSeconds) {
-        init(workout, workSeconds, restSeconds, workout.getSets());
-    }
-
-    public void init(Workout workout, int workSeconds, int restSeconds, int selectedSets) {
-        init(workout, workSeconds, restSeconds, selectedSets,
-                AppBootstrap.get().exerciseUseCase,
-                AppBootstrap.get().sessionHistoryUseCase);
-    }
 
     public void init(Workout workout, int workSeconds, int restSeconds, 
                      ExerciseUseCase exerciseUseCase,
@@ -81,8 +70,14 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     public LiveData<Boolean> getIsFinished() { return isFinished; }
     public LiveData<LiveWorkoutUiState> getUiState() { return uiState; }
 
-    public void startWorkout(Workout workout, int workSeconds, int restSeconds, int selectedSets) {
-        init(workout, workSeconds, restSeconds, selectedSets);
+    public void startWorkout(
+            Workout workout,
+            int workSeconds,
+            int restSeconds,
+            int selectedSets,
+            ExerciseUseCase exerciseUseCase,
+            SessionHistoryUseCase sessionHistoryUseCase) {
+        init(workout, workSeconds, restSeconds, selectedSets, exerciseUseCase, sessionHistoryUseCase);
         start();
     }
 

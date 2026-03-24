@@ -11,12 +11,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
-import android.text.TextUtils;
+import com.example.exergen.model.MuscleGroup;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // Fragment responsible for displaying the list of available exercises
 public class AddFragment extends Fragment {
@@ -64,8 +65,12 @@ public class AddFragment extends Fragment {
     private List<ExerciseListItem> buildExerciseItems(List<Exercise> exercises) {
         List<ExerciseListItem> items = new ArrayList<>();
         for (Exercise exercise : exercises) {
-            String muscles = TextUtils.join(", ", EnumMapper.toMuscleLabels(exercise.getMuscleGroups()));
-            String equipment = TextUtils.join(", ", EnumMapper.toEquipmentLabels(exercise.getEquipment()));
+            String muscles = exercise.getMuscleGroups().stream()
+                    .map(MuscleGroup::getLabel)
+                    .collect(Collectors.joining(", "));
+            String equipment = exercise.getEquipment().stream()
+                    .map(EquipmentType::getLabel)
+                    .collect(Collectors.joining(", "));
             String attributes = getString(R.string.exercise_attributes_format, muscles, equipment);
             items.add(new ExerciseListItem(exercise, exercise.getName(), attributes));
         }

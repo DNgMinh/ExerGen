@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.exergen.R;
 import com.example.exergen.business.service.TimerPhase;
+import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
@@ -31,6 +33,8 @@ public class LiveWorkoutFragment extends Fragment {
     private String workoutId;
     private Workout workout;
     private WorkoutUseCase workoutUseCase;
+    private ExerciseUseCase exerciseUseCase;
+    private SessionHistoryUseCase sessionHistoryUseCase;
     private LiveWorkoutViewModel viewModel;
     private SoundFeedbackHelper soundFeedbackHelper;
     private ExerciseAnimationManager animationManager;
@@ -51,15 +55,20 @@ public class LiveWorkoutFragment extends Fragment {
         return fragment;
     }
 
-    public void setDependencies(WorkoutUseCase workoutUseCase) {
+    public void setDependencies(
+            WorkoutUseCase workoutUseCase,
+            ExerciseUseCase exerciseUseCase,
+            SessionHistoryUseCase sessionHistoryUseCase) {
         this.workoutUseCase = workoutUseCase;
+        this.exerciseUseCase = exerciseUseCase;
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         soundFeedbackHelper = new SoundFeedbackHelper();
-        if (workoutUseCase == null) {
+        if (workoutUseCase == null || exerciseUseCase == null || sessionHistoryUseCase == null) {
             throw new IllegalStateException("LiveWorkoutFragment dependencies not provided");
         }
         if (getArguments() != null) {
@@ -123,7 +132,13 @@ public class LiveWorkoutFragment extends Fragment {
     private void setupButtons() {
         btnStart.setOnClickListener(v -> {
             if (workout != null) {
-                viewModel.startWorkout(workout, npWork.getValue(), npRest.getValue(), npSets.getValue());
+                viewModel.startWorkout(
+                        workout,
+                        npWork.getValue(),
+                        npRest.getValue(),
+                        npSets.getValue(),
+                        exerciseUseCase,
+                        sessionHistoryUseCase);
             }
         });
         btnPause.setOnClickListener(v -> viewModel.pause());

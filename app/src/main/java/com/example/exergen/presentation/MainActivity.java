@@ -49,7 +49,9 @@ public class MainActivity extends AppCompatActivity {
                 WorkoutBuilderFragment fragment = new WorkoutBuilderFragment();
                 fragment.setDependencies(
                         AppBootstrap.get().workoutBuilderUseCase,
-                        AppBootstrap.get().workoutUseCase);
+                        AppBootstrap.get().workoutUseCase,
+                        AppBootstrap.get().exerciseUseCase,
+                        AppBootstrap.get().sessionHistoryUseCase);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_exercises) {
                 AddFragment fragment = new AddFragment();

@@ -63,6 +63,17 @@ public class WorkoutBuilderUseCase {
                 steps);
     }
 
+    public Workout generateWorkout(
+            List<String> selectedEquipmentLabels,
+            List<String> targetMuscleLabels,
+            int targetExerciseCount) {
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                selectedEquipmentLabels,
+                targetMuscleLabels,
+                targetExerciseCount);
+        return generateWorkout(constraints);
+    }
+
     private String createGeneratedWorkoutName() {
         return "Generated Workout - " + LocalDateTime.now().format(GENERATED_NAME_FORMATTER);
     }

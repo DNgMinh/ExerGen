@@ -17,7 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.exergen.R;
-import com.example.exergen.business.service.WorkoutGenerationConstraints;
+import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.model.EquipmentType;
@@ -50,6 +51,8 @@ public class WorkoutBuilderFragment extends Fragment {
 
     private WorkoutBuilderUseCase workoutBuilderUseCase;
     private WorkoutUseCase workoutUseCase;
+    private ExerciseUseCase exerciseUseCase;
+    private SessionHistoryUseCase sessionHistoryUseCase;
     private Workout lastGeneratedWorkout;
 
     private EditText etExerciseCount;
@@ -79,22 +82,26 @@ public class WorkoutBuilderFragment extends Fragment {
     }
 
     public void setDependencies(WorkoutBuilderUseCase workoutBuilderUseCase,
-            WorkoutUseCase workoutUseCase) {
+            WorkoutUseCase workoutUseCase,
+            ExerciseUseCase exerciseUseCase,
+            SessionHistoryUseCase sessionHistoryUseCase) {
         this.workoutBuilderUseCase = workoutBuilderUseCase;
         this.workoutUseCase = workoutUseCase;
+        this.exerciseUseCase = exerciseUseCase;
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
     }
 
     public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
             WorkoutUseCase workoutUseCase,
             com.example.exergen.business.service.ExerciseService exerciseService) {
-        setDependencies(workoutBuilderUseCase, workoutUseCase);
+        setDependencies(workoutBuilderUseCase, workoutUseCase, null, null);
     }
 
     public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
             WorkoutUseCase workoutUseCase,
             com.example.exergen.business.service.ExerciseService exerciseService,
             com.example.exergen.business.service.WorkoutPreviewMapper workoutPreviewMapper) {
-        setDependencies(workoutBuilderUseCase, workoutUseCase);
+        setDependencies(workoutBuilderUseCase, workoutUseCase, null, null);
     }
 
     @Nullable
@@ -208,19 +215,19 @@ public class WorkoutBuilderFragment extends Fragment {
         }
 
         List<String> selectedEquipment = getSelectedEquipment();
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(selectedEquipment, targetMuscles,
-                exerciseCount);
-
         String summaryText = getString(
                 R.string.workout_builder_summary_format,
-                constraints.getTargetExerciseCount(),
-                constraints.getTargetMuscleGroups().stream().map(MuscleGroup::getLabel).collect(Collectors.joining(", ")),
-                constraints.getSelectedEquipment().isEmpty()
+                exerciseCount,
+                targetMuscles.stream().collect(Collectors.joining(", ")),
+                selectedEquipment.isEmpty()
                         ? getString(R.string.workout_builder_equipment_any)
-                        : constraints.getSelectedEquipment().stream().map(EquipmentType::getLabel).collect(Collectors.joining(", ")));
+                        : selectedEquipment.stream().collect(Collectors.joining(", ")));
 
         try {
-            Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(constraints);
+            Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(
+                    selectedEquipment,
+                    targetMuscles,
+                    exerciseCount);
             lastGeneratedWorkout = generatedWorkout;
             tvBuilderSummary.setText(summaryText);
             tvBuilderPreview.setText(buildPreviewText(generatedWorkout));
@@ -272,7 +279,7 @@ public class WorkoutBuilderFragment extends Fragment {
 
     private LiveWorkoutFragment createLiveWorkoutFragment(String workoutId) {
         LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workoutId);
-        fragment.setDependencies(workoutUseCase);
+        fragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase);
         return fragment;
     }
 

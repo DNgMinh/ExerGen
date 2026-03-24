@@ -13,7 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
-import com.example.exergen.business.service.WorkoutMetricsService;
+import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 import com.example.exergen.business.usecase.WorkoutUseCase;
@@ -25,6 +26,8 @@ import java.util.List;
 public class WorkoutsFragment extends Fragment {
 
     private WorkoutUseCase workoutUseCase;
+    private ExerciseUseCase exerciseUseCase;
+    private SessionHistoryUseCase sessionHistoryUseCase;
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
@@ -32,6 +35,8 @@ public class WorkoutsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         workoutUseCase = AppBootstrap.get().workoutUseCase;
+        exerciseUseCase = AppBootstrap.get().exerciseUseCase;
+        sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
     }
 
     @Override
@@ -92,7 +97,7 @@ public class WorkoutsFragment extends Fragment {
             names.add(getString(R.string.workout_detail_none));
         }
 
-        int totalSeconds = WorkoutMetricsService.calculateTotalDurationSeconds(workout);
+        int totalSeconds = workoutUseCase.getTotalDurationSeconds(workout);
         String detailText = getString(
                 R.string.workout_detail_body_format,
                 workout.getName(),
@@ -128,7 +133,7 @@ public class WorkoutsFragment extends Fragment {
         if (workout == null) return;
         
         LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workout.getId());
-        fragment.setDependencies(workoutUseCase);
+        fragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase);
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)
