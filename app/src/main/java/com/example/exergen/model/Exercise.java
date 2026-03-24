@@ -64,4 +64,32 @@ public class Exercise {
     public List<String> getImagePaths() {
         return imagePaths;
     }
+
+    public boolean matches(List<EquipmentType> selectedEquipment, List<MuscleGroup> targetMuscleGroups) {
+        return matchesMuscleGroup(targetMuscleGroups) && matchesEquipment(selectedEquipment);
+    }
+
+    private boolean matchesMuscleGroup(List<MuscleGroup> targetMuscleGroups) {
+        if (targetMuscleGroups == null || targetMuscleGroups.isEmpty()) {
+            return false;
+        }
+        for (MuscleGroup exerciseMuscle : muscleGroups) {
+            if (targetMuscleGroups.contains(exerciseMuscle)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean matchesEquipment(List<EquipmentType> selectedEquipment) {
+        if (selectedEquipment == null || selectedEquipment.isEmpty()) {
+            return true;
+        }
+        for (EquipmentType exerciseEquipment : equipment) {
+            if (selectedEquipment.contains(exerciseEquipment)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

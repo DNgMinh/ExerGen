@@ -20,31 +20,6 @@ public final class ExerciseConstraintMatcher {
         if (exercise == null) {
             return false;
         }
-        return matchesMuscleGroup(exercise, targetMuscleGroups)
-                && matchesEquipment(exercise, selectedEquipment);
-    }
-
-    private static boolean matchesMuscleGroup(Exercise exercise, List<MuscleGroup> targetMuscleGroups) {
-        if (targetMuscleGroups == null || targetMuscleGroups.isEmpty()) {
-            return false;
-        }
-        for (MuscleGroup exerciseMuscle : exercise.getMuscleGroups()) {
-            if (targetMuscleGroups.contains(exerciseMuscle)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean matchesEquipment(Exercise exercise, List<EquipmentType> selectedEquipment) {
-        if (selectedEquipment == null || selectedEquipment.isEmpty()) {
-            return true;
-        }
-        for (EquipmentType exerciseEquipment : exercise.getEquipment()) {
-            if (selectedEquipment.contains(exerciseEquipment)) {
-                return true;
-            }
-        }
-        return false;
+        return exercise.matches(selectedEquipment, targetMuscleGroups);
     }
 }

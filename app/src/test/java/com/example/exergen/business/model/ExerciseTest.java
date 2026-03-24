@@ -88,4 +88,70 @@ public class ExerciseTest {
 
         exercise.getMuscleGroups().add(MuscleGroup.SHOULDERS);
     }
+
+    @Test
+    public void matches_returnsTrueForMatchingMuscleAndEquipment() {
+        Exercise exercise = new Exercise(
+                "ex_1",
+                "Pushup",
+                List.of(MuscleGroup.CHEST, MuscleGroup.TRICEPS),
+                List.of(EquipmentType.BODYWEIGHT),
+                "Keep back straight",
+                3,
+                List.of("ex_pushup/0.jpg"));
+
+        boolean result = exercise.matches(
+                List.of(EquipmentType.BODYWEIGHT),
+                List.of(MuscleGroup.CHEST));
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void matches_returnsFalseWhenNoTargetMusclesProvided() {
+        Exercise exercise = new Exercise(
+                "ex_1",
+                "Pushup",
+                List.of(MuscleGroup.CHEST),
+                List.of(EquipmentType.BODYWEIGHT),
+                "Keep back straight",
+                3,
+                List.of("ex_pushup/0.jpg"));
+
+        assertFalse(exercise.matches(List.of(EquipmentType.BODYWEIGHT), List.of()));
+        assertFalse(exercise.matches(List.of(EquipmentType.BODYWEIGHT), null));
+    }
+
+    @Test
+    public void matches_returnsTrueWhenEquipmentFilterEmptyAndMuscleMatches() {
+        Exercise exercise = new Exercise(
+                "ex_1",
+                "Pushup",
+                List.of(MuscleGroup.CHEST),
+                List.of(EquipmentType.BODYWEIGHT),
+                "Keep back straight",
+                3,
+                List.of("ex_pushup/0.jpg"));
+
+        assertTrue(exercise.matches(List.of(), List.of(MuscleGroup.CHEST)));
+        assertTrue(exercise.matches(null, List.of(MuscleGroup.CHEST)));
+    }
+
+    @Test
+    public void matches_returnsFalseWhenEquipmentDoesNotMatch() {
+        Exercise exercise = new Exercise(
+                "ex_1",
+                "Pushup",
+                List.of(MuscleGroup.CHEST),
+                List.of(EquipmentType.BODYWEIGHT),
+                "Keep back straight",
+                3,
+                List.of("ex_pushup/0.jpg"));
+
+        boolean result = exercise.matches(
+                List.of(EquipmentType.BARBELL),
+                List.of(MuscleGroup.CHEST));
+
+        assertFalse(result);
+    }
 }
