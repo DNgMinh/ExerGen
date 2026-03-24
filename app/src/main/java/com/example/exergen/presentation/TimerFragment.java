@@ -1,7 +1,5 @@
 package com.example.exergen.presentation;
 
-import android.media.AudioManager;
-import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +13,10 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.IntervalTimer;
 import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.business.service.TimerObserver;
+import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.SessionRecord;
 
 import java.util.UUID;
@@ -42,15 +40,22 @@ public class TimerFragment extends Fragment implements TimerObserver {
     private NumberPicker npWork, npRest, npSets;
 
     private IntervalTimer intervalTimer;
-    private ToneGenerator toneGenerator;
+    private SoundFeedbackHelper soundFeedbackHelper;
     private boolean isTimerActive;
     private Bundle savedState;
+    private SessionHistoryUseCase sessionHistoryUseCase;
+
+    public void setDependencies(SessionHistoryUseCase sessionHistoryUseCase) {
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Initialize tone generator for audio cues
-        toneGenerator = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
+        if (sessionHistoryUseCase == null) {
+            throw new IllegalStateException("TimerFragment dependencies not provided");
+        }
+        soundFeedbackHelper = new SoundFeedbackHelper();
         savedState = savedInstanceState;
     }
 
@@ -188,7 +193,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
             updateTimerText(secondsRemaining);
             // Play beeps on 3, 2, 1
             if (isTimerActive && secondsRemaining > 0 && secondsRemaining <= 3) {
-                toneGenerator.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
+                soundFeedbackHelper.playCountdownBeep();
             }
         });
     }
@@ -199,7 +204,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
             updatePhaseText(phase);
             // Transition beep
             if (isTimerActive) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 500);
+                soundFeedbackHelper.playTransitionBeep();
             }
         });
     }
@@ -222,7 +227,7 @@ public class TimerFragment extends Fragment implements TimerObserver {
                 intervalTimer.getTotalSets(),
                 System.currentTimeMillis(),
                 "session-" + UUID.randomUUID());
-        AppBootstrap.get().sessionHistoryUseCase.saveCompletedSession(sessionRecord);
+        sessionHistoryUseCase.saveCompletedSession(sessionRecord);
     }
 
     static SessionRecord buildSessionRecordForCompletedTimer(
@@ -252,8 +257,9 @@ public class TimerFragment extends Fragment implements TimerObserver {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (toneGenerator != null)
-            toneGenerator.release();
+        if (soundFeedbackHelper != null) {
+            soundFeedbackHelper.release();
+        }
     }
 
     @Override

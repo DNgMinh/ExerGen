@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
 import com.example.exergen.business.service.EnumMapper;
+import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.model.Exercise;
-import com.example.exergen.business.service.ExerciseService;
 import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +21,12 @@ import java.util.List;
 // Fragment responsible for displaying the list of available exercises
 public class AddFragment extends Fragment {
 
-    private ExerciseService exerciseService;
+    private ExerciseUseCase exerciseUseCase;
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
-    public void setDependencies(ExerciseService exerciseService) {
-        this.exerciseService = exerciseService;
+    public void setDependencies(ExerciseUseCase exerciseUseCase) {
+        this.exerciseUseCase = exerciseUseCase;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class AddFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (exerciseService == null) {
+        if (exerciseUseCase == null) {
             throw new IllegalStateException("AddFragment dependencies not provided");
         }
 
@@ -48,7 +48,7 @@ public class AddFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Fetch data from business layer
-        List<Exercise> exercises = exerciseService.getAllExercises();
+        List<Exercise> exercises = exerciseUseCase.getAllExercises();
 
         if (exercises == null || exercises.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
@@ -78,6 +78,7 @@ public class AddFragment extends Fragment {
         }
 
         ExerciseDetailFragment detailFragment = ExerciseDetailFragment.newInstance(exercise.getId());
+        detailFragment.setDependencies(exerciseUseCase);
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)

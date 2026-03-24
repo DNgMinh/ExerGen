@@ -5,10 +5,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.exergen.application.AppBootstrap;
-import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.IntervalTimer;
 import com.example.exergen.business.service.TimerObserver;
 import com.example.exergen.business.service.TimerPhase;
+import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.SessionRecord;
@@ -32,7 +32,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     private int restDuration;
     private int configuredSets;
     
-    private ExerciseService exerciseService;
+    private ExerciseUseCase exerciseUseCase;
     private SessionHistoryUseCase sessionHistoryUseCase;
 
     public void init(Workout workout, int workSeconds, int restSeconds) {
@@ -41,19 +41,19 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
 
     public void init(Workout workout, int workSeconds, int restSeconds, int selectedSets) {
         init(workout, workSeconds, restSeconds, selectedSets,
-                AppBootstrap.get().exerciseService,
+                AppBootstrap.get().exerciseUseCase,
                 AppBootstrap.get().sessionHistoryUseCase);
     }
 
     public void init(Workout workout, int workSeconds, int restSeconds, 
-                     ExerciseService exerciseService, 
+                     ExerciseUseCase exerciseUseCase,
                      SessionHistoryUseCase sessionHistoryUseCase) {
-        init(workout, workSeconds, restSeconds, workout.getSets(), exerciseService, sessionHistoryUseCase);
+        init(workout, workSeconds, restSeconds, workout.getSets(), exerciseUseCase, sessionHistoryUseCase);
     }
 
     public void init(Workout workout, int workSeconds, int restSeconds,
                      int selectedSets,
-                     ExerciseService exerciseService,
+                     ExerciseUseCase exerciseUseCase,
                      SessionHistoryUseCase sessionHistoryUseCase) {
         if (this.workout != null) return; // Already initialized
 
@@ -61,7 +61,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
         this.workDuration = workSeconds;
         this.restDuration = restSeconds;
         this.configuredSets = selectedSets;
-        this.exerciseService = exerciseService;
+        this.exerciseUseCase = exerciseUseCase;
         this.sessionHistoryUseCase = sessionHistoryUseCase;
 
         int totalSets = selectedSets * workout.getSteps().size();
@@ -119,7 +119,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     }
 
     private void updateExercises() {
-        if (workout == null || intervalTimer == null || exerciseService == null) return;
+        if (workout == null || intervalTimer == null || exerciseUseCase == null) return;
 
         int currentSetIndex = intervalTimer.getCurrentSet() - 1;
         int exerciseCount = workout.getSteps().size();
@@ -127,7 +127,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
         // Current Exercise
         WorkoutStep currentStep = workout.getSteps().get(currentSetIndex % exerciseCount);
         String currentExId = currentStep.getExerciseId();
-        Exercise currentEx = exerciseService.getExerciseById(currentExId);
+        Exercise currentEx = exerciseUseCase.getExerciseById(currentExId);
         currentExercise.postValue(currentEx);
 
         // Next Exercise
@@ -135,7 +135,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
         if (nextSetIndex < intervalTimer.getTotalSets()) {
             WorkoutStep nextStep = workout.getSteps().get(nextSetIndex % exerciseCount);
             String nextExId = nextStep.getExerciseId();
-            Exercise nextEx = exerciseService.getExerciseById(nextExId);
+            Exercise nextEx = exerciseUseCase.getExerciseById(nextExId);
             nextExercise.postValue(nextEx);
         } else {
             nextExercise.postValue(null);

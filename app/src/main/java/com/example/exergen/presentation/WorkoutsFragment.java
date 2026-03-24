@@ -128,6 +128,7 @@ public class WorkoutsFragment extends Fragment {
         if (workout == null) return;
         
         LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workout.getId());
+        fragment.setDependencies(workoutUseCase);
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)

@@ -3,6 +3,7 @@ package com.example.exergen.application;
 import android.app.Application;
 
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.StatisticsUseCase;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
@@ -44,7 +45,8 @@ public final class AppBootstrap {
     public final WorkoutBuilderUseCase workoutBuilderUseCase;
     public final SessionHistoryUseCase sessionHistoryUseCase;
     public final StatisticsUseCase statisticsUseCase;
-    public final ExerciseService exerciseService;
+    public final ExerciseUseCase exerciseUseCase;
+    private final ExerciseService exerciseService;
 
     private AppBootstrap(Application app) {
         IWorkoutRepository workoutRepository;
@@ -67,6 +69,7 @@ public final class AppBootstrap {
         }).start();
 
         this.exerciseService = new ExerciseService(exerciseRepository);
+        this.exerciseUseCase = new ExerciseUseCase(exerciseService);
         this.workoutUseCase = new WorkoutUseCase(workoutRepository, exerciseService);
         this.workoutBuilderUseCase = new WorkoutBuilderUseCase(exerciseService);
         this.sessionHistoryUseCase = new SessionHistoryUseCase(sessionHistoryRepository);

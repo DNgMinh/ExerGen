@@ -40,19 +40,20 @@ public class MainActivity extends AppCompatActivity {
             // because Google thought it'd be a good idea to make resource IDs
             // non-final :/
             if (itemId == R.id.nav_timer) {
-                selectedFragment = new TimerFragment();
+                TimerFragment fragment = new TimerFragment();
+                fragment.setDependencies(AppBootstrap.get().sessionHistoryUseCase);
+                selectedFragment = fragment;
             } else if (itemId == R.id.nav_workouts) {
                 selectedFragment = new WorkoutsFragment();
             } else if (itemId == R.id.nav_add) {
                 WorkoutBuilderFragment fragment = new WorkoutBuilderFragment();
                 fragment.setDependencies(
                         AppBootstrap.get().workoutBuilderUseCase,
-                        AppBootstrap.get().workoutUseCase,
-                        AppBootstrap.get().exerciseService);
+                        AppBootstrap.get().workoutUseCase);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_exercises) {
                 AddFragment fragment = new AddFragment();
-                fragment.setDependencies(AppBootstrap.get().exerciseService);
+                fragment.setDependencies(AppBootstrap.get().exerciseUseCase);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_stats) {
                 selectedFragment = new StatsFragment();
