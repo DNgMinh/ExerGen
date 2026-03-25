@@ -8,7 +8,7 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.SessionRecord;
-import com.example.exergen.business.repository.ISessionHistoryRepository;
+import com.example.exergen.persistence.repository.ISessionHistoryRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +35,8 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
         values.put("completed_at_epoch_ms", record.getCompletedAtEpochMs());
         values.put("total_duration_seconds", record.getTotalDurationSeconds());
         values.put("exercise_count", record.getExerciseCount());
-        values.put("rounds_planned", record.getRoundsPlanned());
-        values.put("rounds_completed", record.getRoundsCompleted());
+        values.put("sets_planned", record.getSetsPlanned());
+        values.put("sets_completed", record.getSetsCompleted());
 
         db.insert(DatabaseHelper.TABLE_SESSION_HISTORY, android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE, values);
     }
@@ -79,9 +79,9 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
                 cursor.getString(cursor.getColumnIndexOrThrow("workout_name")),
                 cursor.getLong(cursor.getColumnIndexOrThrow("completed_at_epoch_ms")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("total_duration_seconds")),
-                cursor.getInt(cursor.getColumnIndexOrThrow("rounds_planned")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("exercise_count")),
-                cursor.getInt(cursor.getColumnIndexOrThrow("rounds_completed"))
+                cursor.getInt(cursor.getColumnIndexOrThrow("sets_planned")),
+                cursor.getInt(cursor.getColumnIndexOrThrow("sets_completed"))
         );
     }
 }

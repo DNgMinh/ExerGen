@@ -1,7 +1,5 @@
 package com.example.exergen.model;
 
-import com.example.exergen.business.validation.ValidationHelper;
-
 import java.util.List;
 
 public class Exercise {
@@ -21,11 +19,11 @@ public class Exercise {
             String instructions,
             int intensity,
             List<String> imagePaths) {
-        this.id = ValidationHelper.requireNonBlank(id, "ID required");
-        this.name = ValidationHelper.requireNonBlank(name, "Name required");
-        ValidationHelper.requireNonEmptyList(muscleGroups, "Muscle groups required");
-        ValidationHelper.requireNonEmptyList(equipment, "Equipment required");
-        ValidationHelper.requireNonEmptyList(imagePaths, "Image paths required");
+        this.id = ModelValidation.requireNonBlank(id, "ID required");
+        this.name = ModelValidation.requireNonBlank(name, "Name required");
+        ModelValidation.requireNonEmptyList(muscleGroups, "Muscle groups required");
+        ModelValidation.requireNonEmptyList(equipment, "Equipment required");
+        ModelValidation.requireNonEmptyList(imagePaths, "Image paths required");
         if (intensity < 0){
             throw new IllegalArgumentException("Intensity must be >= 0");
             }
@@ -65,5 +63,33 @@ public class Exercise {
 
     public List<String> getImagePaths() {
         return imagePaths;
+    }
+
+    public boolean matches(List<EquipmentType> selectedEquipment, List<MuscleGroup> targetMuscleGroups) {
+        return matchesMuscleGroup(targetMuscleGroups) && matchesEquipment(selectedEquipment);
+    }
+
+    private boolean matchesMuscleGroup(List<MuscleGroup> targetMuscleGroups) {
+        if (targetMuscleGroups == null || targetMuscleGroups.isEmpty()) {
+            return false;
+        }
+        for (MuscleGroup exerciseMuscle : muscleGroups) {
+            if (targetMuscleGroups.contains(exerciseMuscle)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean matchesEquipment(List<EquipmentType> selectedEquipment) {
+        if (selectedEquipment == null || selectedEquipment.isEmpty()) {
+            return true;
+        }
+        for (EquipmentType exerciseEquipment : equipment) {
+            if (selectedEquipment.contains(exerciseEquipment)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

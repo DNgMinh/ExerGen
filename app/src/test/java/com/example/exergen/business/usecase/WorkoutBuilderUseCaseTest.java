@@ -35,8 +35,8 @@ public class WorkoutBuilderUseCaseTest {
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        workoutBuilderUseCase = new WorkoutBuilderUseCase(mockExerciseService);
         enumMapper = new EnumMapper();
+        workoutBuilderUseCase = new WorkoutBuilderUseCase(mockExerciseService, enumMapper);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -75,7 +75,7 @@ public class WorkoutBuilderUseCaseTest {
 
         assertNotNull(result.getName());
         assertTrue(result.getName().startsWith("Generated Workout - "));
-        assertEquals(1, result.getRounds());
+        assertEquals(1, result.getSets());
         assertEquals(3, result.getExerciseIds().size());
         for (String id : result.getExerciseIds()) {
             assertEquals("ex-chest-db", id);

@@ -1,6 +1,7 @@
 package com.example.exergen.business.service;
 
 import com.example.exergen.model.Workout;
+import com.example.exergen.model.WorkoutStep;
 
 public final class WorkoutMetricsService {
     private WorkoutMetricsService() {
@@ -11,10 +12,10 @@ public final class WorkoutMetricsService {
             throw new IllegalArgumentException("workout required");
         }
 
-        int perRound = 0;
-        for (int i = 0; i < workout.getExerciseIds().size(); i++) {
-            perRound += workout.getWorkSeconds().get(i) + workout.getRestSeconds().get(i);
+        int perSet = 0;
+        for (WorkoutStep step : workout.getSteps()) {
+            perSet += step.getWorkSeconds() + step.getRestSeconds();
         }
-        return perRound * workout.getRounds();
+        return perSet * workout.getSets();
     }
 }

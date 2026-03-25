@@ -8,7 +8,8 @@ import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
 import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.Workout;
-import com.example.exergen.business.repository.IWorkoutRepository;
+import com.example.exergen.model.WorkoutStep;
+import com.example.exergen.persistence.repository.IWorkoutRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,26 +31,26 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
         SupportSQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        String exerciseIdsStr = String.join(",", workout.getExerciseIds());
+        StringBuilder exerciseIdsStr = new StringBuilder();
 
         StringBuilder workSecStr = new StringBuilder();
-        for (int i = 0; i < workout.getWorkSeconds().size(); i++) {
-            workSecStr.append(workout.getWorkSeconds().get(i));
-            if (i < workout.getWorkSeconds().size() - 1)
-                workSecStr.append(",");
-        }
-
         StringBuilder restSecStr = new StringBuilder();
-        for (int i = 0; i < workout.getRestSeconds().size(); i++) {
-            restSecStr.append(workout.getRestSeconds().get(i));
-            if (i < workout.getRestSeconds().size() - 1)
+        for (int i = 0; i < workout.getSteps().size(); i++) {
+            WorkoutStep step = workout.getSteps().get(i);
+            exerciseIdsStr.append(step.getExerciseId());
+            workSecStr.append(step.getWorkSeconds());
+            restSecStr.append(step.getRestSeconds());
+            if (i < workout.getSteps().size() - 1) {
+                exerciseIdsStr.append(",");
+                workSecStr.append(",");
                 restSecStr.append(",");
+            }
         }
 
         values.put("id", workout.getId());
         values.put("name", workout.getName());
-        values.put("rounds", workout.getRounds());
-        values.put("exercise_ids", exerciseIdsStr);
+        values.put("sets", workout.getSets());
+        values.put("exercise_ids", exerciseIdsStr.toString());
         values.put("work_seconds", workSecStr.toString());
         values.put("rest_seconds", restSecStr.toString());
 
@@ -98,7 +99,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
     private Workout parseCursorToWorkout(Cursor cursor) {
         String id = cursor.getString(cursor.getColumnIndexOrThrow("id"));
         String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
-        int rounds = cursor.getInt(cursor.getColumnIndexOrThrow("rounds"));
+        int sets = cursor.getInt(cursor.getColumnIndexOrThrow("sets"));
         String exIdsStr = cursor.getString(cursor.getColumnIndexOrThrow("exercise_ids"));
         String workSecStr = cursor.getString(cursor.getColumnIndexOrThrow("work_seconds"));
         String restSecStr = cursor.getString(cursor.getColumnIndexOrThrow("rest_seconds"));
@@ -117,7 +118,12 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
                 restSeconds.add(Integer.parseInt(s.trim()));
         }
 
-        return new Workout(id, name, rounds, exerciseIds, workSeconds, restSeconds);
+        List<WorkoutStep> steps = new ArrayList<>();
+        for (int i = 0; i < exerciseIds.size(); i++) {
+            steps.add(new WorkoutStep(exerciseIds.get(i), workSeconds.get(i), restSeconds.get(i)));
+        }
+
+        return new Workout(id, name, sets, steps);
     }
 
     @Override

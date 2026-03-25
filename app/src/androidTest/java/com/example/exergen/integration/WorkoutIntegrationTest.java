@@ -81,7 +81,7 @@ public class WorkoutIntegrationTest {
         Workout retrieved = workoutUseCase.getWorkoutById(workoutId);
         assertNotNull(retrieved);
         assertEquals("Integration Test Workout", retrieved.getName());
-        assertEquals(2, retrieved.getRounds());
+        assertEquals(2, retrieved.getSets());
     }
 
     @Test
@@ -92,5 +92,22 @@ public class WorkoutIntegrationTest {
         workoutUseCase.deleteWorkout(workoutId);
         
         assertNull(workoutUseCase.getWorkoutById(workoutId));
+    }
+
+    @Test
+    public void testGetAllWorkouts_ReturnsSeededDefaults() {
+        List<Workout> workouts = workoutUseCase.getAllWorkouts();
+        assertNotNull(workouts);
+        assertEquals(2, workouts.size());
+    }
+
+    @Test
+    public void testGetExercisesForWorkout_ResolvesExerciseDetails() {
+        Workout workout = workoutUseCase.getWorkoutById("w1");
+        assertNotNull(workout);
+
+        List<com.example.exergen.model.Exercise> exercises = workoutUseCase.getExercisesForWorkout(workout);
+        assertNotNull(exercises);
+        assertEquals(workout.getExerciseIds().size(), exercises.size());
     }
 }

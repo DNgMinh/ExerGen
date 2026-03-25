@@ -1,7 +1,5 @@
 package com.example.exergen.model;
 
-import com.example.exergen.business.validation.ValidationHelper;
-
 public class SessionRecord {
     private final String id;
     private final String workoutId;
@@ -9,8 +7,8 @@ public class SessionRecord {
     private final long completedAtEpochMs;
     private final int totalDurationSeconds;
     private final int exerciseCount;
-    private final int roundsPlanned;
-    private final int roundsCompleted;
+    private final int setsPlanned;
+    private final int setsCompleted;
 
     public SessionRecord(
             String id,
@@ -19,11 +17,11 @@ public class SessionRecord {
             long completedAtEpochMs,
             int totalDurationSeconds,
             int exerciseCount,
-            int roundsPlanned,
-            int roundsCompleted) {
-        this.id = ValidationHelper.requireNonBlank(id, "Session id required");
-        this.workoutId = ValidationHelper.requireNonBlank(workoutId, "Workout id required");
-        this.workoutName = ValidationHelper.requireNonBlank(workoutName, "Workout name required");
+            int setsPlanned,
+            int setsCompleted) {
+        this.id = ModelValidation.requireNonBlank(id, "Session id required");
+        this.workoutId = ModelValidation.requireNonBlank(workoutId, "Workout id required");
+        this.workoutName = ModelValidation.requireNonBlank(workoutName, "Workout name required");
         if (completedAtEpochMs <= 0L) {
             throw new IllegalArgumentException("Completion timestamp must be > 0");
         }
@@ -33,21 +31,21 @@ public class SessionRecord {
         if (exerciseCount <= 0) {
             throw new IllegalArgumentException("Exercise count must be > 0");
         }
-        if (roundsPlanned <= 0) {
-            throw new IllegalArgumentException("Rounds planned must be > 0");
+        if (setsPlanned <= 0) {
+            throw new IllegalArgumentException("Sets planned must be > 0");
         }
-        if (roundsCompleted < 0) {
-            throw new IllegalArgumentException("Rounds completed must be >= 0");
+        if (setsCompleted < 0) {
+            throw new IllegalArgumentException("Sets completed must be >= 0");
         }
-        if (roundsCompleted > roundsPlanned) {
-            throw new IllegalArgumentException("Rounds completed cannot exceed rounds planned");
+        if (setsCompleted > setsPlanned) {
+            throw new IllegalArgumentException("Sets completed cannot exceed sets planned");
         }
 
         this.completedAtEpochMs = completedAtEpochMs;
         this.totalDurationSeconds = totalDurationSeconds;
         this.exerciseCount = exerciseCount;
-        this.roundsPlanned = roundsPlanned;
-        this.roundsCompleted = roundsCompleted;
+        this.setsPlanned = setsPlanned;
+        this.setsCompleted = setsCompleted;
     }
 
     public String getId() {
@@ -74,11 +72,12 @@ public class SessionRecord {
         return exerciseCount;
     }
 
-    public int getRoundsPlanned() {
-        return roundsPlanned;
+    public int getSetsPlanned() {
+        return setsPlanned;
     }
 
-    public int getRoundsCompleted() {
-        return roundsCompleted;
+    public int getSetsCompleted() {
+        return setsCompleted;
     }
+
 }

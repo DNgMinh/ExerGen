@@ -1,9 +1,11 @@
 package com.example.exergen.business.usecase;
 
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
+import com.example.exergen.model.WorkoutStep;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,12 +20,17 @@ public class WorkoutBuilderUseCase {
     private static final DateTimeFormatter GENERATED_NAME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final ExerciseService exerciseService;
+    private final IEnumMapper enumMapper;
 
-    public WorkoutBuilderUseCase(ExerciseService exerciseService) {
+    public WorkoutBuilderUseCase(ExerciseService exerciseService, IEnumMapper enumMapper) {
         if (exerciseService == null) {
             throw new IllegalArgumentException("exerciseService required.");
         }
+        if (enumMapper == null) {
+            throw new IllegalArgumentException("enumMapper required.");
+        }
         this.exerciseService = exerciseService;
+        this.enumMapper = enumMapper;
     }
 
     public Workout generateWorkout(WorkoutGenerationConstraints constraints) {
@@ -46,16 +53,12 @@ public class WorkoutBuilderUseCase {
 
         int exerciseCount = constraints.getTargetExerciseCount();
 
-        List<String> exerciseIds = new ArrayList<>();
-        List<Integer> workSeconds = new ArrayList<>();
-        List<Integer> restSeconds = new ArrayList<>();
+        List<WorkoutStep> steps = new ArrayList<>();
 
         for (int i = 0; i < exerciseCount; i++) {
             // Cycle through matching exercises if we need more than available
             Exercise selected = shuffled.get(i % shuffled.size());
-            exerciseIds.add(selected.getId());
-            workSeconds.add(DEFAULT_WORK_SECONDS);
-            restSeconds.add(DEFAULT_REST_SECONDS);
+            steps.add(new WorkoutStep(selected.getId(), DEFAULT_WORK_SECONDS, DEFAULT_REST_SECONDS));
         }
 
         String generatedId = "generated-" + UUID.randomUUID();
@@ -63,9 +66,19 @@ public class WorkoutBuilderUseCase {
                 generatedId,
                 createGeneratedWorkoutName(),
                 1,
-                exerciseIds,
-                workSeconds,
-                restSeconds);
+                steps);
+    }
+
+    public Workout generateWorkout(
+            List<String> selectedEquipmentLabels,
+            List<String> targetMuscleLabels,
+            int targetExerciseCount) {
+        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(
+                enumMapper,
+                selectedEquipmentLabels,
+                targetMuscleLabels,
+                targetExerciseCount);
+        return generateWorkout(constraints);
     }
 
     private String createGeneratedWorkoutName() {

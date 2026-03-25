@@ -9,8 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
-import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.model.Exercise;
 import java.util.List;
 
@@ -18,22 +16,16 @@ import java.util.List;
 // exercise domain models to the UI views
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
 
-    private List<Exercise> exercises;
+    private List<ExerciseListItem> exerciseItems;
     private OnExerciseClickListener clickListener;
-    private IEnumMapper enumMapper;
 
     public interface OnExerciseClickListener {
         void onExerciseClick(Exercise exercise);
     }
 
-    public ExerciseAdapter(List<Exercise> exercises, OnExerciseClickListener clickListener) {
-        this(exercises, clickListener, AppBootstrap.get().enumMapper);
-    }
-
-    public ExerciseAdapter(List<Exercise> exercises, OnExerciseClickListener clickListener, IEnumMapper enumMapper) {
-        this.exercises = exercises;
+    public ExerciseAdapter(List<ExerciseListItem> exerciseItems, OnExerciseClickListener clickListener) {
+        this.exerciseItems = exerciseItems;
         this.clickListener = clickListener;
-        this.enumMapper = enumMapper;
     }
 
     @NonNull
@@ -45,26 +37,20 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
-        Exercise exercise = exercises.get(position);
-        holder.name.setText(exercise.getName());
-
-        Context context = holder.itemView.getContext();
-        String muscles = TextUtils.join(", ", enumMapper.toMuscleLabels(exercise.getMuscleGroups()));
-        String equipment = TextUtils.join(", ", enumMapper.toEquipmentLabels(exercise.getEquipment()));
-
-        String attributes = context.getString(R.string.exercise_attributes_format, muscles, equipment);
-        holder.attributes.setText(attributes);
+        ExerciseListItem item = exerciseItems.get(position);
+        holder.name.setText(item.getName());
+        holder.attributes.setText(item.getAttributes());
 
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) {
-                clickListener.onExerciseClick(exercise);
+                clickListener.onExerciseClick(item.getExercise());
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return exercises.size();
+        return exerciseItems.size();
     }
 
     static class ExerciseViewHolder extends RecyclerView.ViewHolder {

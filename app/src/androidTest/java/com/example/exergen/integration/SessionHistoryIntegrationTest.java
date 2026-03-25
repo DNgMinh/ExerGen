@@ -2,6 +2,7 @@ package com.example.exergen.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -76,6 +77,67 @@ public class SessionHistoryIntegrationTest {
         assertEquals(2, history.size());
         assertEquals("s2", history.get(0).getId()); // Order by newest first
         assertEquals("s1", history.get(1).getId());
+    }
+
+    @Test
+    public void testGetSessionHistory_MapsTimerStyleRecordWithoutValidationCrash() {
+        SessionRecord timerStyleRecord = new SessionRecord(
+                "timer-session-1",
+                "manual-timer",
+                "Manual Interval Timer",
+                1700000010000L,
+                300,
+                1,
+                3,
+                3
+        );
+
+        sessionHistoryUseCase.saveCompletedSession(timerStyleRecord);
+
+        List<SessionRecord> history = sessionHistoryUseCase.getSessionHistory();
+        assertEquals(1, history.size());
+        assertEquals(1, history.get(0).getExerciseCount());
+        assertEquals(3, history.get(0).getSetsPlanned());
+        assertEquals(3, history.get(0).getSetsCompleted());
+    }
+
+    @Test
+    public void testGetSessionById_ReturnsNullForMissingId() {
+        SessionRecord missing = sessionHistoryUseCase.getSessionById("missing-id");
+        assertNull(missing);
+    }
+
+    @Test
+    public void testSaveSession_WithSameIdReplacesExistingRecord() {
+        SessionRecord initial = new SessionRecord(
+                "dup-id",
+                "w1",
+                "Initial",
+                1700000000000L,
+                200,
+                1,
+                2,
+                2
+        );
+        SessionRecord replacement = new SessionRecord(
+                "dup-id",
+                "w1",
+                "Replacement",
+                1700000005000L,
+                500,
+                2,
+                3,
+                3
+        );
+
+        sessionHistoryUseCase.saveCompletedSession(initial);
+        sessionHistoryUseCase.saveCompletedSession(replacement);
+
+        SessionRecord retrieved = sessionHistoryUseCase.getSessionById("dup-id");
+        assertNotNull(retrieved);
+        assertEquals("Replacement", retrieved.getWorkoutName());
+        assertEquals(500, retrieved.getTotalDurationSeconds());
+        assertEquals(3, retrieved.getSetsPlanned());
     }
 
     private SessionRecord createRecord(String id, long completedAtMs) {

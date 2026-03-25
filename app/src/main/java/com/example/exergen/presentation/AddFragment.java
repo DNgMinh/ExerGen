@@ -11,22 +11,23 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
+import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
-import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.model.MuscleGroup;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // Fragment responsible for displaying the list of available exercises
 public class AddFragment extends Fragment {
 
-    private ExerciseService exerciseService;
+    private ExerciseUseCase exerciseUseCase;
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        exerciseService = AppBootstrap.get().exerciseService;
+    public void setDependencies(ExerciseUseCase exerciseUseCase) {
+        this.exerciseUseCase = exerciseUseCase;
     }
 
     @Override
@@ -37,6 +38,9 @@ public class AddFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (exerciseUseCase == null) {
+            throw new IllegalStateException("AddFragment dependencies not provided");
+        }
 
         recyclerView = view.findViewById(R.id.exercise_recycler_view);
         emptyStateText = view.findViewById(R.id.empty_state_text);
@@ -45,7 +49,7 @@ public class AddFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Fetch data from business layer
-        List<Exercise> exercises = exerciseService.getAllExercises();
+        List<Exercise> exercises = exerciseUseCase.getAllExercises();
 
         if (exercises == null || exercises.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
@@ -54,8 +58,23 @@ public class AddFragment extends Fragment {
         else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
-            recyclerView.setAdapter(new ExerciseAdapter(exercises, this::openExerciseDetail));
+            recyclerView.setAdapter(new ExerciseAdapter(buildExerciseItems(exercises), this::openExerciseDetail));
         }
+    }
+
+    private List<ExerciseListItem> buildExerciseItems(List<Exercise> exercises) {
+        List<ExerciseListItem> items = new ArrayList<>();
+        for (Exercise exercise : exercises) {
+            String muscles = exercise.getMuscleGroups().stream()
+                    .map(MuscleGroup::getLabel)
+                    .collect(Collectors.joining(", "));
+            String equipment = exercise.getEquipment().stream()
+                    .map(EquipmentType::getLabel)
+                    .collect(Collectors.joining(", "));
+            String attributes = getString(R.string.exercise_attributes_format, muscles, equipment);
+            items.add(new ExerciseListItem(exercise, exercise.getName(), attributes));
+        }
+        return items;
     }
 
     private void openExerciseDetail(Exercise exercise) {
@@ -64,6 +83,7 @@ public class AddFragment extends Fragment {
         }
 
         ExerciseDetailFragment detailFragment = ExerciseDetailFragment.newInstance(exercise.getId());
+        detailFragment.setDependencies(exerciseUseCase);
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)

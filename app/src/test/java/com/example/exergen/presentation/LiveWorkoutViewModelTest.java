@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import com.example.exergen.business.service.ExerciseService;
-import com.example.exergen.business.service.TimerPhase;
+import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.TimerMode;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
@@ -31,13 +31,13 @@ public class LiveWorkoutViewModelTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private LiveWorkoutViewModel viewModel;
-    private ExerciseService exerciseService;
+    private ExerciseUseCase exerciseUseCase;
     private SessionHistoryUseCase sessionHistoryUseCase;
 
     @Before
     public void setUp() {
         viewModel = new LiveWorkoutViewModel();
-        exerciseService = mock(ExerciseService.class);
+        exerciseUseCase = mock(ExerciseUseCase.class);
         sessionHistoryUseCase = mock(SessionHistoryUseCase.class);
         
         Exercise mockExercise = new Exercise(
@@ -48,7 +48,7 @@ public class LiveWorkoutViewModelTest {
         );
 
         // Stub for exercise lookup
-        when(exerciseService.getExerciseById(anyString())).thenReturn(mockExercise);
+        when(exerciseUseCase.getExerciseById(anyString())).thenReturn(mockExercise);
     }
 
     @Test
@@ -56,10 +56,10 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1", "e2"), Arrays.asList(30, 30), Arrays.asList(10, 10));
         
-        viewModel.init(workout, 30, 10, exerciseService, sessionHistoryUseCase);
+        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase);
         
         assertEquals(Integer.valueOf(30), viewModel.getTimeLeft().getValue());
-        assertEquals(TimerPhase.WORK, viewModel.getPhase().getValue());
+        assertEquals(TimerMode.WORK, viewModel.getPhase().getValue());
         assertFalse(viewModel.getIsRunning().getValue());
         assertFalse(viewModel.getIsFinished().getValue());
     }
@@ -69,7 +69,7 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1"), Arrays.asList(30), Arrays.asList(10));
         
-        viewModel.init(workout, 30, 10, exerciseService, sessionHistoryUseCase);
+        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase);
         viewModel.start();
         assertTrue(viewModel.getIsRunning().getValue());
         
@@ -82,7 +82,7 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1"), Arrays.asList(30), Arrays.asList(10));
         
-        viewModel.init(workout, 30, 10, exerciseService, sessionHistoryUseCase);
+        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase);
         viewModel.onFinish();
         
         assertFalse(viewModel.getIsRunning().getValue());

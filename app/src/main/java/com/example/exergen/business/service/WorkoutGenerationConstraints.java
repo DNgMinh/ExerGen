@@ -48,31 +48,6 @@ public final class WorkoutGenerationConstraints {
     }
 
     public boolean matchesExercise(Exercise exercise) {
-        if (exercise == null) {
-            return false;
-        }
-        return matchesMuscleGroup(exercise) && matchesEquipment(exercise);
-    }
-
-    private boolean matchesMuscleGroup(Exercise exercise) {
-        for (MuscleGroup exerciseMuscle : exercise.getMuscleGroups()) {
-            if (targetMuscleGroups.contains(exerciseMuscle)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean matchesEquipment(Exercise exercise) {
-        if (selectedEquipment.isEmpty()) {
-            return true;
-        }
-
-        for (EquipmentType exerciseEquipment : exercise.getEquipment()) {
-            if (selectedEquipment.contains(exerciseEquipment)) {
-                return true;
-            }
-        }
-        return false;
+        return ExerciseConstraintMatcher.matches(exercise, selectedEquipment, targetMuscleGroups);
     }
 }

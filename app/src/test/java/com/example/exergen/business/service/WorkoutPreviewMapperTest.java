@@ -3,7 +3,7 @@ package com.example.exergen.business.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.persistence.repository.IExerciseRepository;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;

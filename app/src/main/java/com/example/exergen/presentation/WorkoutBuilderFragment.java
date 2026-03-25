@@ -18,17 +18,17 @@ import androidx.fragment.app.Fragment;
 
 import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
-import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
-import com.example.exergen.business.service.WorkoutPreviewData;
-import com.example.exergen.business.service.WorkoutPreviewItem;
-import com.example.exergen.business.service.WorkoutPreviewMapper;
+import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.model.EquipmentType;
+import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
+import com.example.exergen.model.WorkoutStep;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +54,8 @@ public class WorkoutBuilderFragment extends Fragment {
 
     private WorkoutBuilderUseCase workoutBuilderUseCase;
     private WorkoutUseCase workoutUseCase;
-    private ExerciseService exerciseService;
-    private WorkoutPreviewMapper workoutPreviewMapper;
+    private ExerciseUseCase exerciseUseCase;
+    private SessionHistoryUseCase sessionHistoryUseCase;
     private IEnumMapper enumMapper;
     private Workout lastGeneratedWorkout;
 
@@ -83,33 +83,31 @@ public class WorkoutBuilderFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (workoutBuilderUseCase == null || workoutUseCase == null || exerciseService == null || enumMapper == null) {
+        if (workoutBuilderUseCase == null) {
             workoutBuilderUseCase = AppBootstrap.get().workoutBuilderUseCase;
             workoutUseCase = AppBootstrap.get().workoutUseCase;
-            exerciseService = AppBootstrap.get().exerciseService;
+            exerciseUseCase = AppBootstrap.get().exerciseUseCase;
+            sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
             enumMapper = AppBootstrap.get().enumMapper;
         }
-        if (workoutPreviewMapper == null) {
-            workoutPreviewMapper = new WorkoutPreviewMapper();
-        }
     }
 
-    public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
+    public void setDependencies(WorkoutBuilderUseCase workoutBuilderUseCase,
             WorkoutUseCase workoutUseCase,
-            ExerciseService exerciseService) {
-        setDependenciesForTesting(workoutBuilderUseCase, workoutUseCase, exerciseService, new WorkoutPreviewMapper(), AppBootstrap.get().enumMapper);
-    }
-
-    public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
-            WorkoutUseCase workoutUseCase,
-            ExerciseService exerciseService,
-            WorkoutPreviewMapper workoutPreviewMapper,
+            ExerciseUseCase exerciseUseCase,
+            SessionHistoryUseCase sessionHistoryUseCase,
             IEnumMapper enumMapper) {
         this.workoutBuilderUseCase = workoutBuilderUseCase;
         this.workoutUseCase = workoutUseCase;
-        this.exerciseService = exerciseService;
-        this.workoutPreviewMapper = workoutPreviewMapper;
+        this.exerciseUseCase = exerciseUseCase;
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
         this.enumMapper = enumMapper;
+    }
+
+    public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
+            WorkoutUseCase workoutUseCase,
+            IEnumMapper enumMapper) {
+        setDependencies(workoutBuilderUseCase, workoutUseCase, null, null, enumMapper);
     }
 
     @Nullable
@@ -123,6 +121,9 @@ public class WorkoutBuilderFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (workoutBuilderUseCase == null || workoutUseCase == null) {
+            throw new IllegalStateException("WorkoutBuilderFragment dependencies not provided");
+        }
         bindViews(view);
         restoreState(savedInstanceState);
 
@@ -220,16 +221,17 @@ public class WorkoutBuilderFragment extends Fragment {
         }
 
         List<String> selectedEquipment = getSelectedEquipment();
+        
         WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(enumMapper, selectedEquipment, targetMuscles,
                 exerciseCount);
 
         String summaryText = getString(
                 R.string.workout_builder_summary_format,
-                constraints.getTargetExerciseCount(),
-                constraints.getTargetMuscleGroups().stream().map(MuscleGroup::getLabel).collect(Collectors.joining(", ")),
-                constraints.getSelectedEquipment().isEmpty()
+                exerciseCount,
+                targetMuscles.stream().collect(Collectors.joining(", ")),
+                selectedEquipment.isEmpty()
                         ? getString(R.string.workout_builder_equipment_any)
-                        : constraints.getSelectedEquipment().stream().map(EquipmentType::getLabel).collect(Collectors.joining(", ")));
+                        : selectedEquipment.stream().collect(Collectors.joining(", ")));
 
         try {
             Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(constraints);
@@ -277,26 +279,35 @@ public class WorkoutBuilderFragment extends Fragment {
 
         getParentFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, LiveWorkoutFragment.newInstance(lastGeneratedWorkout.getId()))
+                .replace(R.id.fragment_container, createLiveWorkoutFragment(lastGeneratedWorkout.getId()))
                 .addToBackStack(null)
                 .commit();
     }
 
+    private LiveWorkoutFragment createLiveWorkoutFragment(String workoutId) {
+        LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workoutId);
+        fragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase);
+        return fragment;
+    }
+
     private String buildPreviewText(Workout workout) {
         StringBuilder preview = new StringBuilder();
-        WorkoutPreviewData previewData = workoutPreviewMapper.map(workout, exerciseService);
         preview.append(getString(R.string.workout_builder_preview_header)).append('\n');
-        preview.append(getString(R.string.workout_builder_preview_count_format, previewData.getExerciseCount()));
+        preview.append(getString(R.string.workout_builder_preview_count_format, workout.getSteps().size()));
         preview.append('\n');
 
-        for (WorkoutPreviewItem item : previewData.getItems()) {
-            preview.append(item.getSequence())
+        List<Exercise> exercises = workoutUseCase.getExercisesForWorkout(workout);
+        List<WorkoutStep> steps = workout.getSteps();
+        for (int i = 0; i < steps.size(); i++) {
+            WorkoutStep step = steps.get(i);
+            String exerciseName = i < exercises.size() ? exercises.get(i).getName() : step.getExerciseId();
+            preview.append(i + 1)
                     .append(". ")
-                    .append(item.getExerciseName())
+                    .append(exerciseName)
                     .append(" (")
-                    .append(item.getWorkSeconds())
+                    .append(step.getWorkSeconds())
                     .append("s work / ")
-                    .append(item.getRestSeconds())
+                    .append(step.getRestSeconds())
                     .append("s rest)")
                     .append('\n');
         }

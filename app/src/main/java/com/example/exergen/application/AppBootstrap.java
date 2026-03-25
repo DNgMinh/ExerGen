@@ -5,13 +5,14 @@ import android.app.Application;
 import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.StatisticsUseCase;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
 import com.example.exergen.business.usecase.WorkoutUseCase;
-import com.example.exergen.business.repository.IExerciseRepository;
-import com.example.exergen.business.repository.ISessionHistoryRepository;
-import com.example.exergen.business.repository.IWorkoutRepository;
+import com.example.exergen.persistence.repository.IExerciseRepository;
+import com.example.exergen.persistence.repository.ISessionHistoryRepository;
+import com.example.exergen.persistence.repository.IWorkoutRepository;
 import com.example.exergen.persistence.ExerciseRepositorySQLite;
 import com.example.exergen.persistence.ExerciseRepositoryStub;
 import com.example.exergen.persistence.SessionHistoryRepositorySQLite;
@@ -46,6 +47,7 @@ public final class AppBootstrap {
     public final WorkoutBuilderUseCase workoutBuilderUseCase;
     public final SessionHistoryUseCase sessionHistoryUseCase;
     public final StatisticsUseCase statisticsUseCase;
+    public final ExerciseUseCase exerciseUseCase;
     public final ExerciseService exerciseService;
     public final IEnumMapper enumMapper;
 
@@ -66,14 +68,14 @@ public final class AppBootstrap {
             sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
         }
 
-        new Thread(() -> {
-            workoutRepository.seedData();
-            exerciseRepository.seedData();
-        }).start();
+        // Seed synchronously so initial screens never race data availability.
+        workoutRepository.seedData();
+        exerciseRepository.seedData();
 
         this.exerciseService = new ExerciseService(exerciseRepository);
+        this.exerciseUseCase = new ExerciseUseCase(exerciseService);
         this.workoutUseCase = new WorkoutUseCase(workoutRepository, exerciseService);
-        this.workoutBuilderUseCase = new WorkoutBuilderUseCase(exerciseService);
+        this.workoutBuilderUseCase = new WorkoutBuilderUseCase(exerciseService, enumMapper);
         this.sessionHistoryUseCase = new SessionHistoryUseCase(sessionHistoryRepository);
         this.statisticsUseCase = new StatisticsUseCase(sessionHistoryRepository);
     }
