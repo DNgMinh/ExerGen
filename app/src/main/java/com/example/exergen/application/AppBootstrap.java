@@ -63,10 +63,9 @@ public final class AppBootstrap {
             sessionHistoryRepository = new SessionHistoryRepositorySQLite(app);
         }
 
-        new Thread(() -> {
-            workoutRepository.seedData();
-            exerciseRepository.seedData();
-        }).start();
+        // Seed synchronously so initial screens never race data availability.
+        workoutRepository.seedData();
+        exerciseRepository.seedData();
 
         this.exerciseService = new ExerciseService(exerciseRepository);
         this.exerciseUseCase = new ExerciseUseCase(exerciseService);
