@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.Exercise;
@@ -31,12 +30,13 @@ public class WorkoutsFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        workoutUseCase = AppBootstrap.get().workoutUseCase;
-        exerciseUseCase = AppBootstrap.get().exerciseUseCase;
-        sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
+    public void setDependencies(
+            WorkoutUseCase workoutUseCase,
+            ExerciseUseCase exerciseUseCase,
+            SessionHistoryUseCase sessionHistoryUseCase) {
+        this.workoutUseCase = workoutUseCase;
+        this.exerciseUseCase = exerciseUseCase;
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
     }
 
     @Override
@@ -47,6 +47,9 @@ public class WorkoutsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (workoutUseCase == null || exerciseUseCase == null || sessionHistoryUseCase == null) {
+            throw new IllegalStateException("WorkoutsFragment dependencies not provided");
+        }
 
         recyclerView = view.findViewById(R.id.exercise_recycler_view);
         emptyStateText = view.findViewById(R.id.empty_state_text);

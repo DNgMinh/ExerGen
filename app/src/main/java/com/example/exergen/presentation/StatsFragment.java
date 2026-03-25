@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.StatisticsSummary;
 import com.example.exergen.business.usecase.StatisticsTimeRange;
@@ -44,15 +43,9 @@ public class StatsFragment extends Fragment {
     private Spinner timeRangeSpinner;
     private StatisticsTimeRange selectedTimeRange = StatisticsTimeRange.ALL_TIME;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (sessionHistoryUseCase == null) {
-            sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
-        }
-        if (statisticsUseCase == null) {
-            statisticsUseCase = AppBootstrap.get().statisticsUseCase;
-        }
+    public void setDependencies(SessionHistoryUseCase sessionHistoryUseCase, StatisticsUseCase statisticsUseCase) {
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
+        this.statisticsUseCase = statisticsUseCase;
     }
 
     public void setSessionHistoryUseCaseForTesting(SessionHistoryUseCase sessionHistoryUseCase) {
@@ -71,6 +64,9 @@ public class StatsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (sessionHistoryUseCase == null || statisticsUseCase == null) {
+            throw new IllegalStateException("StatsFragment dependencies not provided");
+        }
 
         sessionHistoryRecyclerView = view.findViewById(R.id.session_history_recycler_view);
         emptyStateText = view.findViewById(R.id.session_history_empty_text);

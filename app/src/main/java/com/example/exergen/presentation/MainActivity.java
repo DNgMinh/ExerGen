@@ -44,7 +44,12 @@ public class MainActivity extends AppCompatActivity {
                 fragment.setDependencies(AppBootstrap.get().sessionHistoryUseCase);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_workouts) {
-                selectedFragment = new WorkoutsFragment();
+                WorkoutsFragment fragment = new WorkoutsFragment();
+                fragment.setDependencies(
+                        AppBootstrap.get().workoutUseCase,
+                        AppBootstrap.get().exerciseUseCase,
+                        AppBootstrap.get().sessionHistoryUseCase);
+                selectedFragment = fragment;
             } else if (itemId == R.id.nav_add) {
                 WorkoutBuilderFragment fragment = new WorkoutBuilderFragment();
                 fragment.setDependencies(
@@ -58,7 +63,11 @@ public class MainActivity extends AppCompatActivity {
                 fragment.setDependencies(AppBootstrap.get().exerciseUseCase);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_stats) {
-                selectedFragment = new StatsFragment();
+                StatsFragment fragment = new StatsFragment();
+                fragment.setDependencies(
+                        AppBootstrap.get().sessionHistoryUseCase,
+                        AppBootstrap.get().statisticsUseCase);
+                selectedFragment = fragment;
             }
 
             // Load the fragment if a valid one was selected
