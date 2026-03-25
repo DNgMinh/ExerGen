@@ -3,8 +3,9 @@
     <string name="workouts_empty">No workouts found</string>
     <string name="workout_list_title">Your Workouts</string>
     <string name="workout_details_format">%1$d exercises | %2$d min</string>
+    <string name="workout_details_exercises_only_format">%1$d exercises</string>
     <string name="workout_detail_title">Workout Details</string>
-    <string name="workout_detail_body_format">Name: %1$s\nRounds: %2$d\nExercises: %3$d\nTotal Duration: %4$d sec\nExercise Names: %5$s</string>
+    <string name="workout_detail_body_format">Name: %1$s\nSets: %2$d\nExercises: %3$d\nTotal Duration: %4$d sec\nExercise Names: %5$s</string>
     <string name="workout_detail_none">No exercise details available</string>
     <string name="workout_detail_title_prefix">Workout: </string>
     <string name="workout_delete_title">Delete Workout</string>
@@ -105,9 +106,9 @@
     </string-array>
     <string name="session_history_title">Session History</string>
     <string name="session_history_empty">No completed sessions yet.</string>
-    <string name="session_history_item_summary_format">%1$s\nDuration: %2$d sec | Rounds: %3$d/%4$d</string>
+    <string name="session_history_item_summary_format">%1$s\nDuration: %2$d sec | Sets: %3$d/%4$d</string>
     <string name="session_history_detail_title">Session Details</string>
-    <string name="session_history_detail_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nRounds: %5$d/%6$d</string>
+    <string name="session_history_detail_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nSets: %5$d/%6$d</string>
     <!-- Generic presentation strings -->
     <string name="loading">Loading...</string>
     <string name="error_loading_data">Error loading data. Please try again.</string>

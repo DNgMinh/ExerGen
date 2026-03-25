@@ -1,7 +1,7 @@
 package com.example.exergen.business.usecase;
 
 import com.example.exergen.business.exception.InvalidFilterException;
-import com.example.exergen.business.repository.ISessionHistoryRepository;
+import com.example.exergen.persistence.repository.ISessionHistoryRepository;
 import com.example.exergen.business.service.StatisticsAggregationService;
 import com.example.exergen.business.service.StatisticsConstants;
 import com.example.exergen.business.service.StatisticsValidation;

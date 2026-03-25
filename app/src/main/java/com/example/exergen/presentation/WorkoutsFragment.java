@@ -12,8 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
-import com.example.exergen.business.service.WorkoutMetricsService;
+import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
 import com.example.exergen.business.usecase.WorkoutUseCase;
@@ -25,13 +25,18 @@ import java.util.List;
 public class WorkoutsFragment extends Fragment {
 
     private WorkoutUseCase workoutUseCase;
+    private ExerciseUseCase exerciseUseCase;
+    private SessionHistoryUseCase sessionHistoryUseCase;
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        workoutUseCase = AppBootstrap.get().workoutUseCase;
+    public void setDependencies(
+            WorkoutUseCase workoutUseCase,
+            ExerciseUseCase exerciseUseCase,
+            SessionHistoryUseCase sessionHistoryUseCase) {
+        this.workoutUseCase = workoutUseCase;
+        this.exerciseUseCase = exerciseUseCase;
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
     }
 
     @Override
@@ -42,6 +47,9 @@ public class WorkoutsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (workoutUseCase == null || exerciseUseCase == null || sessionHistoryUseCase == null) {
+            throw new IllegalStateException("WorkoutsFragment dependencies not provided");
+        }
 
         recyclerView = view.findViewById(R.id.exercise_recycler_view);
         emptyStateText = view.findViewById(R.id.empty_state_text);
@@ -60,11 +68,22 @@ public class WorkoutsFragment extends Fragment {
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
-            recyclerView.setAdapter(new WorkoutAdapter(workouts, 
+            recyclerView.setAdapter(new WorkoutAdapter(buildWorkoutItems(workouts),
                 this::showWorkoutDetails, 
                 this::confirmDeleteWorkout,
                 this::startLiveWorkout));
         }
+    }
+
+    private List<WorkoutListItem> buildWorkoutItems(List<Workout> workouts) {
+        List<WorkoutListItem> items = new ArrayList<>();
+        for (Workout workout : workouts) {
+            String details = getString(
+                    R.string.workout_details_exercises_only_format,
+                    workout.getSteps().size());
+            items.add(new WorkoutListItem(workout, workout.getName(), details));
+        }
+        return items;
     }
 
     private void showWorkoutDetails(Workout workout) {
@@ -81,12 +100,12 @@ public class WorkoutsFragment extends Fragment {
             names.add(getString(R.string.workout_detail_none));
         }
 
-        int totalSeconds = WorkoutMetricsService.calculateTotalDurationSeconds(workout);
+        int totalSeconds = workoutUseCase.getTotalDurationSeconds(workout);
         String detailText = getString(
                 R.string.workout_detail_body_format,
                 workout.getName(),
-                workout.getRounds(),
-                workout.getExerciseIds().size(),
+                workout.getSets(),
+                workout.getSteps().size(),
                 totalSeconds,
                 String.join(", ", names));
 
@@ -117,6 +136,7 @@ public class WorkoutsFragment extends Fragment {
         if (workout == null) return;
         
         LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workout.getId());
+        fragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase);
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)

@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
+import com.example.exergen.application.AppBootstrap;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 // Entry point of the main navigation container and handles bottom navigation logic
@@ -39,15 +40,34 @@ public class MainActivity extends AppCompatActivity {
             // because Google thought it'd be a good idea to make resource IDs
             // non-final :/
             if (itemId == R.id.nav_timer) {
-                selectedFragment = new TimerFragment();
+                TimerFragment fragment = new TimerFragment();
+                fragment.setDependencies(AppBootstrap.get().sessionHistoryUseCase);
+                selectedFragment = fragment;
             } else if (itemId == R.id.nav_workouts) {
-                selectedFragment = new WorkoutsFragment();
+                WorkoutsFragment fragment = new WorkoutsFragment();
+                fragment.setDependencies(
+                        AppBootstrap.get().workoutUseCase,
+                        AppBootstrap.get().exerciseUseCase,
+                        AppBootstrap.get().sessionHistoryUseCase);
+                selectedFragment = fragment;
             } else if (itemId == R.id.nav_add) {
-                selectedFragment = new WorkoutBuilderFragment();
+                WorkoutBuilderFragment fragment = new WorkoutBuilderFragment();
+                fragment.setDependencies(
+                        AppBootstrap.get().workoutBuilderUseCase,
+                        AppBootstrap.get().workoutUseCase,
+                        AppBootstrap.get().exerciseUseCase,
+                        AppBootstrap.get().sessionHistoryUseCase);
+                selectedFragment = fragment;
             } else if (itemId == R.id.nav_exercises) {
-                selectedFragment = new AddFragment();
+                AddFragment fragment = new AddFragment();
+                fragment.setDependencies(AppBootstrap.get().exerciseUseCase);
+                selectedFragment = fragment;
             } else if (itemId == R.id.nav_stats) {
-                selectedFragment = new StatsFragment();
+                StatsFragment fragment = new StatsFragment();
+                fragment.setDependencies(
+                        AppBootstrap.get().sessionHistoryUseCase,
+                        AppBootstrap.get().statisticsUseCase);
+                selectedFragment = fragment;
             }
 
             // Load the fragment if a valid one was selected

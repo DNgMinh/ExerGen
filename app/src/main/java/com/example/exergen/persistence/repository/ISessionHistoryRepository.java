@@ -1,4 +1,4 @@
-package com.example.exergen.business.repository;
+package com.example.exergen.persistence.repository;
 
 import com.example.exergen.model.SessionRecord;
 

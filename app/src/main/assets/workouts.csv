@@ -1,3 +1,3 @@
-id,name,rounds,exercise_ids,work_seconds,rest_seconds
+id,name,sets,exercise_ids,work_seconds,rest_seconds
 w1,Beginner Full Body,3,ex_1|ex_2,30|45,15|15
 w2,Upper Body Blast,4,ex_1,45,20

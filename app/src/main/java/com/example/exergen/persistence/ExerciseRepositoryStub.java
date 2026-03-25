@@ -1,6 +1,6 @@
 package com.example.exergen.persistence;
 
-import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.persistence.repository.IExerciseRepository;
 import com.example.exergen.business.exception.DuplicateExerciseException;
 import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.model.EquipmentType;

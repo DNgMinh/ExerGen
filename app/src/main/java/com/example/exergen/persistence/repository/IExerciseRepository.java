@@ -1,4 +1,4 @@
-package com.example.exergen.business.repository;
+package com.example.exergen.persistence.repository;
 
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
@@ -15,7 +15,6 @@ public interface IExerciseRepository {
 
     void insertExercise(Exercise exercise);
 
-    // Get a single exercise by its database ID
     Exercise getExerciseById(String id);
 
     void deleteExercise(String id);

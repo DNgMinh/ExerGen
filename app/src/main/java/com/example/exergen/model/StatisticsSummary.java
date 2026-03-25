@@ -1,8 +1,5 @@
 package com.example.exergen.model;
 
-import com.example.exergen.business.service.StatisticsConstants;
-import com.example.exergen.business.service.StatisticsValidation;
-
 public class StatisticsSummary {
     private final int totalSessions;
     private final int cumulativeDurationSeconds;
@@ -16,19 +13,11 @@ public class StatisticsSummary {
             int averageSessionLengthSeconds,
             int totalEstimatedCalories,
             int averageEstimatedCalories) {
-        StatisticsValidation.requireNonNegative(totalSessions, StatisticsConstants.MESSAGE_TOTAL_SESSIONS_NON_NEGATIVE);
-        StatisticsValidation.requireNonNegative(
-                cumulativeDurationSeconds,
-                StatisticsConstants.MESSAGE_CUMULATIVE_DURATION_NON_NEGATIVE);
-        StatisticsValidation.requireNonNegative(
-                averageSessionLengthSeconds,
-                StatisticsConstants.MESSAGE_AVERAGE_DURATION_NON_NEGATIVE);
-        StatisticsValidation.requireNonNegative(
-                totalEstimatedCalories,
-                StatisticsConstants.MESSAGE_TOTAL_CALORIES_NON_NEGATIVE);
-        StatisticsValidation.requireNonNegative(
-                averageEstimatedCalories,
-                StatisticsConstants.MESSAGE_AVERAGE_CALORIES_NON_NEGATIVE);
+        ModelValidation.requireNonNegative(totalSessions, "Total sessions must be >= 0");
+        ModelValidation.requireNonNegative(cumulativeDurationSeconds, "Cumulative duration must be >= 0");
+        ModelValidation.requireNonNegative(averageSessionLengthSeconds, "Average duration must be >= 0");
+        ModelValidation.requireNonNegative(totalEstimatedCalories, "Total calories must be >= 0");
+        ModelValidation.requireNonNegative(averageEstimatedCalories, "Average calories must be >= 0");
 
         this.totalSessions = totalSessions;
         this.cumulativeDurationSeconds = cumulativeDurationSeconds;

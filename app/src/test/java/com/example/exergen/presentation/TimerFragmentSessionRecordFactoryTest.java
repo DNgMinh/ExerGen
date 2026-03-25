@@ -23,7 +23,7 @@ public class TimerFragmentSessionRecordFactoryTest {
         assertEquals(1700000000000L, record.getCompletedAtEpochMs());
         assertEquals(160, record.getTotalDurationSeconds());
         assertEquals(1, record.getExerciseCount());
-        assertEquals(4, record.getRoundsPlanned());
-        assertEquals(4, record.getRoundsCompleted());
+        assertEquals(4, record.getSetsPlanned());
+        assertEquals(4, record.getSetsCompleted());
     }
 }

@@ -62,6 +62,6 @@ public class SessionHistoryRepositoryStubTest {
         SessionRecord retrieved = repository.getSessionById("same-id");
         assertNotNull(retrieved);
         assertEquals(950, retrieved.getTotalDurationSeconds());
-        assertEquals(3, retrieved.getRoundsCompleted());
+        assertEquals(3, retrieved.getSetsCompleted());
     }
 }

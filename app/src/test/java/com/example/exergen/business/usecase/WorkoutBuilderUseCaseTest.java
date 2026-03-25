@@ -69,7 +69,7 @@ public class WorkoutBuilderUseCaseTest {
 
         assertNotNull(result.getName());
         assertTrue(result.getName().startsWith("Generated Workout - "));
-        assertEquals(1, result.getRounds());
+        assertEquals(1, result.getSets());
         assertEquals(3, result.getExerciseIds().size());
         for (String id : result.getExerciseIds()) {
             assertEquals("ex-chest-db", id);

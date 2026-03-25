@@ -4,7 +4,8 @@ import com.example.exergen.business.exception.ExerciseNotFoundException;
 import com.example.exergen.business.exception.SessionCompletedException;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
-import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.model.WorkoutStep;
+import com.example.exergen.persistence.repository.IExerciseRepository;
 
 public class SessionManager {
 
@@ -30,7 +31,8 @@ public class SessionManager {
             throw new SessionCompletedException();
         }
 
-        String id = workout.getExerciseIds().get(currentStep);
+        WorkoutStep step = workout.getSteps().get(currentStep);
+        String id = step.getExerciseId();
         Exercise ex = exerciseRepository.getExerciseById(id);
 
         if (ex == null) {
@@ -46,7 +48,7 @@ public class SessionManager {
     }
 
     public boolean isFinished() {
-        return currentStep >= workout.getExerciseIds().size();
+        return currentStep >= workout.getSteps().size();
     }
 
     public int getCurrentStepIndex() {
@@ -54,6 +56,6 @@ public class SessionManager {
     }
 
     public int totalSteps() {
-        return workout.getExerciseIds().size();
+        return workout.getSteps().size();
     }
 }

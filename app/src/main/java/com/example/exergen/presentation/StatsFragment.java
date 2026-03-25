@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.StatisticsSummary;
 import com.example.exergen.business.usecase.StatisticsTimeRange;
@@ -26,6 +25,7 @@ import com.example.exergen.model.WeeklyTrendPoint;
 import com.example.exergen.model.SessionRecord;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -43,15 +43,9 @@ public class StatsFragment extends Fragment {
     private Spinner timeRangeSpinner;
     private StatisticsTimeRange selectedTimeRange = StatisticsTimeRange.ALL_TIME;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (sessionHistoryUseCase == null) {
-            sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
-        }
-        if (statisticsUseCase == null) {
-            statisticsUseCase = AppBootstrap.get().statisticsUseCase;
-        }
+    public void setDependencies(SessionHistoryUseCase sessionHistoryUseCase, StatisticsUseCase statisticsUseCase) {
+        this.sessionHistoryUseCase = sessionHistoryUseCase;
+        this.statisticsUseCase = statisticsUseCase;
     }
 
     public void setSessionHistoryUseCaseForTesting(SessionHistoryUseCase sessionHistoryUseCase) {
@@ -70,6 +64,9 @@ public class StatsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (sessionHistoryUseCase == null || statisticsUseCase == null) {
+            throw new IllegalStateException("StatsFragment dependencies not provided");
+        }
 
         sessionHistoryRecyclerView = view.findViewById(R.id.session_history_recycler_view);
         emptyStateText = view.findViewById(R.id.session_history_empty_text);
@@ -180,15 +177,30 @@ public class StatsFragment extends Fragment {
 
         emptyStateText.setVisibility(View.GONE);
         sessionHistoryRecyclerView.setVisibility(View.VISIBLE);
-        sessionHistoryRecyclerView.setAdapter(new SessionHistoryAdapter(sessions, this::showSessionDetails));
+        sessionHistoryRecyclerView.setAdapter(new SessionHistoryAdapter(buildSessionItems(sessions), this::showSessionDetails));
     }
 
-    private void showSessionDetails(SessionRecord selectedItem) {
-        if (selectedItem == null || getContext() == null) {
+    private List<SessionHistoryListItem> buildSessionItems(List<SessionRecord> sessions) {
+        List<SessionHistoryListItem> items = new ArrayList<>();
+        for (SessionRecord session : sessions) {
+            String completedAtText = DateFormat.getDateTimeInstance().format(new Date(session.getCompletedAtEpochMs()));
+            String summary = getString(
+                    R.string.session_history_item_summary_format,
+                    completedAtText,
+                    session.getTotalDurationSeconds(),
+                    session.getSetsCompleted(),
+                    session.getSetsPlanned());
+            items.add(new SessionHistoryListItem(session.getId(), session.getWorkoutName(), summary));
+        }
+        return items;
+    }
+
+    private void showSessionDetails(String sessionId) {
+        if (sessionId == null || getContext() == null) {
             return;
         }
 
-        SessionRecord record = sessionHistoryUseCase.getSessionById(selectedItem.getId());
+        SessionRecord record = sessionHistoryUseCase.getSessionById(sessionId);
         if (record == null) {
             return;
         }
@@ -200,8 +212,8 @@ public class StatsFragment extends Fragment {
                 completedAtText,
                 record.getTotalDurationSeconds(),
                 record.getExerciseCount(),
-                record.getRoundsCompleted(),
-                record.getRoundsPlanned());
+                record.getSetsCompleted(),
+                record.getSetsPlanned());
 
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.session_history_detail_title)

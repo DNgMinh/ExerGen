@@ -2,6 +2,7 @@ package com.example.exergen.integration;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -105,5 +106,33 @@ public class ExerciseIntegrationTest {
             }
         }
         assertTrue("Custom exercise should be retrievable via filtering", foundCustom);
+    }
+
+    @Test
+    public void testGetExerciseById_RetrievesSeededExercise() {
+        Exercise exercise = exerciseService.getExerciseById("ex_1");
+        assertNotNull("Seeded exercise should be retrievable by ID", exercise);
+    }
+
+    @Test
+    public void testDeleteExercise_RemovesPreviouslyAddedExercise() {
+        String customId = "custom-ex-delete-1";
+        Exercise custom = new Exercise(
+                customId,
+                "Delete Test Exercise",
+                List.of(MuscleGroup.BACK),
+                List.of(EquipmentType.CABLE),
+                "Test delete behavior",
+                3,
+                List.of("img")
+        );
+
+        exerciseService.addExercise(custom);
+        assertNotNull(exerciseService.getExerciseById(customId));
+
+        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, TEST_DB_NAME);
+        repo.deleteExercise(customId);
+
+        assertNull("Deleted exercise should not be found", exerciseService.getExerciseById(customId));
     }
 }
