@@ -16,8 +16,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.exergen.R;
-import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.TimerMode;
 import com.example.exergen.model.SessionRecord;
 
 public class TimerFragment extends Fragment {
@@ -155,11 +155,11 @@ public class TimerFragment extends Fragment {
         tvTimer.setText(timeString);
     }
 
-    private void updatePhaseText(TimerPhase phase) {
+    private void updatePhaseText(TimerMode phase) {
         if (phase == null) {
             return;
         }
-        if (phase == TimerPhase.WORK) {
+        if (phase == TimerMode.WORK) {
             tvPhase.setText(getString(R.string.timer_work));
             tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
         } else {
@@ -233,7 +233,7 @@ public class TimerFragment extends Fragment {
             return;
         }
 
-        TimerPhase phase = TimerPhase.valueOf(state.getString(KEY_TIMER_PHASE, TimerPhase.WORK.name()));
+        TimerMode phase = TimerMode.valueOf(state.getString(KEY_TIMER_PHASE, TimerMode.WORK.name()));
         viewModel.restoreTimerState(
                 state.getInt(KEY_TIMER_WORK, npWork.getValue()),
                 state.getInt(KEY_TIMER_REST, npRest.getValue()),

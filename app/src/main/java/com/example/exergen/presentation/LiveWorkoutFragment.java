@@ -17,9 +17,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.exergen.R;
-import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.TimerMode;
 import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
@@ -157,7 +157,7 @@ public class LiveWorkoutFragment extends Fragment {
         });
 
         viewModel.getPhase().observe(getViewLifecycleOwner(), phase -> {
-            if (phase == TimerPhase.WORK) {
+            if (phase == TimerMode.WORK) {
                 tvPhase.setText(getString(R.string.timer_work));
                 tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
             }
@@ -172,7 +172,7 @@ public class LiveWorkoutFragment extends Fragment {
         });
 
         viewModel.getCurrentExercise().observe(getViewLifecycleOwner(), exercise -> {
-            if (exercise != null && viewModel.getPhase().getValue() == TimerPhase.WORK) {
+            if (exercise != null && viewModel.getPhase().getValue() == TimerMode.WORK) {
                 tvCurrentExercise.setText(exercise.getName());
                 animationManager.loadAndStart(requireContext(), exercise.getImagePaths());
             }
@@ -201,7 +201,7 @@ public class LiveWorkoutFragment extends Fragment {
             tvTimer.setVisibility(state.isTimerVisible() ? View.VISIBLE : View.GONE);
 
             if (state.isRunning()) {
-                if (viewModel.getPhase().getValue() == TimerPhase.WORK) {
+                if (viewModel.getPhase().getValue() == TimerMode.WORK) {
                     animationManager.resume();
                 }
             } else {

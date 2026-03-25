@@ -4,21 +4,21 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.exergen.business.service.IntervalTimer;
-import com.example.exergen.business.service.TimerObserver;
-import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.TimerMode;
+import com.example.exergen.business.usecase.TimerSessionObserver;
+import com.example.exergen.business.usecase.TimerSessionUseCase;
 import com.example.exergen.model.SessionRecord;
 
 import java.util.UUID;
 
-public class TimerViewModel extends ViewModel implements TimerObserver {
+public class TimerViewModel extends ViewModel implements TimerSessionObserver {
     private final MutableLiveData<Integer> secondsRemaining = new MutableLiveData<>();
-    private final MutableLiveData<TimerPhase> phase = new MutableLiveData<>();
+    private final MutableLiveData<TimerMode> phase = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isRunning = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> hasTimer = new MutableLiveData<>(false);
 
-    private IntervalTimer intervalTimer;
+    private final TimerSessionUseCase timerSessionUseCase = new TimerSessionUseCase();
     private SessionHistoryUseCase sessionHistoryUseCase;
 
     public void init(SessionHistoryUseCase sessionHistoryUseCase) {
@@ -31,7 +31,7 @@ public class TimerViewModel extends ViewModel implements TimerObserver {
         return secondsRemaining;
     }
 
-    public LiveData<TimerPhase> getPhase() {
+    public LiveData<TimerMode> getPhase() {
         return phase;
     }
 
@@ -44,67 +44,58 @@ public class TimerViewModel extends ViewModel implements TimerObserver {
     }
 
     public void startOrResume(int workSeconds, int restSeconds, int totalSets) {
-        if (intervalTimer == null) {
-            intervalTimer = new IntervalTimer(workSeconds, restSeconds, totalSets, this);
+        if (!timerSessionUseCase.hasActiveSession()) {
             hasTimer.setValue(true);
-            phase.setValue(intervalTimer.getCurrentPhase());
-            secondsRemaining.setValue(intervalTimer.getRemainingSeconds());
+            phase.setValue(timerSessionUseCase.getCurrentMode());
+            secondsRemaining.setValue(timerSessionUseCase.getRemainingSeconds());
         }
-
-        if (intervalTimer.isRunning()) {
-            return;
-        }
-
-        intervalTimer.start();
+        timerSessionUseCase.startOrResume(workSeconds, restSeconds, totalSets, this);
         isRunning.setValue(true);
     }
 
     public void pause() {
-        if (intervalTimer != null && intervalTimer.isRunning()) {
-            intervalTimer.pause();
+        if (timerSessionUseCase.isRunning()) {
+            timerSessionUseCase.pause();
             isRunning.setValue(false);
         }
     }
 
     public void stop() {
-        if (intervalTimer != null) {
-            intervalTimer.cancel();
-            intervalTimer = null;
-        }
+        timerSessionUseCase.stop();
         isRunning.setValue(false);
         hasTimer.setValue(false);
     }
 
     public boolean hasActiveTimer() {
-        return intervalTimer != null;
+        return timerSessionUseCase.hasActiveSession();
     }
 
     public boolean isTimerRunning() {
-        return intervalTimer != null && intervalTimer.isRunning();
+        return timerSessionUseCase.isRunning();
     }
 
     public int getWorkDurationSeconds() {
-        return intervalTimer != null ? intervalTimer.getWorkDurationSeconds() : 0;
+        return timerSessionUseCase.getWorkDurationSeconds();
     }
 
     public int getRestDurationSeconds() {
-        return intervalTimer != null ? intervalTimer.getRestDurationSeconds() : 0;
+        return timerSessionUseCase.getRestDurationSeconds();
     }
 
     public int getTotalSets() {
-        return intervalTimer != null ? intervalTimer.getTotalSets() : 0;
+        return timerSessionUseCase.getTotalSets();
     }
 
     public int getCurrentSet() {
-        return intervalTimer != null ? intervalTimer.getCurrentSet() : 1;
+        return timerSessionUseCase.getCurrentSet();
     }
 
-    public TimerPhase getCurrentPhase() {
-        return intervalTimer != null ? intervalTimer.getCurrentPhase() : TimerPhase.WORK;
+    public TimerMode getCurrentPhase() {
+        return timerSessionUseCase.getCurrentMode();
     }
 
     public int getRemainingSeconds() {
-        return intervalTimer != null ? intervalTimer.getRemainingSeconds() : 0;
+        return timerSessionUseCase.getRemainingSeconds();
     }
 
     public void restoreTimerState(
@@ -112,21 +103,22 @@ public class TimerViewModel extends ViewModel implements TimerObserver {
             int restSeconds,
             int totalSets,
             int currentSet,
-            TimerPhase phase,
+            TimerMode phase,
             int remainingSeconds,
             boolean shouldBeRunning) {
-        intervalTimer = new IntervalTimer(workSeconds, restSeconds, totalSets, this);
-        intervalTimer.restoreState(currentSet, phase, remainingSeconds);
+        timerSessionUseCase.restoreState(
+                workSeconds,
+                restSeconds,
+                totalSets,
+                currentSet,
+                phase,
+                remainingSeconds,
+                shouldBeRunning,
+                this);
         hasTimer.setValue(true);
         this.phase.setValue(phase);
         this.secondsRemaining.setValue(remainingSeconds);
-
-        if (shouldBeRunning) {
-            intervalTimer.start();
-            isRunning.setValue(true);
-        } else {
-            isRunning.setValue(false);
-        }
+        isRunning.setValue(shouldBeRunning);
     }
 
     @Override
@@ -135,26 +127,26 @@ public class TimerViewModel extends ViewModel implements TimerObserver {
     }
 
     @Override
-    public void onPhaseChange(TimerPhase phase) {
+    public void onModeChange(TimerMode phase) {
         this.phase.postValue(phase);
     }
 
     @Override
     public void onFinish() {
         saveCompletedTimerSession();
-        intervalTimer = null;
+        timerSessionUseCase.stop();
         isRunning.postValue(false);
         hasTimer.postValue(false);
     }
 
     private void saveCompletedTimerSession() {
-        if (sessionHistoryUseCase == null || intervalTimer == null) {
+        if (sessionHistoryUseCase == null || !timerSessionUseCase.hasActiveSession()) {
             return;
         }
         SessionRecord sessionRecord = buildSessionRecordForCompletedTimer(
-                intervalTimer.getWorkDurationSeconds(),
-                intervalTimer.getRestDurationSeconds(),
-                intervalTimer.getTotalSets(),
+                timerSessionUseCase.getWorkDurationSeconds(),
+                timerSessionUseCase.getRestDurationSeconds(),
+                timerSessionUseCase.getTotalSets(),
                 System.currentTimeMillis(),
                 "session-" + UUID.randomUUID());
         sessionHistoryUseCase.saveCompletedSession(sessionRecord);
@@ -181,9 +173,6 @@ public class TimerViewModel extends ViewModel implements TimerObserver {
     @Override
     protected void onCleared() {
         super.onCleared();
-        if (intervalTimer != null) {
-            intervalTimer.cancel();
-            intervalTimer = null;
-        }
+        timerSessionUseCase.stop();
     }
 }

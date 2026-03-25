@@ -4,11 +4,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.exergen.business.service.IntervalTimer;
-import com.example.exergen.business.service.TimerObserver;
-import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.TimerMode;
+import com.example.exergen.business.usecase.TimerSessionObserver;
+import com.example.exergen.business.usecase.TimerSessionUseCase;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.SessionRecord;
 import com.example.exergen.model.Workout;
@@ -16,17 +16,17 @@ import com.example.exergen.model.WorkoutStep;
 
 import java.util.UUID;
 
-public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
+public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObserver {
 
     private final MutableLiveData<Integer> timeLeft = new MutableLiveData<>();
-    private final MutableLiveData<TimerPhase> phase = new MutableLiveData<>();
+    private final MutableLiveData<TimerMode> phase = new MutableLiveData<>();
     private final MutableLiveData<Exercise> currentExercise = new MutableLiveData<>();
     private final MutableLiveData<Exercise> nextExercise = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isRunning = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isFinished = new MutableLiveData<>(false);
     private final MutableLiveData<LiveWorkoutUiState> uiState = new MutableLiveData<>(LiveWorkoutUiState.setup());
 
-    private IntervalTimer intervalTimer;
+    private final TimerSessionUseCase timerSessionUseCase = new TimerSessionUseCase();
     private Workout workout;
     private int workDuration;
     private int restDuration;
@@ -55,15 +55,15 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
         this.sessionHistoryUseCase = sessionHistoryUseCase;
 
         int totalSets = selectedSets * workout.getSteps().size();
-        this.intervalTimer = new IntervalTimer(workSeconds, restSeconds, totalSets, this);
+        timerSessionUseCase.initialize(workSeconds, restSeconds, totalSets, this);
         
         timeLeft.setValue(workSeconds);
-        phase.setValue(TimerPhase.WORK);
+        phase.setValue(TimerMode.WORK);
         updateExercises();
     }
 
     public LiveData<Integer> getTimeLeft() { return timeLeft; }
-    public LiveData<TimerPhase> getPhase() { return phase; }
+    public LiveData<TimerMode> getPhase() { return phase; }
     public LiveData<Exercise> getCurrentExercise() { return currentExercise; }
     public LiveData<Exercise> getNextExercise() { return nextExercise; }
     public LiveData<Boolean> getIsRunning() { return isRunning; }
@@ -82,24 +82,28 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     }
 
     public void start() {
-        if (intervalTimer != null && !intervalTimer.isRunning()) {
-            intervalTimer.start();
+        if (timerSessionUseCase.hasActiveSession() && !timerSessionUseCase.isRunning()) {
+            timerSessionUseCase.startOrResume(
+                    timerSessionUseCase.getWorkDurationSeconds(),
+                    timerSessionUseCase.getRestDurationSeconds(),
+                    timerSessionUseCase.getTotalSets(),
+                    this);
             isRunning.setValue(true);
             uiState.setValue(LiveWorkoutUiState.activeRunning());
         }
     }
 
     public void pause() {
-        if (intervalTimer != null && intervalTimer.isRunning()) {
-            intervalTimer.pause();
+        if (timerSessionUseCase.isRunning()) {
+            timerSessionUseCase.pause();
             isRunning.setValue(false);
             uiState.setValue(LiveWorkoutUiState.activePaused());
         }
     }
 
     public void stop() {
-        if (intervalTimer != null) {
-            intervalTimer.cancel();
+        if (timerSessionUseCase.hasActiveSession()) {
+            timerSessionUseCase.stop();
             isRunning.setValue(false);
             uiState.setValue(LiveWorkoutUiState.setup());
         }
@@ -111,7 +115,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     }
 
     @Override
-    public void onPhaseChange(TimerPhase newPhase) {
+    public void onModeChange(TimerMode newPhase) {
         phase.postValue(newPhase);
         updateExercises();
     }
@@ -125,9 +129,9 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     }
 
     private void updateExercises() {
-        if (workout == null || intervalTimer == null || exerciseUseCase == null) return;
+        if (workout == null || !timerSessionUseCase.hasActiveSession() || exerciseUseCase == null) return;
 
-        int currentSetIndex = intervalTimer.getCurrentSet() - 1;
+        int currentSetIndex = timerSessionUseCase.getCurrentSet() - 1;
         int exerciseCount = workout.getSteps().size();
         
         // Current Exercise
@@ -138,7 +142,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
 
         // Next Exercise
         int nextSetIndex = currentSetIndex + 1;
-        if (nextSetIndex < intervalTimer.getTotalSets()) {
+        if (nextSetIndex < timerSessionUseCase.getTotalSets()) {
             WorkoutStep nextStep = workout.getSteps().get(nextSetIndex % exerciseCount);
             String nextExId = nextStep.getExerciseId();
             Exercise nextEx = exerciseUseCase.getExerciseById(nextExId);
@@ -149,9 +153,9 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerObserver {
     }
 
     private void saveSession() {
-        if (workout == null || sessionHistoryUseCase == null) return;
+        if (workout == null || sessionHistoryUseCase == null || !timerSessionUseCase.hasActiveSession()) return;
 
-        int totalDuration = intervalTimer.getTotalSets() * (workDuration + restDuration);
+        int totalDuration = timerSessionUseCase.getTotalSets() * (workDuration + restDuration);
         SessionRecord record = new SessionRecord(
                 UUID.randomUUID().toString(),
                 workout.getId(),

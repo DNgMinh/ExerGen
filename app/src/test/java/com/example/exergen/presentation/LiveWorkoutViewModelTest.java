@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import com.example.exergen.business.service.TimerPhase;
 import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
+import com.example.exergen.business.usecase.TimerMode;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
@@ -59,7 +59,7 @@ public class LiveWorkoutViewModelTest {
         viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase);
         
         assertEquals(Integer.valueOf(30), viewModel.getTimeLeft().getValue());
-        assertEquals(TimerPhase.WORK, viewModel.getPhase().getValue());
+        assertEquals(TimerMode.WORK, viewModel.getPhase().getValue());
         assertFalse(viewModel.getIsRunning().getValue());
         assertFalse(viewModel.getIsFinished().getValue());
     }
