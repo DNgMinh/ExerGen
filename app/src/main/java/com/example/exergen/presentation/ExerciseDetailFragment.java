@@ -16,8 +16,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.exergen.R;
 import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
+import com.example.exergen.model.MuscleGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseDetailFragment extends Fragment {
@@ -96,8 +99,17 @@ public class ExerciseDetailFragment extends Fragment {
 
         nameText.setText(exercise.getName());
         instructionsText.setText(normalizeOrFallback(exercise.getInstructions(), getString(R.string.instructions_fallback)));
-        equipmentText.setText(TextUtils.join(", ", exercise.getEquipment()));
-        musclesText.setText(TextUtils.join(", ", exercise.getMuscleGroups()));
+        List<String> equipmentLabels = new ArrayList<>();
+        for (EquipmentType type : exercise.getEquipment()) {
+            equipmentLabels.add(type.getLabel());
+        }
+        equipmentText.setText(TextUtils.join(", ", equipmentLabels));
+
+        List<String> muscleLabels = new ArrayList<>();
+        for (MuscleGroup group : exercise.getMuscleGroups()) {
+            muscleLabels.add(group.getLabel());
+        }
+        musclesText.setText(TextUtils.join(", ", muscleLabels));
         
         setupIntensityTag(exercise.getIntensity());
 
