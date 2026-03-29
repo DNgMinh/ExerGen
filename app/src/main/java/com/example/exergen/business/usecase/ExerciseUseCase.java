@@ -4,12 +4,14 @@ import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.EquipmentType;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
-
+import java.util.Arrays;
 import java.util.List;
 
 public class ExerciseUseCase {
     private final ExerciseService exerciseService;
+
+    // List of filters for exercise equipment
+    private List<EquipmentType> currentFilters = new ArrayList<>(Arrays.asList(EquipmentType.values()));
 
     public ExerciseUseCase(ExerciseService exerciseService) {
         if (exerciseService == null) {
@@ -24,6 +26,18 @@ public class ExerciseUseCase {
 
     public Exercise getExerciseById(String id) {
         return exerciseService.getExerciseById(id);
+    }
+
+    public void setEquipmentFilters(List<EquipmentType> filters) {
+        this.currentFilters = new ArrayList<>(filters);
+    }
+
+    public List<EquipmentType> getEquipmentFilters() {
+        return new ArrayList<>(currentFilters);
+    }
+
+    public List<Exercise> getFilteredExercises() {
+        return getExercisesByEquipment(currentFilters);
     }
 
     public List<Exercise> getExercisesByEquipment(List<EquipmentType> selectedEquipment) {

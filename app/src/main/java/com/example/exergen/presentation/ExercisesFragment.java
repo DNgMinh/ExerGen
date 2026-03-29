@@ -19,7 +19,6 @@ import com.example.exergen.model.MuscleGroup;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.chip.Chip;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +29,6 @@ public class ExercisesFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
-    private List<EquipmentType> activeFilters = new ArrayList<>(Arrays.asList(EquipmentType.values()));
     private ChipGroup filterChipGroup;
 
     public void setDependencies(ExerciseUseCase exerciseUseCase) {
@@ -93,20 +91,29 @@ public class ExercisesFragment extends Fragment {
 
     private void setupFilterChips() {
         filterChipGroup.removeAllViews();
-        activeFilters = new ArrayList<>(Arrays.asList(EquipmentType.values()));
+
+        // Get the filters from the usecase
+        List<EquipmentType> savedFilters = exerciseUseCase.getEquipmentFilters();
 
         for (EquipmentType type : EquipmentType.values()) {
             Chip chip = new Chip(getContext());
             chip.setText(type.getLabel());
             chip.setCheckable(true);
-            chip.setChecked(true);
+
+            // Set the state based on what the usecase has
+            chip.setChecked(savedFilters.contains(type));
 
             chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                // Get the current list, update it, and save it back to the usecase
+                List<EquipmentType> updatedFilters = exerciseUseCase.getEquipmentFilters();
                 if (isChecked) {
-                    if (!activeFilters.contains(type)) activeFilters.add(type);
-                } else {
-                    activeFilters.remove(type);
+                    if (!updatedFilters.contains(type)) updatedFilters.add(type);
                 }
+                else {
+                    updatedFilters.remove(type);
+                }
+
+                exerciseUseCase.setEquipmentFilters(updatedFilters);
                 refreshList();
             });
             filterChipGroup.addView(chip);
@@ -114,17 +121,16 @@ public class ExercisesFragment extends Fragment {
     }
 
     private void refreshList() {
-        List<Exercise> exercises = exerciseUseCase.getExercisesByEquipment(activeFilters);
+        List<Exercise> exercises = exerciseUseCase.getFilteredExercises();
 
         if (exercises == null || exercises.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyStateText.setVisibility(View.VISIBLE);
-            emptyStateText.setText("No exercises found for these filters.");
+            emptyStateText.setText("No exercises found for your selected equipment.");
         }
         else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyStateText.setVisibility(View.GONE);
-            // Use your existing adapter logic
             recyclerView.setAdapter(new ExerciseAdapter(buildExerciseItems(exercises), this::openExerciseDetail));
         }
     }
