@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                         AppBootstrap.get().enumMapper);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_exercises) {
-                AddFragment fragment = new AddFragment();
+                ExercisesFragment fragment = new ExercisesFragment();
                 fragment.setDependencies(AppBootstrap.get().exerciseUseCase);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_stats) {
