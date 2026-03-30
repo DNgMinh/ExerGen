@@ -20,9 +20,26 @@ public class CaloriesEstimationServiceTest {
         assertEquals(96, estimated);
     }
 
+    @Test
+    public void estimateCalories_AllowsMinimumIntensity() {
+        int estimated = service.estimateCalories(300, 1);
+        assertEquals(32, estimated);
+    }
+
+    @Test
+    public void estimateCalories_ZeroDurationReturnsZero() {
+        int estimated = service.estimateCalories(0, 3);
+        assertEquals(0, estimated);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void estimateCalories_RejectsNegativeDuration() {
         service.estimateCalories(-1, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void estimateCalories_RejectsIntensityBelowRange() {
+        service.estimateCalories(600, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
