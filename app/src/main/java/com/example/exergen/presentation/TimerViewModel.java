@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.exergen.business.usecase.CaloriesEstimationUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.TimerMode;
 import com.example.exergen.business.usecase.TimerSessionObserver;
@@ -20,10 +21,16 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
 
     private final TimerSessionUseCase timerSessionUseCase = new TimerSessionUseCase();
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private CaloriesEstimationUseCase caloriesEstimationUseCase;
 
-    public void init(SessionHistoryUseCase sessionHistoryUseCase) {
+    public void init(
+            SessionHistoryUseCase sessionHistoryUseCase,
+            CaloriesEstimationUseCase caloriesEstimationUseCase) {
         if (this.sessionHistoryUseCase == null) {
             this.sessionHistoryUseCase = sessionHistoryUseCase;
+        }
+        if (this.caloriesEstimationUseCase == null) {
+            this.caloriesEstimationUseCase = caloriesEstimationUseCase;
         }
     }
 
@@ -147,6 +154,7 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
                 timerSessionUseCase.getWorkDurationSeconds(),
                 timerSessionUseCase.getRestDurationSeconds(),
                 timerSessionUseCase.getTotalSets(),
+                caloriesEstimationUseCase,
                 System.currentTimeMillis(),
                 "session-" + UUID.randomUUID());
         sessionHistoryUseCase.saveCompletedSession(sessionRecord);
@@ -156,9 +164,13 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
             int workSeconds,
             int restSeconds,
             int totalSets,
+            CaloriesEstimationUseCase caloriesEstimationUseCase,
             long completedAtEpochMs,
             String sessionId) {
         int totalDurationSeconds = totalSets * (workSeconds + restSeconds);
+        int estimatedCalories = caloriesEstimationUseCase == null
+                ? SessionRecord.UNKNOWN_ESTIMATED_CALORIES
+                : caloriesEstimationUseCase.estimateCaloriesWithDefaultIntensity(totalDurationSeconds);
         return new SessionRecord(
                 sessionId,
                 "manual-timer",
@@ -167,7 +179,8 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
                 totalDurationSeconds,
                 1,
                 totalSets,
-                totalSets);
+                totalSets,
+                estimatedCalories);
     }
 
     @Override

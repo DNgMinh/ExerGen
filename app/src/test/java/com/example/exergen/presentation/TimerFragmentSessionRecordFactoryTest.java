@@ -25,5 +25,6 @@ public class TimerFragmentSessionRecordFactoryTest {
         assertEquals(1, record.getExerciseCount());
         assertEquals(4, record.getSetsPlanned());
         assertEquals(4, record.getSetsCompleted());
+        assertEquals(26, record.getEstimatedCalories());
     }
 }

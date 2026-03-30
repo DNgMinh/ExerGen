@@ -9,7 +9,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 public class DatabaseHelper extends SupportSQLiteOpenHelper.Callback {
 
     public static final String DEFAULT_DATABASE_NAME = "ExerGen.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     public static final String TABLE_EXERCISE = "Exercise";
     public static final String TABLE_WORKOUT = "Workout";
@@ -65,7 +65,8 @@ public class DatabaseHelper extends SupportSQLiteOpenHelper.Callback {
                 "total_duration_seconds INTEGER NOT NULL, " +
                 "exercise_count INTEGER NOT NULL, " +
                 "sets_planned INTEGER NOT NULL, " +
-                "sets_completed INTEGER NOT NULL)");
+                "sets_completed INTEGER NOT NULL, " +
+                "estimated_calories INTEGER)");
     }
 
     @Override

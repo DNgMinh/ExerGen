@@ -41,14 +41,17 @@ public class MainActivity extends AppCompatActivity {
             // non-final :/
             if (itemId == R.id.nav_timer) {
                 TimerFragment fragment = new TimerFragment();
-                fragment.setDependencies(AppBootstrap.get().sessionHistoryUseCase);
+                fragment.setDependencies(
+                        AppBootstrap.get().sessionHistoryUseCase,
+                        AppBootstrap.get().caloriesEstimationUseCase);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_workouts) {
                 WorkoutsFragment fragment = new WorkoutsFragment();
                 fragment.setDependencies(
                         AppBootstrap.get().workoutUseCase,
                         AppBootstrap.get().exerciseUseCase,
-                        AppBootstrap.get().sessionHistoryUseCase);
+                        AppBootstrap.get().sessionHistoryUseCase,
+                        AppBootstrap.get().caloriesEstimationUseCase);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_add) {
                 WorkoutBuilderFragment fragment = new WorkoutBuilderFragment();
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
                         AppBootstrap.get().workoutUseCase,
                         AppBootstrap.get().exerciseUseCase,
                         AppBootstrap.get().sessionHistoryUseCase,
+                        AppBootstrap.get().caloriesEstimationUseCase,
                         AppBootstrap.get().enumMapper);
                 selectedFragment = fragment;
             } else if (itemId == R.id.nav_exercises) {

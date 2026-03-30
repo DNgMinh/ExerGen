@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.exergen.business.usecase.CaloriesEstimationUseCase;
 import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.TimerMode;
@@ -34,17 +35,27 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
     
     private ExerciseUseCase exerciseUseCase;
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private CaloriesEstimationUseCase caloriesEstimationUseCase;
 
     public void init(Workout workout, int workSeconds, int restSeconds, 
                      ExerciseUseCase exerciseUseCase,
-                     SessionHistoryUseCase sessionHistoryUseCase) {
-        init(workout, workSeconds, restSeconds, workout.getSets(), exerciseUseCase, sessionHistoryUseCase);
+                     SessionHistoryUseCase sessionHistoryUseCase,
+                     CaloriesEstimationUseCase caloriesEstimationUseCase) {
+        init(
+                workout,
+                workSeconds,
+                restSeconds,
+                workout.getSets(),
+                exerciseUseCase,
+                sessionHistoryUseCase,
+                caloriesEstimationUseCase);
     }
 
     public void init(Workout workout, int workSeconds, int restSeconds,
                      int selectedSets,
                      ExerciseUseCase exerciseUseCase,
-                     SessionHistoryUseCase sessionHistoryUseCase) {
+                     SessionHistoryUseCase sessionHistoryUseCase,
+                     CaloriesEstimationUseCase caloriesEstimationUseCase) {
         if (this.workout != null) return; // Already initialized
 
         this.workout = workout;
@@ -53,6 +64,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
         this.configuredSets = selectedSets;
         this.exerciseUseCase = exerciseUseCase;
         this.sessionHistoryUseCase = sessionHistoryUseCase;
+        this.caloriesEstimationUseCase = caloriesEstimationUseCase;
 
         int totalSets = selectedSets * workout.getSteps().size();
         timerSessionUseCase.initialize(workSeconds, restSeconds, totalSets, this);
@@ -76,8 +88,16 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
             int restSeconds,
             int selectedSets,
             ExerciseUseCase exerciseUseCase,
-            SessionHistoryUseCase sessionHistoryUseCase) {
-        init(workout, workSeconds, restSeconds, selectedSets, exerciseUseCase, sessionHistoryUseCase);
+            SessionHistoryUseCase sessionHistoryUseCase,
+            CaloriesEstimationUseCase caloriesEstimationUseCase) {
+        init(
+                workout,
+                workSeconds,
+                restSeconds,
+                selectedSets,
+                exerciseUseCase,
+                sessionHistoryUseCase,
+                caloriesEstimationUseCase);
         start();
     }
 
@@ -156,6 +176,10 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
         if (workout == null || sessionHistoryUseCase == null || !timerSessionUseCase.hasActiveSession()) return;
 
         int totalDuration = timerSessionUseCase.getTotalSets() * (workDuration + restDuration);
+        int estimatedCalories = SessionRecord.UNKNOWN_ESTIMATED_CALORIES;
+        if (caloriesEstimationUseCase != null) {
+            estimatedCalories = calculateWorkoutCaloriesByExerciseStep();
+        }
         SessionRecord record = new SessionRecord(
                 UUID.randomUUID().toString(),
                 workout.getId(),
@@ -164,9 +188,37 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
                 totalDuration,
                 workout.getSteps().size(),
                 configuredSets,
-                configuredSets
+                configuredSets,
+                estimatedCalories
         );
         
         sessionHistoryUseCase.saveCompletedSession(record);
+    }
+
+    private int calculateWorkoutCaloriesByExerciseStep() {
+        if (workout == null || workout.getSteps() == null || workout.getSteps().isEmpty() || exerciseUseCase == null) {
+            return caloriesEstimationUseCase.estimateCaloriesWithDefaultIntensity(
+                    timerSessionUseCase.getTotalSets() * (workDuration + restDuration));
+        }
+
+        int totalEstimatedCalories = 0;
+        for (WorkoutStep step : workout.getSteps()) {
+            Exercise exercise = exerciseUseCase.getExerciseById(step.getExerciseId());
+            int intensity = resolveIntensity(exercise);
+            int stepDurationSecondsAcrossSets = configuredSets * (step.getWorkSeconds() + step.getRestSeconds());
+            totalEstimatedCalories += caloriesEstimationUseCase.estimateCalories(stepDurationSecondsAcrossSets, intensity);
+        }
+        return totalEstimatedCalories;
+    }
+
+    private int resolveIntensity(Exercise exercise) {
+        if (exercise == null) {
+            return 3;
+        }
+        int intensity = exercise.getIntensity();
+        if (intensity < 1 || intensity > 5) {
+            return 3;
+        }
+        return intensity;
     }
 }

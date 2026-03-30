@@ -106,9 +106,13 @@
     </string-array>
     <string name="session_history_title">Session History</string>
     <string name="session_history_empty">No completed sessions yet.</string>
-    <string name="session_history_item_summary_format">%1$s\nDuration: %2$d sec | Sets: %3$d/%4$d</string>
+    <string name="session_history_item_summary_with_calories_format">%1$s\nDuration: %2$d sec | Sets: %3$d/%4$d | Calories: %5$d kcal</string>
+    <string name="session_history_item_summary_without_calories_format">%1$s\nDuration: %2$d sec | Sets: %3$d/%4$d | Calories: %5$s</string>
     <string name="session_history_detail_title">Session Details</string>
-    <string name="session_history_detail_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nSets: %5$d/%6$d</string>
+    <string name="session_history_detail_with_calories_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nSets: %5$d/%6$d\nEstimated Calories: %7$d kcal\n%8$s</string>
+    <string name="session_history_detail_without_calories_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nSets: %5$d/%6$d\nEstimated Calories: %7$s</string>
+    <string name="session_history_calories_unavailable">Calories unavailable</string>
+    <string name="session_history_calories_explanation">Estimate based on workout duration and intensity. This is approximate and not a medical measurement.</string>
     <!-- Generic presentation strings -->
     <string name="loading">Loading...</string>
     <string name="error_loading_data">Error loading data. Please try again.</string>

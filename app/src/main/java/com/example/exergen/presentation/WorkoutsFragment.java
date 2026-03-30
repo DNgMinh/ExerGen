@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.exergen.R;
+import com.example.exergen.business.usecase.CaloriesEstimationUseCase;
 import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.Exercise;
@@ -27,16 +28,19 @@ public class WorkoutsFragment extends Fragment {
     private WorkoutUseCase workoutUseCase;
     private ExerciseUseCase exerciseUseCase;
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private CaloriesEstimationUseCase caloriesEstimationUseCase;
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
     public void setDependencies(
             WorkoutUseCase workoutUseCase,
             ExerciseUseCase exerciseUseCase,
-            SessionHistoryUseCase sessionHistoryUseCase) {
+            SessionHistoryUseCase sessionHistoryUseCase,
+            CaloriesEstimationUseCase caloriesEstimationUseCase) {
         this.workoutUseCase = workoutUseCase;
         this.exerciseUseCase = exerciseUseCase;
         this.sessionHistoryUseCase = sessionHistoryUseCase;
+        this.caloriesEstimationUseCase = caloriesEstimationUseCase;
     }
 
     @Override
@@ -47,7 +51,10 @@ public class WorkoutsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (workoutUseCase == null || exerciseUseCase == null || sessionHistoryUseCase == null) {
+        if (workoutUseCase == null
+                || exerciseUseCase == null
+                || sessionHistoryUseCase == null
+                || caloriesEstimationUseCase == null) {
             throw new IllegalStateException("WorkoutsFragment dependencies not provided");
         }
 
@@ -136,7 +143,7 @@ public class WorkoutsFragment extends Fragment {
         if (workout == null) return;
         
         LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workout.getId());
-        fragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase);
+        fragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)

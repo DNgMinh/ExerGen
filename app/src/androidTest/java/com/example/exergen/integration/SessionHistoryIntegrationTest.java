@@ -65,6 +65,29 @@ public class SessionHistoryIntegrationTest {
     }
 
     @Test
+    public void testSaveAndRetrieveSession_PersistsEstimatedCalories() {
+        String sessionId = "it-session-calories";
+        SessionRecord record = new SessionRecord(
+                sessionId,
+                "workout-123",
+                "Integration Workout",
+                1700000000000L,
+                900,
+                6,
+                3,
+                3,
+                180
+        );
+
+        sessionHistoryUseCase.saveCompletedSession(record);
+
+        SessionRecord retrieved = sessionHistoryUseCase.getSessionById(sessionId);
+        assertNotNull(retrieved);
+        assertTrue(retrieved.hasEstimatedCalories());
+        assertEquals(180, retrieved.getEstimatedCalories());
+    }
+
+    @Test
     public void testGetSessionHistory_ReturnsOrderedFromRealSQLite() {
         SessionRecord older = createRecord("s1", 1700000000000L);
         SessionRecord newer = createRecord("s2", 1700000009000L);
