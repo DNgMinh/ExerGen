@@ -16,8 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.exergen.R;
+import com.example.exergen.business.usecase.CaloriesEstimationUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.TimerMode;
+import com.example.exergen.business.service.CaloriesEstimationService;
 import com.example.exergen.model.SessionRecord;
 
 public class TimerFragment extends Fragment {
@@ -39,22 +41,26 @@ public class TimerFragment extends Fragment {
     private NumberPicker npWork, npRest, npSets;
 
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private CaloriesEstimationUseCase caloriesEstimationUseCase;
     private SoundFeedbackHelper soundFeedbackHelper;
     private TimerViewModel viewModel;
 
-    public void setDependencies(SessionHistoryUseCase sessionHistoryUseCase) {
+    public void setDependencies(
+            SessionHistoryUseCase sessionHistoryUseCase,
+            CaloriesEstimationUseCase caloriesEstimationUseCase) {
         this.sessionHistoryUseCase = sessionHistoryUseCase;
+        this.caloriesEstimationUseCase = caloriesEstimationUseCase;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (sessionHistoryUseCase == null) {
+        if (sessionHistoryUseCase == null || caloriesEstimationUseCase == null) {
             throw new IllegalStateException("TimerFragment dependencies not provided");
         }
         soundFeedbackHelper = new SoundFeedbackHelper();
         viewModel = new ViewModelProvider(this).get(TimerViewModel.class);
-        viewModel.init(sessionHistoryUseCase);
+        viewModel.init(sessionHistoryUseCase, caloriesEstimationUseCase);
     }
 
     @Nullable
@@ -183,7 +189,12 @@ public class TimerFragment extends Fragment {
             long completedAtEpochMs,
             String sessionId) {
         return TimerViewModel.buildSessionRecordForCompletedTimer(
-                workSeconds, restSeconds, totalSets, completedAtEpochMs, sessionId);
+                workSeconds,
+                restSeconds,
+                totalSets,
+                new CaloriesEstimationUseCase(new CaloriesEstimationService()),
+                completedAtEpochMs,
+                sessionId);
     }
 
     @Override

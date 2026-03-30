@@ -184,12 +184,24 @@ public class StatsFragment extends Fragment {
         List<SessionHistoryListItem> items = new ArrayList<>();
         for (SessionRecord session : sessions) {
             String completedAtText = DateFormat.getDateTimeInstance().format(new Date(session.getCompletedAtEpochMs()));
-            String summary = getString(
-                    R.string.session_history_item_summary_format,
-                    completedAtText,
-                    session.getTotalDurationSeconds(),
-                    session.getSetsCompleted(),
-                    session.getSetsPlanned());
+            String summary;
+            if (session.hasEstimatedCalories()) {
+                summary = getString(
+                        R.string.session_history_item_summary_with_calories_format,
+                        completedAtText,
+                        session.getTotalDurationSeconds(),
+                        session.getSetsCompleted(),
+                        session.getSetsPlanned(),
+                        session.getEstimatedCalories());
+            } else {
+                summary = getString(
+                        R.string.session_history_item_summary_without_calories_format,
+                        completedAtText,
+                        session.getTotalDurationSeconds(),
+                        session.getSetsCompleted(),
+                        session.getSetsPlanned(),
+                        getString(R.string.session_history_calories_unavailable));
+            }
             items.add(new SessionHistoryListItem(session.getId(), session.getWorkoutName(), summary));
         }
         return items;
@@ -206,14 +218,29 @@ public class StatsFragment extends Fragment {
         }
 
         String completedAtText = DateFormat.getDateTimeInstance().format(new Date(record.getCompletedAtEpochMs()));
-        String message = getString(
-                R.string.session_history_detail_format,
-                record.getWorkoutName(),
-                completedAtText,
-                record.getTotalDurationSeconds(),
-                record.getExerciseCount(),
-                record.getSetsCompleted(),
-                record.getSetsPlanned());
+        String message;
+        if (record.hasEstimatedCalories()) {
+            message = getString(
+                    R.string.session_history_detail_with_calories_format,
+                    record.getWorkoutName(),
+                    completedAtText,
+                    record.getTotalDurationSeconds(),
+                    record.getExerciseCount(),
+                    record.getSetsCompleted(),
+                    record.getSetsPlanned(),
+                    record.getEstimatedCalories(),
+                    getString(R.string.session_history_calories_explanation));
+        } else {
+            message = getString(
+                    R.string.session_history_detail_without_calories_format,
+                    record.getWorkoutName(),
+                    completedAtText,
+                    record.getTotalDurationSeconds(),
+                    record.getExerciseCount(),
+                    record.getSetsCompleted(),
+                    record.getSetsPlanned(),
+                    getString(R.string.session_history_calories_unavailable));
+        }
 
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.session_history_detail_title)

@@ -1,6 +1,8 @@
 package com.example.exergen.model;
 
 public class SessionRecord {
+    public static final int UNKNOWN_ESTIMATED_CALORIES = -1;
+
     private final String id;
     private final String workoutId;
     private final String workoutName;
@@ -9,6 +11,7 @@ public class SessionRecord {
     private final int exerciseCount;
     private final int setsPlanned;
     private final int setsCompleted;
+    private final int estimatedCalories;
 
     public SessionRecord(
             String id,
@@ -19,6 +22,28 @@ public class SessionRecord {
             int exerciseCount,
             int setsPlanned,
             int setsCompleted) {
+        this(
+                id,
+                workoutId,
+                workoutName,
+                completedAtEpochMs,
+                totalDurationSeconds,
+                exerciseCount,
+                setsPlanned,
+                setsCompleted,
+                UNKNOWN_ESTIMATED_CALORIES);
+    }
+
+    public SessionRecord(
+            String id,
+            String workoutId,
+            String workoutName,
+            long completedAtEpochMs,
+            int totalDurationSeconds,
+            int exerciseCount,
+            int setsPlanned,
+            int setsCompleted,
+            int estimatedCalories) {
         this.id = ModelValidation.requireNonBlank(id, "Session id required");
         this.workoutId = ModelValidation.requireNonBlank(workoutId, "Workout id required");
         this.workoutName = ModelValidation.requireNonBlank(workoutName, "Workout name required");
@@ -40,12 +65,16 @@ public class SessionRecord {
         if (setsCompleted > setsPlanned) {
             throw new IllegalArgumentException("Sets completed cannot exceed sets planned");
         }
+        if (estimatedCalories < UNKNOWN_ESTIMATED_CALORIES) {
+            throw new IllegalArgumentException("Estimated calories must be >= -1");
+        }
 
         this.completedAtEpochMs = completedAtEpochMs;
         this.totalDurationSeconds = totalDurationSeconds;
         this.exerciseCount = exerciseCount;
         this.setsPlanned = setsPlanned;
         this.setsCompleted = setsCompleted;
+        this.estimatedCalories = estimatedCalories;
     }
 
     public String getId() {
@@ -78,6 +107,14 @@ public class SessionRecord {
 
     public int getSetsCompleted() {
         return setsCompleted;
+    }
+
+    public int getEstimatedCalories() {
+        return estimatedCalories;
+    }
+
+    public boolean hasEstimatedCalories() {
+        return estimatedCalories >= 0;
     }
 
 }

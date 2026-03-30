@@ -37,6 +37,11 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
         values.put("exercise_count", record.getExerciseCount());
         values.put("sets_planned", record.getSetsPlanned());
         values.put("sets_completed", record.getSetsCompleted());
+        if (record.hasEstimatedCalories()) {
+            values.put("estimated_calories", record.getEstimatedCalories());
+        } else {
+            values.putNull("estimated_calories");
+        }
 
         db.insert(DatabaseHelper.TABLE_SESSION_HISTORY, android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE, values);
     }
@@ -73,6 +78,12 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
     }
 
     private SessionRecord mapCursorToSessionRecord(Cursor cursor) {
+        int estimatedCalories = SessionRecord.UNKNOWN_ESTIMATED_CALORIES;
+        int estimatedCaloriesColumnIndex = cursor.getColumnIndex("estimated_calories");
+        if (estimatedCaloriesColumnIndex >= 0 && !cursor.isNull(estimatedCaloriesColumnIndex)) {
+            estimatedCalories = cursor.getInt(estimatedCaloriesColumnIndex);
+        }
+
         return new SessionRecord(
                 cursor.getString(cursor.getColumnIndexOrThrow("id")),
                 cursor.getString(cursor.getColumnIndexOrThrow("workout_id")),
@@ -81,7 +92,8 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
                 cursor.getInt(cursor.getColumnIndexOrThrow("total_duration_seconds")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("exercise_count")),
                 cursor.getInt(cursor.getColumnIndexOrThrow("sets_planned")),
-                cursor.getInt(cursor.getColumnIndexOrThrow("sets_completed"))
+                cursor.getInt(cursor.getColumnIndexOrThrow("sets_completed")),
+                estimatedCalories
         );
     }
 }

@@ -20,6 +20,7 @@ import com.example.exergen.R;
 import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
+import com.example.exergen.business.usecase.CaloriesEstimationUseCase;
 import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.WorkoutBuilderUseCase;
@@ -56,6 +57,7 @@ public class WorkoutBuilderFragment extends Fragment {
     private WorkoutUseCase workoutUseCase;
     private ExerciseUseCase exerciseUseCase;
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private CaloriesEstimationUseCase caloriesEstimationUseCase;
     private IEnumMapper enumMapper;
     private Workout lastGeneratedWorkout;
 
@@ -88,6 +90,7 @@ public class WorkoutBuilderFragment extends Fragment {
             workoutUseCase = AppBootstrap.get().workoutUseCase;
             exerciseUseCase = AppBootstrap.get().exerciseUseCase;
             sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
+            caloriesEstimationUseCase = AppBootstrap.get().caloriesEstimationUseCase;
             enumMapper = AppBootstrap.get().enumMapper;
         }
     }
@@ -96,18 +99,20 @@ public class WorkoutBuilderFragment extends Fragment {
             WorkoutUseCase workoutUseCase,
             ExerciseUseCase exerciseUseCase,
             SessionHistoryUseCase sessionHistoryUseCase,
+            CaloriesEstimationUseCase caloriesEstimationUseCase,
             IEnumMapper enumMapper) {
         this.workoutBuilderUseCase = workoutBuilderUseCase;
         this.workoutUseCase = workoutUseCase;
         this.exerciseUseCase = exerciseUseCase;
         this.sessionHistoryUseCase = sessionHistoryUseCase;
+        this.caloriesEstimationUseCase = caloriesEstimationUseCase;
         this.enumMapper = enumMapper;
     }
 
     public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
             WorkoutUseCase workoutUseCase,
             IEnumMapper enumMapper) {
-        setDependencies(workoutBuilderUseCase, workoutUseCase, null, null, enumMapper);
+        setDependencies(workoutBuilderUseCase, workoutUseCase, null, null, null, enumMapper);
     }
 
     @Nullable
@@ -286,7 +291,11 @@ public class WorkoutBuilderFragment extends Fragment {
 
     private LiveWorkoutFragment createLiveWorkoutFragment(String workoutId) {
         LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workoutId);
-        fragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase);
+        fragment.setDependencies(
+                workoutUseCase,
+                exerciseUseCase,
+                sessionHistoryUseCase,
+                caloriesEstimationUseCase);
         return fragment;
     }
 

@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.exergen.R;
+import com.example.exergen.business.usecase.CaloriesEstimationUseCase;
 import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.TimerMode;
@@ -35,6 +36,7 @@ public class LiveWorkoutFragment extends Fragment {
     private WorkoutUseCase workoutUseCase;
     private ExerciseUseCase exerciseUseCase;
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private CaloriesEstimationUseCase caloriesEstimationUseCase;
     private LiveWorkoutViewModel viewModel;
     private SoundFeedbackHelper soundFeedbackHelper;
     private ExerciseAnimationManager animationManager;
@@ -58,17 +60,22 @@ public class LiveWorkoutFragment extends Fragment {
     public void setDependencies(
             WorkoutUseCase workoutUseCase,
             ExerciseUseCase exerciseUseCase,
-            SessionHistoryUseCase sessionHistoryUseCase) {
+            SessionHistoryUseCase sessionHistoryUseCase,
+            CaloriesEstimationUseCase caloriesEstimationUseCase) {
         this.workoutUseCase = workoutUseCase;
         this.exerciseUseCase = exerciseUseCase;
         this.sessionHistoryUseCase = sessionHistoryUseCase;
+        this.caloriesEstimationUseCase = caloriesEstimationUseCase;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         soundFeedbackHelper = new SoundFeedbackHelper();
-        if (workoutUseCase == null || exerciseUseCase == null || sessionHistoryUseCase == null) {
+        if (workoutUseCase == null
+                || exerciseUseCase == null
+                || sessionHistoryUseCase == null
+                || caloriesEstimationUseCase == null) {
             throw new IllegalStateException("LiveWorkoutFragment dependencies not provided");
         }
         if (getArguments() != null) {
@@ -138,7 +145,8 @@ public class LiveWorkoutFragment extends Fragment {
                         npRest.getValue(),
                         npSets.getValue(),
                         exerciseUseCase,
-                        sessionHistoryUseCase);
+                        sessionHistoryUseCase,
+                        caloriesEstimationUseCase);
             }
         });
         btnPause.setOnClickListener(v -> viewModel.pause());

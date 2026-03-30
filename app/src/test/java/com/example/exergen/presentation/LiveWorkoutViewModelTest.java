@@ -3,6 +3,7 @@ package com.example.exergen.presentation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.when;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import com.example.exergen.business.usecase.ExerciseUseCase;
+import com.example.exergen.business.usecase.CaloriesEstimationUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.TimerMode;
 import com.example.exergen.model.EquipmentType;
@@ -33,12 +35,14 @@ public class LiveWorkoutViewModelTest {
     private LiveWorkoutViewModel viewModel;
     private ExerciseUseCase exerciseUseCase;
     private SessionHistoryUseCase sessionHistoryUseCase;
+    private CaloriesEstimationUseCase caloriesEstimationUseCase;
 
     @Before
     public void setUp() {
         viewModel = new LiveWorkoutViewModel();
         exerciseUseCase = mock(ExerciseUseCase.class);
         sessionHistoryUseCase = mock(SessionHistoryUseCase.class);
+        caloriesEstimationUseCase = mock(CaloriesEstimationUseCase.class);
         
         Exercise mockExercise = new Exercise(
             "e1", "Pushups", 
@@ -49,6 +53,7 @@ public class LiveWorkoutViewModelTest {
 
         // Stub for exercise lookup
         when(exerciseUseCase.getExerciseById(anyString())).thenReturn(mockExercise);
+        when(caloriesEstimationUseCase.estimateCalories(anyInt(), anyInt())).thenReturn(100);
     }
 
     @Test
@@ -56,7 +61,7 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1", "e2"), Arrays.asList(30, 30), Arrays.asList(10, 10));
         
-        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase);
+        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
         
         assertEquals(Integer.valueOf(30), viewModel.getTimeLeft().getValue());
         assertEquals(TimerMode.WORK, viewModel.getPhase().getValue());
@@ -69,7 +74,7 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1"), Arrays.asList(30), Arrays.asList(10));
         
-        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase);
+        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
         viewModel.start();
         assertTrue(viewModel.getIsRunning().getValue());
         
@@ -82,7 +87,7 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1"), Arrays.asList(30), Arrays.asList(10));
         
-        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase);
+        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
         viewModel.onFinish();
         
         assertFalse(viewModel.getIsRunning().getValue());

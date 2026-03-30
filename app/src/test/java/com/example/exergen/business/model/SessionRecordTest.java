@@ -26,6 +26,7 @@ public class SessionRecordTest {
         assertEquals(6, sessionRecord.getExerciseCount());
         assertEquals(3, sessionRecord.getSetsPlanned());
         assertEquals(3, sessionRecord.getSetsCompleted());
+        assertEquals(SessionRecord.UNKNOWN_ESTIMATED_CALORIES, sessionRecord.getEstimatedCalories());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -71,5 +72,25 @@ public class SessionRecordTest {
     @Test(expected = IllegalArgumentException.class)
     public void constructorRejectsSetsCompletedGreaterThanPlanned() {
         new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 6, 3, 4);
+    }
+
+    @Test
+    public void constructorAcceptsEstimatedCaloriesWhenProvided() {
+        SessionRecord sessionRecord = new SessionRecord(
+                "s1",
+                "w1",
+                "Leg Day",
+                1700000000000L,
+                1200,
+                6,
+                3,
+                3,
+                245);
+        assertEquals(245, sessionRecord.getEstimatedCalories());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsEstimatedCaloriesLessThanUnknownSentinel() {
+        new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 6, 3, 3, -2);
     }
 }
