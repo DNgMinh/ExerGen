@@ -18,17 +18,37 @@ public class CSVParser {
         try (InputStream is = context.getAssets().open(fileName);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 
-            String line;
             reader.readLine(); // Skip the header row
 
+            String line;
             while ((line = reader.readLine()) != null) {
-                rows.add(line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"));
+                if (!line.trim().isEmpty()) {
+                    rows.add(parseLine(line));
+                }
             }
-
         }
         catch (IOException e) {
             Log.e("CSVParser", "Failed to parse CSV: " + fileName, e);
         }
         return rows;
+    }
+
+    private static String[] parseLine(String line) {
+        List<String> tokens = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '\"') {
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                tokens.add(sb.toString());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+        tokens.add(sb.toString());
+        return tokens.toArray(new String[0]);
     }
 }

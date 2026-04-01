@@ -43,6 +43,13 @@ public class ExerciseService {
         exerciseRepository.insertExercise(exercise);
     }
 
+    public void deleteExercise(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("id required");
+        }
+        exerciseRepository.deleteExercise(id);
+    }
+
     public List<Exercise> filterByEquipment(EquipmentType equipment) {
         if (equipment == null) {
             throw new InvalidFilterException("Equipment required.");

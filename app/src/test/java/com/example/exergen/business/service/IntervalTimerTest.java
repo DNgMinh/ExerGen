@@ -38,7 +38,7 @@ public class IntervalTimerTest {
             }
         };
 
-        IntervalTimer timer = new IntervalTimer(1, 0, 1, observer);
+        IntervalTimer timer = new IntervalTimer(List.of(1), List.of(0), 1, observer);
         timer.start();
 
         // Wait 3 seconds for it to complete
@@ -52,7 +52,7 @@ public class IntervalTimerTest {
 
     @Test
     public void testPauseAndCancel() {
-        IntervalTimer timer = new IntervalTimer(10, 5, 3, null);
+        IntervalTimer timer = new IntervalTimer(List.of(10), List.of(5), 3, null);
 
         timer.start();
         timer.pause();
@@ -63,29 +63,29 @@ public class IntervalTimerTest {
 
     @Test(expected = TimerAlreadyRunningException.class)
     public void startWhileRunningThrowsDomainException() {
-        IntervalTimer timer = new IntervalTimer(2, 1, 1, null);
+        IntervalTimer timer = new IntervalTimer(List.of(2), List.of(1), 1, null);
         timer.start();
         timer.start();
     }
 
     @Test(expected = InvalidTimerConfigurationException.class)
     public void constructorRejectsNonPositiveWorkSeconds() {
-        new IntervalTimer(0, 1, 1, null);
+        new IntervalTimer(List.of(0), List.of(1), 1, null);
     }
 
     @Test(expected = InvalidTimerConfigurationException.class)
     public void constructorRejectsNegativeRestSeconds() {
-        new IntervalTimer(1, -1, 1, null);
+        new IntervalTimer(List.of(1), List.of(-1), 1, null);
     }
 
     @Test(expected = InvalidTimerConfigurationException.class)
     public void constructorRejectsNonPositiveSets() {
-        new IntervalTimer(1, 1, 0, null);
+        new IntervalTimer(List.of(1), List.of(1), 0, null);
     }
 
     @Test
     public void cancelResetsTimerState() {
-        IntervalTimer timer = new IntervalTimer(5, 2, 3, null);
+        IntervalTimer timer = new IntervalTimer(List.of(5), List.of(2), 3, null);
         timer.restoreState(2, TimerPhase.REST, 1);
 
         timer.cancel();
@@ -117,7 +117,7 @@ public class IntervalTimerTest {
             }
         };
 
-        IntervalTimer timer = new IntervalTimer(1, 1, 1, observer);
+        IntervalTimer timer = new IntervalTimer(List.of(1), List.of(1), 1, observer);
         timer.start();
 
         boolean completed = finishedLatch.await(6, TimeUnit.SECONDS);

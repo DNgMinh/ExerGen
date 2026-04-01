@@ -29,6 +29,10 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
     @Override
     public void saveWorkout(Workout workout) {
         SupportSQLiteDatabase db = dbHelper.getWritableDatabase();
+        saveWorkoutInternal(db, workout);
+    }
+
+    private void saveWorkoutInternal(SupportSQLiteDatabase db, Workout workout) {
         ContentValues values = new ContentValues();
 
         StringBuilder exerciseIdsStr = new StringBuilder();
@@ -129,10 +133,24 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
 
     @Override
     public void seedData() {
-        if (getAllWorkouts().isEmpty()) {
+        SupportSQLiteDatabase db = dbHelper.getWritableDatabase();
+        long count = 0;
+        try (Cursor cursor = db.query("SELECT COUNT(*) FROM " + DatabaseHelper.TABLE_WORKOUT)) {
+            if (cursor.moveToFirst()) {
+                count = cursor.getLong(0);
+            }
+        }
+
+        if (count == 0) {
             List<Workout> defaultWorkouts = DefaultWorkoutSeedData.createDefaultWorkouts();
-            for (Workout w : defaultWorkouts) {
-                saveWorkout(w);
+            db.beginTransaction();
+            try {
+                for (Workout w : defaultWorkouts) {
+                    saveWorkoutInternal(db, w);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
         }
     }

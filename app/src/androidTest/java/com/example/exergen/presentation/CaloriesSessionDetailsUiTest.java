@@ -48,8 +48,10 @@ public class CaloriesSessionDetailsUiTest {
             onView(withId(R.id.nav_stats)).perform(click());
             onView(withText(workoutName)).perform(click());
 
-            onView(withText(containsString("Estimated Calories: 180 kcal")))
-                    .check(matches(isDisplayed()));
+            // Updated to match the new BottomSheet UI which separates label and value
+            onView(withId(R.id.session_detail_calories))
+                    .check(matches(withText("180 kcal")));
+
             onView(withText(containsString("approximate and not a medical measurement")))
                     .check(matches(isDisplayed()));
         }

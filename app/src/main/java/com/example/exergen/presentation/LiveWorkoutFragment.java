@@ -246,7 +246,10 @@ public class LiveWorkoutFragment extends Fragment {
     }
 
     private void exitWorkout() {
-        viewModel.stop();
+        // Only call stop if it's not finished, to avoid resetting UI state and causing a flash
+        if (!Boolean.TRUE.equals(viewModel.getIsFinished().getValue())) {
+            viewModel.stop();
+        }
         setBottomNavVisibility(View.VISIBLE);
         getParentFragmentManager().popBackStack();
     }

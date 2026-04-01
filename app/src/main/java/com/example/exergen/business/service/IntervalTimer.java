@@ -26,6 +26,14 @@ public class IntervalTimer {
     public IntervalTimer(List<Integer> workSecs, List<Integer> restSecs, int sets, TimerObserver observer) {
         if (workSecs == null || workSecs.isEmpty()) throw new IllegalArgumentException("workSecs required");
         if (restSecs == null || restSecs.isEmpty()) throw new IllegalArgumentException("restSecs required");
+        
+        for (int work : workSecs) {
+            ValidationHelper.requirePositive(work, "Work seconds must be > 0.");
+        }
+        for (int rest : restSecs) {
+            ValidationHelper.requireNonNegative(rest, "Rest seconds must be >= 0.");
+        }
+
         ValidationHelper.requirePositive(sets, "Sets must be > 0.");
         
         this.workDurations = List.copyOf(workSecs);

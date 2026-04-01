@@ -19,7 +19,9 @@ import com.example.exergen.model.MuscleGroup;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ExerciseRepositorySQLite implements IExerciseRepository {
@@ -108,6 +110,10 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
     @Override
     public void insertExercise(Exercise exercise) {
         SupportSQLiteDatabase db = dbHelper.getWritableDatabase();
+        insertExerciseInternal(db, exercise);
+    }
+
+    private void insertExerciseInternal(SupportSQLiteDatabase db, Exercise exercise) {
         ContentValues values = new ContentValues();
 
         String muscleGroupsStr = exercise.getMuscleGroups().stream().map(MuscleGroup::name).collect(Collectors.joining(","));
@@ -133,7 +139,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
 
     @Override
     public void seedData() {
-        SupportSQLiteDatabase db = dbHelper.getReadableDatabase();
+        SupportSQLiteDatabase db = dbHelper.getWritableDatabase();
         long count = 0;
         try (Cursor cursor = db.query("SELECT COUNT(*) FROM " + DatabaseHelper.TABLE_EXERCISE)) {
             if (cursor.moveToFirst()) {
@@ -144,9 +150,17 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         if (count == 0) {
             Log.d(TAG, "Database empty. Seeding exercises from assets...");
             List<Exercise> defaultExercises = loadExercisesFromAssets();
-            for (Exercise ex : defaultExercises) {
-                insertExercise(ex);
+            
+            db.beginTransaction();
+            try {
+                for (Exercise ex : defaultExercises) {
+                    insertExerciseInternal(db, ex);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
+            Log.d(TAG, "Seeding complete. Inserted " + defaultExercises.size() + " exercises.");
         } else {
             Log.d(TAG, "Database already contains " + count + " exercises. Skipping seed.");
         }
@@ -175,44 +189,46 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         List<Exercise> list = new ArrayList<>();
         List<String[]> csvRows = CSVParser.parseAssetCSV(context, "exercises.csv");
 
+        // Cache all images by folder name once to avoid repeated AssetManager.list() calls
+        Map<String, List<String>> imageCache = new HashMap<>();
+        try {
+            String[] folders = context.getAssets().list("exercise");
+            if (folders != null) {
+                for (String folder : folders) {
+                    String path = "exercise/" + folder;
+                    String[] files = context.getAssets().list(path);
+                    if (files != null) {
+                        List<String> paths = new ArrayList<>();
+                        for (String f : files) {
+                            if (f.endsWith(".jpg") || f.endsWith(".png")) {
+                                paths.add(path + "/" + f);
+                            }
+                        }
+                        imageCache.put(folder, paths);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to scan asset folders", e);
+        }
+
         for (String[] tokens : csvRows) {
-            if (tokens.length >= 7) {
-                List<String> muscles = Arrays.asList(tokens[2].split("\\|"));
-                List<String> equipment = Arrays.asList(tokens[3].split("\\|"));
-
-
+            if (tokens.length >= 6) {
                 String imageFolder = tokens[1].toLowerCase().replaceAll("[^a-z0-9]+", "_");
                 if (imageFolder.endsWith("_")) {
                     imageFolder = imageFolder.substring(0, imageFolder.length() - 1);
                 }
 
-                List<String> imagePaths = new ArrayList<>();
-
-                try {
-                    String assetsPath = "exercise/" + imageFolder;
-                    String[] files = context.getAssets().list(assetsPath);
-                    if (files != null) {
-                        for (String file : files) {
-                            if (file.endsWith(".jpg") || file.endsWith(".png")) {
-                                imagePaths.add(assetsPath + "/" + file);
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "Could not list images for folder: " + imageFolder, e);
+                List<String> imagePaths = imageCache.get(imageFolder);
+                if (imagePaths == null || imagePaths.isEmpty()) {
+                    imagePaths = List.of("placeholder.png");
                 }
 
-                if (imagePaths.isEmpty()) {
-                    imagePaths.add("placeholder.png");
-                }
-
-                String instructions = tokens[4].replaceAll("^\"|\"$", "");
-
-                List<MuscleGroup> cleanMuscles = enumMapper.toMuscleEnums(muscles);
-                List<EquipmentType> cleanEquipment = enumMapper.toEquipmentEnums(equipment);
+                List<MuscleGroup> cleanMuscles = enumMapper.toMuscleEnums(Arrays.asList(tokens[2].split("\\|")));
+                List<EquipmentType> cleanEquipment = enumMapper.toEquipmentEnums(Arrays.asList(tokens[3].split("\\|")));
 
                 list.add(new Exercise(
-                        tokens[0], tokens[1], cleanMuscles, cleanEquipment, instructions,
+                        tokens[0], tokens[1], cleanMuscles, cleanEquipment, tokens[4],
                         Integer.parseInt(tokens[5]), imagePaths
                 ));
             }
