@@ -23,7 +23,7 @@ import java.util.List;
 
 // Fragment responsible for displaying the user's saved workouts,
 // handles fetching data from the business layer and updating the UI
-public class WorkoutsFragment extends Fragment {
+public class WorkoutsFragment extends Fragment implements WorkoutDetailFragment.WorkoutActionListener {
 
     private WorkoutUseCase workoutUseCase;
     private ExerciseUseCase exerciseUseCase;
@@ -66,7 +66,23 @@ public class WorkoutsFragment extends Fragment {
         refreshWorkoutList();
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        // Refresh the list whenever the fragment becomes visible again
+        if (!hidden && isResumed()) {
+            refreshWorkoutList();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshWorkoutList();
+    }
+
     private void refreshWorkoutList() {
+        if (workoutUseCase == null) return;
         List<Workout> workouts = workoutUseCase.getAllWorkouts();
 
         if (workouts == null || workouts.isEmpty()) {
@@ -77,8 +93,9 @@ public class WorkoutsFragment extends Fragment {
             emptyStateText.setVisibility(View.GONE);
             recyclerView.setAdapter(new WorkoutAdapter(buildWorkoutItems(workouts),
                 this::showWorkoutDetails, 
-                this::confirmDeleteWorkout,
-                this::startLiveWorkout));
+                null, // Disabled long-press to delete as requested
+                this::startLiveWorkout,
+                this::openWorkoutEditor));
         }
     }
 
@@ -94,33 +111,13 @@ public class WorkoutsFragment extends Fragment {
     }
 
     private void showWorkoutDetails(Workout workout) {
-        if (workout == null || getContext() == null) {
+        if (workout == null) {
             return;
         }
 
-        List<Exercise> exercises = workoutUseCase.getExercisesForWorkout(workout);
-        List<String> names = new ArrayList<>();
-        for (Exercise exercise : exercises) {
-            names.add(exercise.getName());
-        }
-        if (names.isEmpty()) {
-            names.add(getString(R.string.workout_detail_none));
-        }
-
-        int totalSeconds = workoutUseCase.getTotalDurationSeconds(workout);
-        String detailText = getString(
-                R.string.workout_detail_body_format,
-                workout.getName(),
-                workout.getSets(),
-                workout.getSteps().size(),
-                totalSeconds,
-                String.join(", ", names));
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.workout_detail_title)
-                .setMessage(detailText)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
+        WorkoutDetailFragment detailFragment = WorkoutDetailFragment.newInstance(workout.getId());
+        detailFragment.setDependencies(workoutUseCase, this);
+        detailFragment.show(getParentFragmentManager(), "workout_detail");
     }
 
     private void confirmDeleteWorkout(Workout workout) {
@@ -149,5 +146,26 @@ public class WorkoutsFragment extends Fragment {
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void openWorkoutEditor(Workout workout) {
+        WorkoutEditorFragment fragment = WorkoutEditorFragment.newInstance(workout.getId());
+        fragment.setDependencies(workoutUseCase, exerciseUseCase);
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onEditWorkout(Workout workout) {
+        openWorkoutEditor(workout);
+    }
+
+    @Override
+    public void onDeleteWorkout(Workout workout) {
+        workoutUseCase.deleteWorkout(workout.getId());
+        refreshWorkoutList();
     }
 }

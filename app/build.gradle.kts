@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.sqlite)
     implementation(libs.androidx.sqlite.framework)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.gridlayout)
     
     // Pure JVM Unit Testing
     testImplementation(libs.junit)

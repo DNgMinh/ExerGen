@@ -9,7 +9,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 public class DatabaseHelper extends SupportSQLiteOpenHelper.Callback {
 
     public static final String DEFAULT_DATABASE_NAME = "ExerGen.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public static final String TABLE_EXERCISE = "Exercise";
     public static final String TABLE_WORKOUT = "Workout";
@@ -55,7 +55,8 @@ public class DatabaseHelper extends SupportSQLiteOpenHelper.Callback {
                 "sets INTEGER, " +
                 "exercise_ids TEXT, " +
                 "work_seconds TEXT, " +
-                "rest_seconds TEXT)");
+                "rest_seconds TEXT, " +
+                "created_at_ms INTEGER NOT NULL DEFAULT 0)");
 
         db.execSQL("CREATE TABLE " + TABLE_SESSION_HISTORY + " (" +
                 "id TEXT PRIMARY KEY, " +
@@ -71,14 +72,16 @@ public class DatabaseHelper extends SupportSQLiteOpenHelper.Callback {
 
     @Override
     public void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION_HISTORY);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORKOUT);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISE);
-        onCreate(db);
+        if (oldVersion < 8) {
+            db.execSQL("ALTER TABLE " + TABLE_WORKOUT + " ADD COLUMN created_at_ms INTEGER NOT NULL DEFAULT 0");
+        }
     }
 
     @Override
     public void onDowngrade(@NonNull SupportSQLiteDatabase db, int oldVersion, int newVersion) {
-        onUpgrade(db, oldVersion, newVersion);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION_HISTORY);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORKOUT);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISE);
+        onCreate(db);
     }
 }

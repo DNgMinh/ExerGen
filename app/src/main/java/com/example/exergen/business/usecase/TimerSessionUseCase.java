@@ -4,22 +4,28 @@ import com.example.exergen.business.service.IntervalTimer;
 import com.example.exergen.business.service.TimerObserver;
 import com.example.exergen.business.service.TimerPhase;
 
+import java.util.List;
+
 public class TimerSessionUseCase {
     private IntervalTimer intervalTimer;
     private TimerSessionObserver observer;
 
-    public void initialize(int workSeconds, int restSeconds, int totalSets, TimerSessionObserver observer) {
+    public void initialize(List<Integer> workDurations, List<Integer> restDurations, int totalSets, TimerSessionObserver observer) {
         this.observer = observer;
         if (intervalTimer == null) {
-            intervalTimer = new IntervalTimer(workSeconds, restSeconds, totalSets, new ForwardingObserver());
+            intervalTimer = new IntervalTimer(workDurations, restDurations, totalSets, new ForwardingObserver());
+        }
+    }
+
+    public void startOrResume(List<Integer> workDurations, List<Integer> restDurations, int totalSets, TimerSessionObserver observer) {
+        initialize(workDurations, restDurations, totalSets, observer);
+        if (!intervalTimer.isRunning()) {
+            intervalTimer.start();
         }
     }
 
     public void startOrResume(int workSeconds, int restSeconds, int totalSets, TimerSessionObserver observer) {
-        initialize(workSeconds, restSeconds, totalSets, observer);
-        if (!intervalTimer.isRunning()) {
-            intervalTimer.start();
-        }
+        startOrResume(List.of(workSeconds), List.of(restSeconds), totalSets, observer);
     }
 
     public void pause() {
@@ -43,12 +49,22 @@ public class TimerSessionUseCase {
         return intervalTimer != null && intervalTimer.isRunning();
     }
 
+    public List<Integer> getWorkDurations() {
+        return intervalTimer != null ? intervalTimer.getWorkDurations() : null;
+    }
+
+    public List<Integer> getRestDurations() {
+        return intervalTimer != null ? intervalTimer.getRestDurations() : null;
+    }
+
     public int getWorkDurationSeconds() {
-        return intervalTimer != null ? intervalTimer.getWorkDurationSeconds() : 0;
+        List<Integer> durations = getWorkDurations();
+        return (durations != null && !durations.isEmpty()) ? durations.get(0) : 0;
     }
 
     public int getRestDurationSeconds() {
-        return intervalTimer != null ? intervalTimer.getRestDurationSeconds() : 0;
+        List<Integer> durations = getRestDurations();
+        return (durations != null && !durations.isEmpty()) ? durations.get(0) : 0;
     }
 
     public int getTotalSets() {
@@ -70,6 +86,26 @@ public class TimerSessionUseCase {
     }
 
     public void restoreState(
+            List<Integer> workDurations,
+            List<Integer> restDurations,
+            int totalSets,
+            int currentSet,
+            TimerMode mode,
+            int remainingSeconds,
+            boolean shouldBeRunning,
+            TimerSessionObserver observer) {
+        this.observer = observer;
+        intervalTimer = new IntervalTimer(workDurations, restDurations, totalSets, new ForwardingObserver());
+        intervalTimer.restoreState(
+                currentSet,
+                mode == TimerMode.REST ? TimerPhase.REST : TimerPhase.WORK,
+                remainingSeconds);
+        if (shouldBeRunning) {
+            intervalTimer.start();
+        }
+    }
+
+    public void restoreState(
             int workSeconds,
             int restSeconds,
             int totalSets,
@@ -78,15 +114,7 @@ public class TimerSessionUseCase {
             int remainingSeconds,
             boolean shouldBeRunning,
             TimerSessionObserver observer) {
-        this.observer = observer;
-        intervalTimer = new IntervalTimer(workSeconds, restSeconds, totalSets, new ForwardingObserver());
-        intervalTimer.restoreState(
-                currentSet,
-                mode == TimerMode.REST ? TimerPhase.REST : TimerPhase.WORK,
-                remainingSeconds);
-        if (shouldBeRunning) {
-            intervalTimer.start();
-        }
+        restoreState(List.of(workSeconds), List.of(restSeconds), totalSets, currentSet, mode, remainingSeconds, shouldBeRunning, observer);
     }
 
     private class ForwardingObserver implements TimerObserver {

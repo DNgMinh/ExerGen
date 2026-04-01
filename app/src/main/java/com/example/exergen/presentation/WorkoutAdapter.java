@@ -17,6 +17,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     private final OnWorkoutClickListener clickListener;
     private final OnWorkoutLongClickListener longClickListener;
     private final OnWorkoutPlayClickListener playClickListener;
+    private final OnWorkoutEditClickListener editClickListener;
 
     public interface OnWorkoutClickListener {
         void onWorkoutClick(com.example.exergen.model.Workout workout);
@@ -30,15 +31,21 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
         void onWorkoutPlayClick(com.example.exergen.model.Workout workout);
     }
 
+    public interface OnWorkoutEditClickListener {
+        void onWorkoutEditClick(com.example.exergen.model.Workout workout);
+    }
+
     // Initializes the adapter with a list of workouts
     public WorkoutAdapter(List<WorkoutListItem> workoutItems,
             OnWorkoutClickListener clickListener,
             OnWorkoutLongClickListener longClickListener,
-            OnWorkoutPlayClickListener playClickListener) {
+            OnWorkoutPlayClickListener playClickListener,
+            OnWorkoutEditClickListener editClickListener) {
         this.workoutItems = workoutItems;
         this.clickListener = clickListener;
         this.longClickListener = longClickListener;
         this.playClickListener = playClickListener;
+        this.editClickListener = editClickListener;
     }
 
     @NonNull
@@ -70,6 +77,11 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
                 playClickListener.onWorkoutPlayClick(item.getWorkout());
             }
         });
+        holder.btnEdit.setOnClickListener(v -> {
+            if (editClickListener != null) {
+                editClickListener.onWorkoutEditClick(item.getWorkout());
+            }
+        });
     }
 
     @Override
@@ -81,12 +93,14 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
         TextView name;
         TextView details;
         ImageButton btnPlay;
+        ImageButton btnEdit;
 
         public WorkoutViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.workout_name);
             details = itemView.findViewById(R.id.workout_details);
             btnPlay = itemView.findViewById(R.id.btn_play_workout);
+            btnEdit = itemView.findViewById(R.id.btn_edit_workout);
         }
     }
 }

@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.GridLayout;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,23 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class WorkoutBuilderFragment extends Fragment {
-    private static final String KEY_EXERCISE_COUNT = "builder_exercise_count";
-    private static final String KEY_MUSCLE_CHEST = "builder_muscle_chest";
-    private static final String KEY_MUSCLE_LEGS = "builder_muscle_legs";
-    private static final String KEY_MUSCLE_BACK = "builder_muscle_back";
-    private static final String KEY_MUSCLE_SHOULDERS = "builder_muscle_shoulders";
-    private static final String KEY_MUSCLE_BICEPS = "builder_muscle_biceps";
-    private static final String KEY_MUSCLE_TRICEPS = "builder_muscle_triceps";
-    private static final String KEY_EQUIP_BODYWEIGHT = "builder_equipment_bodyweight";
-    private static final String KEY_EQUIP_DUMBBELLS = "builder_equipment_dumbbells";
-    private static final String KEY_EQUIP_BARBELL = "builder_equipment_barbell";
-    private static final String KEY_EQUIP_EZ_CURL_BAR = "builder_equipment_ez_curl_bar";
-    private static final String KEY_EQUIP_MACHINE = "builder_equipment_machine";
-    private static final String KEY_EQUIP_CABLE = "builder_equipment_cable";
-    private static final String KEY_SUMMARY = "builder_summary";
-    private static final String KEY_PREVIEW = "builder_preview";
-    private static final String KEY_PREVIEW_MODE = "builder_preview_mode";
+public class WorkoutBuilderFragment extends Fragment implements WorkoutGeneratorResultFragment.ResultListener {
 
     private WorkoutBuilderUseCase workoutBuilderUseCase;
     private WorkoutUseCase workoutUseCase;
@@ -59,28 +43,39 @@ public class WorkoutBuilderFragment extends Fragment {
     private SessionHistoryUseCase sessionHistoryUseCase;
     private CaloriesEstimationUseCase caloriesEstimationUseCase;
     private IEnumMapper enumMapper;
-    private Workout lastGeneratedWorkout;
 
+    private RadioGroup rgBuildMode;
+    private View containerModeCount;
+    private View containerModeTime;
     private EditText etExerciseCount;
+    private EditText etTargetTime;
+    
+    private Button btnIntensityToggle;
+    private View containerIntensityDropdown;
+    private RadioGroup rgIntensity;
+    private View containerCustomIntervals;
+    private EditText etCustomWork;
+    private EditText etCustomRest;
+
+    private Button btnMuscleToggle;
+    private View containerMuscleDropdown;
     private CheckBox cbMuscleChest;
     private CheckBox cbMuscleLegs;
     private CheckBox cbMuscleBack;
     private CheckBox cbMuscleShoulders;
     private CheckBox cbMuscleBiceps;
     private CheckBox cbMuscleTriceps;
+
+    private Button btnEquipmentToggle;
+    private View containerEquipmentDropdown;
     private CheckBox cbEquipmentBodyweight;
     private CheckBox cbEquipmentDumbbells;
     private CheckBox cbEquipmentBarbell;
     private CheckBox cbEquipmentEzCurlBar;
     private CheckBox cbEquipmentMachine;
     private CheckBox cbEquipmentCable;
-    private TextView tvBuilderSummary;
-    private TextView tvBuilderPreview;
+
     private Button btnGenerateWorkout;
-    private LinearLayout previewActionContainer;
-    private Button btnStartWorkout;
-    private Button btnRegenerateWorkout;
-    private Button btnEditConstraints;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,12 +104,6 @@ public class WorkoutBuilderFragment extends Fragment {
         this.enumMapper = enumMapper;
     }
 
-    public void setDependenciesForTesting(WorkoutBuilderUseCase workoutBuilderUseCase,
-            WorkoutUseCase workoutUseCase,
-            IEnumMapper enumMapper) {
-        setDependencies(workoutBuilderUseCase, workoutUseCase, null, null, null, enumMapper);
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -126,184 +115,161 @@ public class WorkoutBuilderFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (workoutBuilderUseCase == null || workoutUseCase == null) {
-            throw new IllegalStateException("WorkoutBuilderFragment dependencies not provided");
-        }
         bindViews(view);
-        restoreState(savedInstanceState);
-
-        btnGenerateWorkout.setOnClickListener(v -> generateAndPreviewWorkout());
-        btnRegenerateWorkout.setOnClickListener(v -> generateAndPreviewWorkout());
-        btnEditConstraints.setOnClickListener(v -> setPreviewMode(false));
-        btnStartWorkout.setOnClickListener(v -> openLiveWorkout());
+        setupListeners();
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(KEY_EXERCISE_COUNT, etExerciseCount.getText().toString());
-        outState.putBoolean(KEY_MUSCLE_CHEST, cbMuscleChest.isChecked());
-        outState.putBoolean(KEY_MUSCLE_LEGS, cbMuscleLegs.isChecked());
-        outState.putBoolean(KEY_MUSCLE_BACK, cbMuscleBack.isChecked());
-        outState.putBoolean(KEY_MUSCLE_SHOULDERS, cbMuscleShoulders.isChecked());
-        outState.putBoolean(KEY_MUSCLE_BICEPS, cbMuscleBiceps.isChecked());
-        outState.putBoolean(KEY_MUSCLE_TRICEPS, cbMuscleTriceps.isChecked());
-        outState.putBoolean(KEY_EQUIP_BODYWEIGHT, cbEquipmentBodyweight.isChecked());
-        outState.putBoolean(KEY_EQUIP_DUMBBELLS, cbEquipmentDumbbells.isChecked());
-        outState.putBoolean(KEY_EQUIP_BARBELL, cbEquipmentBarbell.isChecked());
-        outState.putBoolean(KEY_EQUIP_EZ_CURL_BAR, cbEquipmentEzCurlBar.isChecked());
-        outState.putBoolean(KEY_EQUIP_MACHINE, cbEquipmentMachine.isChecked());
-        outState.putBoolean(KEY_EQUIP_CABLE, cbEquipmentCable.isChecked());
-        outState.putString(KEY_SUMMARY, tvBuilderSummary.getText().toString());
-        outState.putString(KEY_PREVIEW, tvBuilderPreview.getText().toString());
-        outState.putBoolean(KEY_PREVIEW_MODE, previewActionContainer.getVisibility() == View.VISIBLE);
+    private void setupListeners() {
+        rgBuildMode.setOnCheckedChangeListener((group, checkedId) -> {
+            boolean isTimeMode = checkedId == R.id.rb_mode_time;
+            containerModeCount.setVisibility(isTimeMode ? View.GONE : View.VISIBLE);
+            containerModeTime.setVisibility(isTimeMode ? View.VISIBLE : View.GONE);
+        });
+
+        btnIntensityToggle.setOnClickListener(v -> toggleVisibility(containerIntensityDropdown, btnIntensityToggle, "Intensity & Intervals"));
+        btnMuscleToggle.setOnClickListener(v -> toggleVisibility(containerMuscleDropdown, btnMuscleToggle, "Muscle Groups"));
+        btnEquipmentToggle.setOnClickListener(v -> toggleVisibility(containerEquipmentDropdown, btnEquipmentToggle, "Equipment"));
+
+        rgIntensity.setOnCheckedChangeListener((group, checkedId) -> {
+            containerCustomIntervals.setVisibility(checkedId == R.id.rb_intensity_custom ? View.VISIBLE : View.GONE);
+        });
+
+        btnGenerateWorkout.setOnClickListener(v -> generateWorkout());
+    }
+
+    private void toggleVisibility(View container, Button toggleButton, String label) {
+        if (container.getVisibility() == View.VISIBLE) {
+            container.setVisibility(View.GONE);
+            toggleButton.setText("▼ " + label);
+        } else {
+            container.setVisibility(View.VISIBLE);
+            toggleButton.setText("▲ " + label);
+        }
     }
 
     private void bindViews(View view) {
+        rgBuildMode = view.findViewById(R.id.rg_build_mode);
+        containerModeCount = view.findViewById(R.id.container_mode_count);
+        containerModeTime = view.findViewById(R.id.container_mode_time);
         etExerciseCount = view.findViewById(R.id.et_exercise_count);
+        etTargetTime = view.findViewById(R.id.et_target_time);
+        
+        btnIntensityToggle = view.findViewById(R.id.btn_intensity_toggle);
+        containerIntensityDropdown = view.findViewById(R.id.container_intensity_dropdown);
+        rgIntensity = view.findViewById(R.id.rg_intensity);
+        containerCustomIntervals = view.findViewById(R.id.container_custom_intervals);
+        etCustomWork = view.findViewById(R.id.et_custom_work);
+        etCustomRest = view.findViewById(R.id.et_custom_rest);
+
+        btnMuscleToggle = view.findViewById(R.id.btn_muscle_toggle);
+        containerMuscleDropdown = view.findViewById(R.id.container_muscle_dropdown);
         cbMuscleChest = view.findViewById(R.id.cb_muscle_chest);
         cbMuscleLegs = view.findViewById(R.id.cb_muscle_legs);
         cbMuscleBack = view.findViewById(R.id.cb_muscle_back);
         cbMuscleShoulders = view.findViewById(R.id.cb_muscle_shoulders);
         cbMuscleBiceps = view.findViewById(R.id.cb_muscle_biceps);
         cbMuscleTriceps = view.findViewById(R.id.cb_muscle_triceps);
+
+        btnEquipmentToggle = view.findViewById(R.id.btn_equipment_toggle);
+        containerEquipmentDropdown = view.findViewById(R.id.container_equipment_dropdown);
         cbEquipmentBodyweight = view.findViewById(R.id.cb_equipment_bodyweight);
         cbEquipmentDumbbells = view.findViewById(R.id.cb_equipment_dumbbells);
         cbEquipmentBarbell = view.findViewById(R.id.cb_equipment_barbell);
         cbEquipmentEzCurlBar = view.findViewById(R.id.cb_equipment_ez_curl_bar);
         cbEquipmentMachine = view.findViewById(R.id.cb_equipment_machine);
         cbEquipmentCable = view.findViewById(R.id.cb_equipment_cable);
-        tvBuilderSummary = view.findViewById(R.id.tv_builder_summary);
-        tvBuilderPreview = view.findViewById(R.id.tv_builder_preview);
+
         btnGenerateWorkout = view.findViewById(R.id.btn_generate_workout);
-        previewActionContainer = view.findViewById(R.id.preview_action_container);
-        btnStartWorkout = view.findViewById(R.id.btn_start_workout);
-        btnRegenerateWorkout = view.findViewById(R.id.btn_regenerate_workout);
-        btnEditConstraints = view.findViewById(R.id.btn_edit_constraints);
     }
 
-    private void restoreState(@Nullable Bundle state) {
-        if (state == null) {
-            return;
-        }
-        etExerciseCount.setText(state.getString(KEY_EXERCISE_COUNT, ""));
-        cbMuscleChest.setChecked(state.getBoolean(KEY_MUSCLE_CHEST, false));
-        cbMuscleLegs.setChecked(state.getBoolean(KEY_MUSCLE_LEGS, false));
-        cbMuscleBack.setChecked(state.getBoolean(KEY_MUSCLE_BACK, false));
-        cbMuscleShoulders.setChecked(state.getBoolean(KEY_MUSCLE_SHOULDERS, false));
-        cbMuscleBiceps.setChecked(state.getBoolean(KEY_MUSCLE_BICEPS, false));
-        cbMuscleTriceps.setChecked(state.getBoolean(KEY_MUSCLE_TRICEPS, false));
-        cbEquipmentBodyweight.setChecked(state.getBoolean(KEY_EQUIP_BODYWEIGHT, false));
-        cbEquipmentDumbbells.setChecked(state.getBoolean(KEY_EQUIP_DUMBBELLS, false));
-        cbEquipmentBarbell.setChecked(state.getBoolean(KEY_EQUIP_BARBELL, false));
-        cbEquipmentEzCurlBar.setChecked(state.getBoolean(KEY_EQUIP_EZ_CURL_BAR, false));
-        cbEquipmentMachine.setChecked(state.getBoolean(KEY_EQUIP_MACHINE, false));
-        cbEquipmentCable.setChecked(state.getBoolean(KEY_EQUIP_CABLE, false));
-        tvBuilderSummary.setText(state.getString(KEY_SUMMARY, ""));
-        tvBuilderPreview.setText(state.getString(KEY_PREVIEW, ""));
-        setPreviewMode(state.getBoolean(KEY_PREVIEW_MODE, false));
-    }
-
-    private void generateAndPreviewWorkout() {
-        String exerciseCountText = etExerciseCount.getText().toString().trim();
-        if (TextUtils.isEmpty(exerciseCountText)) {
-            showToast(getString(R.string.workout_builder_error_exercise_count_required));
-            return;
-        }
-
-        int exerciseCount;
-        try {
-            exerciseCount = Integer.parseInt(exerciseCountText);
-        } catch (NumberFormatException ex) {
-            showToast(getString(R.string.workout_builder_error_exercise_count_invalid));
-            return;
-        }
-
+    private void generateWorkout() {
         List<String> targetMuscles = getSelectedMuscles();
         if (targetMuscles.isEmpty()) {
             showToast(getString(R.string.workout_builder_error_muscle_required));
             return;
         }
-
         List<String> selectedEquipment = getSelectedEquipment();
-        
-        WorkoutGenerationConstraints constraints = new WorkoutGenerationConstraints(enumMapper, selectedEquipment, targetMuscles,
-                exerciseCount);
 
-        String summaryText = getString(
-                R.string.workout_builder_summary_format,
-                exerciseCount,
-                targetMuscles.stream().collect(Collectors.joining(", ")),
-                selectedEquipment.isEmpty()
-                        ? getString(R.string.workout_builder_equipment_any)
-                        : selectedEquipment.stream().collect(Collectors.joining(", ")));
+        int workSecs, restSecs;
+        int intensityId = rgIntensity.getCheckedRadioButtonId();
+        if (intensityId == R.id.rb_intensity_low) {
+            workSecs = 30; restSecs = 30;
+        } else if (intensityId == R.id.rb_intensity_hiit) {
+            workSecs = 20; restSecs = 10;
+        } else if (intensityId == R.id.rb_intensity_custom) {
+            String workText = etCustomWork.getText().toString().trim();
+            String restText = etCustomRest.getText().toString().trim();
+            if (TextUtils.isEmpty(workText) || TextUtils.isEmpty(restText)) {
+                showToast("Please enter custom intervals.");
+                return;
+            }
+            workSecs = Integer.parseInt(workText);
+            restSecs = Integer.parseInt(restText);
+        } else {
+            workSecs = 45; restSecs = 15;
+        }
+
+        WorkoutGenerationConstraints constraints;
+        if (rgBuildMode.getCheckedRadioButtonId() == R.id.rb_mode_time) {
+            String timeText = etTargetTime.getText().toString().trim();
+            if (TextUtils.isEmpty(timeText)) {
+                showToast(getString(R.string.workout_builder_error_time_required));
+                return;
+            }
+            int totalMinutes = Integer.parseInt(timeText);
+            constraints = WorkoutGenerationConstraints.createTimeBased(enumMapper, selectedEquipment, targetMuscles,
+                    totalMinutes * 60, workSecs, restSecs);
+        } else {
+            String countText = etExerciseCount.getText().toString().trim();
+            if (TextUtils.isEmpty(countText)) {
+                showToast(getString(R.string.workout_builder_error_exercise_count_required));
+                return;
+            }
+            int exerciseCount = Integer.parseInt(countText);
+            constraints = WorkoutGenerationConstraints.createCountBased(enumMapper, selectedEquipment, targetMuscles, exerciseCount, workSecs, restSecs);
+        }
 
         try {
-            Workout generatedWorkout = workoutBuilderUseCase.generateWorkout(constraints);
-            lastGeneratedWorkout = generatedWorkout;
-            tvBuilderSummary.setText(summaryText);
-            tvBuilderPreview.setText(buildPreviewText(generatedWorkout));
-            setPreviewMode(true);
-        } catch (IllegalArgumentException ex) {
-            lastGeneratedWorkout = null;
-            tvBuilderPreview.setText("");
-            setPreviewMode(false);
+            Workout workout = workoutBuilderUseCase.generateWorkout(constraints);
+            String summary = buildSummaryText(constraints);
+            String preview = buildPreviewText(workout);
+            
+            WorkoutGeneratorResultFragment resultFragment = WorkoutGeneratorResultFragment.newInstance(workout, summary, preview);
+            resultFragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase, this);
+            resultFragment.show(getParentFragmentManager(), "generator_result");
+        } catch (Exception ex) {
             showToast(ex.getMessage());
         }
     }
 
-    private void setPreviewMode(boolean enabled) {
-        previewActionContainer.setVisibility(enabled ? View.VISIBLE : View.GONE);
-        btnGenerateWorkout.setVisibility(enabled ? View.GONE : View.VISIBLE);
-        setInputsEnabled(!enabled);
-    }
+    private String buildSummaryText(WorkoutGenerationConstraints constraints) {
+        String muscles = constraints.getTargetMuscleGroups().stream()
+                .map(MuscleGroup::getLabel).collect(Collectors.joining(", "));
+        String equipment = constraints.getSelectedEquipment().isEmpty()
+                ? getString(R.string.workout_builder_equipment_any)
+                : constraints.getSelectedEquipment().stream()
+                .map(EquipmentType::getLabel).collect(Collectors.joining(", "));
 
-    private void setInputsEnabled(boolean enabled) {
-        etExerciseCount.setEnabled(enabled);
-        cbMuscleChest.setEnabled(enabled);
-        cbMuscleLegs.setEnabled(enabled);
-        cbMuscleBack.setEnabled(enabled);
-        cbMuscleShoulders.setEnabled(enabled);
-        cbMuscleBiceps.setEnabled(enabled);
-        cbMuscleTriceps.setEnabled(enabled);
-        cbEquipmentBodyweight.setEnabled(enabled);
-        cbEquipmentDumbbells.setEnabled(enabled);
-        cbEquipmentBarbell.setEnabled(enabled);
-        cbEquipmentEzCurlBar.setEnabled(enabled);
-        cbEquipmentMachine.setEnabled(enabled);
-        cbEquipmentCable.setEnabled(enabled);
-    }
-
-    private void openLiveWorkout() {
-        if (lastGeneratedWorkout == null) {
-            showToast(getString(R.string.workout_builder_error_generate_first));
-            return;
+        if (constraints.isTimeBased()) {
+            return String.format("Time: %d min | Intensity: %ds/%ds\nMuscles: %s\nEquipment: %s",
+                    constraints.getTargetDurationSeconds() / 60,
+                    constraints.getWorkSeconds(),
+                    constraints.getRestSeconds(),
+                    muscles, equipment);
+        } else {
+            return String.format("Exercises: %d | Intensity: %ds/%ds\nMuscles: %s\nEquipment: %s",
+                    constraints.getTargetExerciseCount(),
+                    constraints.getWorkSeconds(),
+                    constraints.getRestSeconds(),
+                    muscles, equipment);
         }
-        workoutUseCase.saveWorkout(lastGeneratedWorkout);
-        showToast(getString(R.string.workout_builder_saved_message));
-
-        getParentFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, createLiveWorkoutFragment(lastGeneratedWorkout.getId()))
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private LiveWorkoutFragment createLiveWorkoutFragment(String workoutId) {
-        LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workoutId);
-        fragment.setDependencies(
-                workoutUseCase,
-                exerciseUseCase,
-                sessionHistoryUseCase,
-                caloriesEstimationUseCase);
-        return fragment;
     }
 
     private String buildPreviewText(Workout workout) {
         StringBuilder preview = new StringBuilder();
-        preview.append(getString(R.string.workout_builder_preview_header)).append('\n');
-        preview.append(getString(R.string.workout_builder_preview_count_format, workout.getSteps().size()));
-        preview.append('\n');
+        preview.append(getString(R.string.workout_builder_preview_header)).append("\n");
+        preview.append(String.format("Structure: %d Rounds of %d Exercises", 
+                workout.getSets(), workout.getSteps().size())).append("\n\n");
 
         List<Exercise> exercises = workoutUseCase.getExercisesForWorkout(workout);
         List<WorkoutStep> steps = workout.getSteps();
@@ -318,54 +284,62 @@ public class WorkoutBuilderFragment extends Fragment {
                     .append("s work / ")
                     .append(step.getRestSeconds())
                     .append("s rest)")
-                    .append('\n');
+                    .append("\n");
         }
         return preview.toString().trim();
     }
 
+    @Override
+    public void onRegenerate() {
+        generateWorkout();
+    }
+
+    @Override
+    public void onManualEdit(Workout workout) {
+        WorkoutEditorFragment fragment = WorkoutEditorFragment.newInstance(workout.getId());
+        fragment.setDependencies(workoutUseCase, exerciseUseCase);
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onStartNow(Workout workout) {
+        LiveWorkoutFragment fragment = LiveWorkoutFragment.newInstance(workout.getId());
+        fragment.setDependencies(workoutUseCase, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onAdjustSettings() {
+        // Just dismisses the dialog, user is already on the builder screen
+    }
+
     private List<String> getSelectedMuscles() {
         List<String> muscles = new ArrayList<>();
-        if (cbMuscleChest.isChecked()) {
-            muscles.add(MuscleGroup.CHEST.getLabel());
-        }
-        if (cbMuscleLegs.isChecked()) {
-            muscles.add(MuscleGroup.LEGS.getLabel());
-        }
-        if (cbMuscleBack.isChecked()) {
-            muscles.add(MuscleGroup.BACK.getLabel());
-        }
-        if (cbMuscleShoulders.isChecked()) {
-            muscles.add(MuscleGroup.SHOULDERS.getLabel());
-        }
-        if (cbMuscleBiceps.isChecked()) {
-            muscles.add(MuscleGroup.BICEPS.getLabel());
-        }
-        if (cbMuscleTriceps.isChecked()) {
-            muscles.add(MuscleGroup.TRICEPS.getLabel());
-        }
+        if (cbMuscleChest.isChecked()) muscles.add(MuscleGroup.CHEST.getLabel());
+        if (cbMuscleLegs.isChecked()) muscles.add(MuscleGroup.LEGS.getLabel());
+        if (cbMuscleBack.isChecked()) muscles.add(MuscleGroup.BACK.getLabel());
+        if (cbMuscleShoulders.isChecked()) muscles.add(MuscleGroup.SHOULDERS.getLabel());
+        if (cbMuscleBiceps.isChecked()) muscles.add(MuscleGroup.BICEPS.getLabel());
+        if (cbMuscleTriceps.isChecked()) muscles.add(MuscleGroup.TRICEPS.getLabel());
         return muscles;
     }
 
     private List<String> getSelectedEquipment() {
         List<String> equipment = new ArrayList<>();
-        if (cbEquipmentBodyweight.isChecked()) {
-            equipment.add(EquipmentType.BODYWEIGHT.getLabel());
-        }
-        if (cbEquipmentDumbbells.isChecked()) {
-            equipment.add(EquipmentType.DUMBBELLS.getLabel());
-        }
-        if (cbEquipmentBarbell.isChecked()) {
-            equipment.add(EquipmentType.BARBELL.getLabel());
-        }
-        if (cbEquipmentEzCurlBar.isChecked()) {
-            equipment.add(EquipmentType.EZ_CURL_BAR.getLabel());
-        }
-        if (cbEquipmentMachine.isChecked()) {
-            equipment.add(EquipmentType.MACHINE.getLabel());
-        }
-        if (cbEquipmentCable.isChecked()) {
-            equipment.add(EquipmentType.CABLE.getLabel());
-        }
+        if (cbEquipmentBodyweight.isChecked()) equipment.add(EquipmentType.BODYWEIGHT.getLabel());
+        if (cbEquipmentDumbbells.isChecked()) equipment.add(EquipmentType.DUMBBELLS.getLabel());
+        if (cbEquipmentBarbell.isChecked()) equipment.add(EquipmentType.BARBELL.getLabel());
+        if (cbEquipmentEzCurlBar.isChecked()) equipment.add(EquipmentType.EZ_CURL_BAR.getLabel());
+        if (cbEquipmentMachine.isChecked()) equipment.add(EquipmentType.MACHINE.getLabel());
+        if (cbEquipmentCable.isChecked()) equipment.add(EquipmentType.CABLE.getLabel());
         return equipment;
     }
 

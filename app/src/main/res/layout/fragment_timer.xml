@@ -23,7 +23,7 @@
         android:id="@+id/tv_phase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/timer_ready"
+        android:text=""
         android:textSize="24sp"
         app:layout_constraintTop_toBottomOf="@id/tv_timer"
         app:layout_constraintStart_toStartOf="parent"
