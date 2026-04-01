@@ -28,6 +28,11 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         this.clickListener = clickListener;
     }
 
+    public void setItems(List<ExerciseListItem> items) {
+        this.exerciseItems = items;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

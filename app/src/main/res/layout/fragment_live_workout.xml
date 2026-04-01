@@ -22,102 +22,47 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAppearance="?attr/textAppearanceHeadline6"
-        app:layout_constraintBottom_toBottomOf="@id/btn_exit_workout"
-        app:layout_constraintEnd_toStartOf="@id/btn_exit_workout"
+        android:paddingHorizontal="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btn_exit_workout" />
+
+    <TextView
+        android:id="@+id/tv_round_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceSubtitle1"
+        android:textStyle="bold"
+        android:textColor="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_workout_name" />
 
     <TextView
         android:id="@+id/tv_live_timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/timer_default"
         android:textSize="64sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_exit_workout" />
+        app:layout_constraintTop_toBottomOf="@id/tv_round_indicator" />
 
     <TextView
         android:id="@+id/tv_live_phase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/timer_ready"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:textStyle="bold"
+        android:textAllCaps="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_live_timer" />
-
-    <!-- Setup Mode Pickers -->
-    <LinearLayout
-        android:id="@+id/setup_picker_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/live_btn_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_live_phase">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/timer_label_work"
-                android:textStyle="bold" />
-
-            <NumberPicker
-                android:id="@+id/np_live_work"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/timer_label_rest"
-                android:textStyle="bold" />
-
-            <NumberPicker
-                android:id="@+id/np_live_rest"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/timer_label_sets"
-                android:textStyle="bold" />
-
-            <NumberPicker
-                android:id="@+id/np_live_sets"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp" />
-        </LinearLayout>
-    </LinearLayout>
 
     <!-- Active Mode Exercise UI -->
     <androidx.constraintlayout.widget.ConstraintLayout

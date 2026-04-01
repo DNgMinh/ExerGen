@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,10 +20,7 @@ import com.example.exergen.business.usecase.ExerciseUseCase;
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.business.usecase.TimerMode;
 import com.example.exergen.business.usecase.WorkoutUseCase;
-import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
-
-import java.util.List;
 
 public class LiveWorkoutFragment extends Fragment {
     private static final String ARG_WORKOUT_ID = "workout_id";
@@ -41,13 +36,11 @@ public class LiveWorkoutFragment extends Fragment {
     private SoundFeedbackHelper soundFeedbackHelper;
     private ExerciseAnimationManager animationManager;
 
-    private TextView tvTimer, tvPhase, tvWorkoutName, tvCurrentExercise, tvNextExercise;
+    private TextView tvTimer, tvPhase, tvWorkoutName, tvCurrentExercise, tvNextExercise, tvRoundIndicator;
     private ImageView ivAnimation;
     private Button btnStart, btnPause, btnCancel;
     private ImageButton btnExit;
-    private LinearLayout setupContainer;
     private View activeContainer;
-    private NumberPicker npWork, npRest, npSets;
 
     public static LiveWorkoutFragment newInstance(String workoutId) {
         LiveWorkoutFragment fragment = new LiveWorkoutFragment();
@@ -95,12 +88,21 @@ public class LiveWorkoutFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initializeViews(view);
-        setupPickers();
         setupButtons();
         setupObservers();
 
         if (workout != null) {
             tvWorkoutName.setText(workout.getName());
+            if (viewModel.getUiState().getValue() != null && viewModel.getUiState().getValue().isSetupVisible()) {
+                viewModel.init(workout, 
+                        workout.getWorkSeconds().get(0), 
+                        workout.getRestSeconds().get(0), 
+                        workout.getSets(), 
+                        exerciseUseCase, 
+                        sessionHistoryUseCase, 
+                        caloriesEstimationUseCase);
+            }
+            updateRoundIndicator();
         }
         setBottomNavVisibility(View.GONE);
     }
@@ -109,6 +111,7 @@ public class LiveWorkoutFragment extends Fragment {
         tvTimer = view.findViewById(R.id.tv_live_timer);
         tvPhase = view.findViewById(R.id.tv_live_phase);
         tvWorkoutName = view.findViewById(R.id.tv_workout_name);
+        tvRoundIndicator = view.findViewById(R.id.tv_round_indicator);
         tvCurrentExercise = view.findViewById(R.id.tv_current_exercise);
         tvNextExercise = view.findViewById(R.id.tv_next_exercise);
         ivAnimation = view.findViewById(R.id.iv_exercise_animation);
@@ -116,39 +119,12 @@ public class LiveWorkoutFragment extends Fragment {
         btnPause = view.findViewById(R.id.btn_live_pause);
         btnCancel = view.findViewById(R.id.btn_live_cancel);
         btnExit = view.findViewById(R.id.btn_exit_workout);
-        setupContainer = view.findViewById(R.id.setup_picker_container);
         activeContainer = view.findViewById(R.id.active_exercise_container);
-        npWork = view.findViewById(R.id.np_live_work);
-        npRest = view.findViewById(R.id.np_live_rest);
-        npSets = view.findViewById(R.id.np_live_sets);
         animationManager = new ExerciseAnimationManager(ivAnimation, TAG);
     }
 
-    private void setupPickers() {
-        npWork.setMinValue(5);
-        npWork.setMaxValue(300);
-        npWork.setValue(30);
-        npRest.setMinValue(0);
-        npRest.setMaxValue(300);
-        npRest.setValue(10);
-        npSets.setMinValue(1);
-        npSets.setMaxValue(20);
-        npSets.setValue(workout != null ? workout.getSets() : 1);
-    }
-
     private void setupButtons() {
-        btnStart.setOnClickListener(v -> {
-            if (workout != null) {
-                viewModel.startWorkout(
-                        workout,
-                        npWork.getValue(),
-                        npRest.getValue(),
-                        npSets.getValue(),
-                        exerciseUseCase,
-                        sessionHistoryUseCase,
-                        caloriesEstimationUseCase);
-            }
-        });
+        btnStart.setOnClickListener(v -> viewModel.start());
         btnPause.setOnClickListener(v -> viewModel.pause());
         btnCancel.setOnClickListener(v -> exitWorkout());
         btnExit.setOnClickListener(v -> confirmExit());
@@ -165,24 +141,37 @@ public class LiveWorkoutFragment extends Fragment {
         });
 
         viewModel.getPhase().observe(getViewLifecycleOwner(), phase -> {
+            boolean isRunning = Boolean.TRUE.equals(viewModel.getIsRunning().getValue());
             if (phase == TimerMode.WORK) {
-                tvPhase.setText(getString(R.string.timer_work));
-                tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                if (isRunning) {
+                    tvPhase.setText(getString(R.string.timer_work));
+                    tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                    soundFeedbackHelper.playTransitionBeep();
+                } else {
+                    tvPhase.setText(getString(R.string.timer_ready));
+                    tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_blue_dark));
+                }
             }
             else {
                 tvPhase.setText(getString(R.string.timer_rest));
                 tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
-                tvCurrentExercise.setText(getString(R.string.timer_rest).toUpperCase());
-                animationManager.stop();
+                tvCurrentExercise.setText("");
+                animationManager.pause();
                 ivAnimation.setImageDrawable(null);
+                soundFeedbackHelper.playTransitionBeep();
             }
-            soundFeedbackHelper.playTransitionBeep();
+            updateRoundIndicator();
         });
 
         viewModel.getCurrentExercise().observe(getViewLifecycleOwner(), exercise -> {
-            if (exercise != null && viewModel.getPhase().getValue() == TimerMode.WORK) {
-                tvCurrentExercise.setText(exercise.getName());
-                animationManager.loadAndStart(requireContext(), exercise.getImagePaths());
+            if (exercise != null) {
+                if (viewModel.getPhase().getValue() == TimerMode.WORK) {
+                    tvCurrentExercise.setText(exercise.getName());
+                    animationManager.load(requireContext(), exercise.getImagePaths());
+                    if (Boolean.TRUE.equals(viewModel.getIsRunning().getValue())) {
+                        animationManager.resume();
+                    }
+                }
             }
         });
 
@@ -198,7 +187,6 @@ public class LiveWorkoutFragment extends Fragment {
 
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
             if (state == null) return;
-            setupContainer.setVisibility(state.isSetupVisible() ? View.VISIBLE : View.GONE);
             activeContainer.setVisibility(state.isActiveVisible() ? View.VISIBLE : View.GONE);
             btnStart.setVisibility(state.isStartVisible() ? View.VISIBLE : View.GONE);
             btnPause.setVisibility(state.isPauseVisible() ? View.VISIBLE : View.GONE);
@@ -211,10 +199,15 @@ public class LiveWorkoutFragment extends Fragment {
             if (state.isRunning()) {
                 if (viewModel.getPhase().getValue() == TimerMode.WORK) {
                     animationManager.resume();
+                    if (getString(R.string.timer_ready).equals(tvPhase.getText().toString())) {
+                        tvPhase.setText(getString(R.string.timer_work));
+                        tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                        soundFeedbackHelper.playTransitionBeep();
+                    }
                 }
             } else {
                 animationManager.pause();
-                if (!state.isFinished() && !state.isSetupVisible()) {
+                if (!state.isFinished() && state.isActiveVisible() && !state.isSetupVisible()) {
                     tvPhase.setText(getString(R.string.timer_paused));
                 }
             }
@@ -224,11 +217,20 @@ public class LiveWorkoutFragment extends Fragment {
                 tvPhase.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                 tvCurrentExercise.setText("");
                 tvNextExercise.setText("");
+                tvRoundIndicator.setText("");
                 animationManager.stop();
                 ivAnimation.setImageResource(R.drawable.ic_check_circle);
             }
             setBottomNavVisibility(state.isShowBottomNav() ? View.VISIBLE : View.GONE);
         });
+    }
+
+    private void updateRoundIndicator() {
+        if (workout != null && viewModel != null) {
+            int currentRound = viewModel.getCurrentRound();
+            int totalRounds = workout.getSets();
+            tvRoundIndicator.setText(String.format("Round %d / %d", currentRound, totalRounds));
+        }
     }
 
     private void confirmExit() {
@@ -244,7 +246,10 @@ public class LiveWorkoutFragment extends Fragment {
     }
 
     private void exitWorkout() {
-        viewModel.stop();
+        // Only call stop if it's not finished, to avoid resetting UI state and causing a flash
+        if (!Boolean.TRUE.equals(viewModel.getIsFinished().getValue())) {
+            viewModel.stop();
+        }
         setBottomNavVisibility(View.VISIBLE);
         getParentFragmentManager().popBackStack();
     }

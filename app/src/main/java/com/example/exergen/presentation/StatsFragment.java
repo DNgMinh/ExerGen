@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,21 +37,12 @@ public class StatsFragment extends Fragment {
     private TextView totalDurationValue;
     private TextView averageDurationValue;
     private TextView totalCaloriesValue;
-    private TextView averageCaloriesValue;
     private TextView trendValue;
     private Spinner timeRangeSpinner;
     private StatisticsTimeRange selectedTimeRange = StatisticsTimeRange.ALL_TIME;
 
     public void setDependencies(SessionHistoryUseCase sessionHistoryUseCase, StatisticsUseCase statisticsUseCase) {
         this.sessionHistoryUseCase = sessionHistoryUseCase;
-        this.statisticsUseCase = statisticsUseCase;
-    }
-
-    public void setSessionHistoryUseCaseForTesting(SessionHistoryUseCase sessionHistoryUseCase) {
-        this.sessionHistoryUseCase = sessionHistoryUseCase;
-    }
-
-    public void setStatisticsUseCaseForTesting(StatisticsUseCase statisticsUseCase) {
         this.statisticsUseCase = statisticsUseCase;
     }
 
@@ -74,10 +64,11 @@ public class StatsFragment extends Fragment {
         totalDurationValue = view.findViewById(R.id.stats_total_duration_value);
         averageDurationValue = view.findViewById(R.id.stats_average_duration_value);
         totalCaloriesValue = view.findViewById(R.id.stats_total_calories_value);
-        averageCaloriesValue = view.findViewById(R.id.stats_average_calories_value);
         trendValue = view.findViewById(R.id.stats_trend_value);
         timeRangeSpinner = view.findViewById(R.id.stats_time_range_spinner);
+        
         sessionHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        sessionHistoryRecyclerView.setNestedScrollingEnabled(false);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(),
@@ -115,26 +106,18 @@ public class StatsFragment extends Fragment {
 
     private void refreshOverallSummary() {
         StatisticsSummary summary = statisticsUseCase.getSummaryForTimeRange(selectedTimeRange);
-        totalSessionsValue.setText(getString(R.string.stats_total_sessions_value_format, summary.getTotalSessions()));
+        
+        totalSessionsValue.setText(getString(R.string.stats_value_sessions_format, summary.getTotalSessions()));
+        
         int totalMinutes = summary.getCumulativeDurationSeconds() / 60;
         int totalSeconds = summary.getCumulativeDurationSeconds() % 60;
+        totalDurationValue.setText(getString(R.string.stats_value_duration_format, totalMinutes, totalSeconds));
+        
         int averageMinutes = summary.getAverageSessionLengthSeconds() / 60;
         int averageSeconds = summary.getAverageSessionLengthSeconds() % 60;
-
-        totalDurationValue.setText(getString(
-                R.string.stats_total_duration_value_format,
-                totalMinutes,
-                totalSeconds));
-        averageDurationValue.setText(getString(
-                R.string.stats_average_duration_value_format,
-                averageMinutes,
-                averageSeconds));
-        totalCaloriesValue.setText(getString(
-                R.string.stats_total_calories_value_format,
-                summary.getTotalEstimatedCalories()));
-        averageCaloriesValue.setText(getString(
-                R.string.stats_average_calories_value_format,
-                summary.getAverageEstimatedCalories()));
+        averageDurationValue.setText(getString(R.string.stats_value_duration_format, averageMinutes, averageSeconds));
+        
+        totalCaloriesValue.setText(getString(R.string.stats_value_calories_format, summary.getTotalEstimatedCalories()));
     }
 
     private void refreshTrendSection() {
@@ -208,45 +191,12 @@ public class StatsFragment extends Fragment {
     }
 
     private void showSessionDetails(String sessionId) {
-        if (sessionId == null || getContext() == null) {
+        if (sessionId == null) {
             return;
         }
 
-        SessionRecord record = sessionHistoryUseCase.getSessionById(sessionId);
-        if (record == null) {
-            return;
-        }
-
-        String completedAtText = DateFormat.getDateTimeInstance().format(new Date(record.getCompletedAtEpochMs()));
-        String message;
-        if (record.hasEstimatedCalories()) {
-            message = getString(
-                    R.string.session_history_detail_with_calories_format,
-                    record.getWorkoutName(),
-                    completedAtText,
-                    record.getTotalDurationSeconds(),
-                    record.getExerciseCount(),
-                    record.getSetsCompleted(),
-                    record.getSetsPlanned(),
-                    record.getEstimatedCalories(),
-                    getString(R.string.session_history_calories_explanation));
-        } else {
-            message = getString(
-                    R.string.session_history_detail_without_calories_format,
-                    record.getWorkoutName(),
-                    completedAtText,
-                    record.getTotalDurationSeconds(),
-                    record.getExerciseCount(),
-                    record.getSetsCompleted(),
-                    record.getSetsPlanned(),
-                    getString(R.string.session_history_calories_unavailable));
-        }
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.session_history_detail_title)
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
+        SessionDetailFragment detailFragment = SessionDetailFragment.newInstance(sessionId);
+        detailFragment.setDependencies(sessionHistoryUseCase);
+        detailFragment.show(getParentFragmentManager(), "session_detail");
     }
-
 }

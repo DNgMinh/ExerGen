@@ -29,10 +29,13 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
     @Override
     public void saveWorkout(Workout workout) {
         SupportSQLiteDatabase db = dbHelper.getWritableDatabase();
+        saveWorkoutInternal(db, workout);
+    }
+
+    private void saveWorkoutInternal(SupportSQLiteDatabase db, Workout workout) {
         ContentValues values = new ContentValues();
 
         StringBuilder exerciseIdsStr = new StringBuilder();
-
         StringBuilder workSecStr = new StringBuilder();
         StringBuilder restSecStr = new StringBuilder();
         for (int i = 0; i < workout.getSteps().size(); i++) {
@@ -53,6 +56,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
         values.put("exercise_ids", exerciseIdsStr.toString());
         values.put("work_seconds", workSecStr.toString());
         values.put("rest_seconds", restSecStr.toString());
+        values.put("created_at_ms", workout.getCreatedAtMs());
 
         db.insert(DatabaseHelper.TABLE_WORKOUT, android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE, values);
     }
@@ -77,7 +81,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
     public List<Workout> getAllWorkouts() {
         List<Workout> workouts = new ArrayList<>();
         SupportSQLiteDatabase db = dbHelper.getReadableDatabase();
-        try (Cursor cursor = db.query("SELECT * FROM " + DatabaseHelper.TABLE_WORKOUT)) {
+        try (Cursor cursor = db.query("SELECT * FROM " + DatabaseHelper.TABLE_WORKOUT + " ORDER BY created_at_ms ASC")) {
             if (cursor.moveToFirst()) {
                 do {
                     workouts.add(parseCursorToWorkout(cursor));
@@ -103,6 +107,7 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
         String exIdsStr = cursor.getString(cursor.getColumnIndexOrThrow("exercise_ids"));
         String workSecStr = cursor.getString(cursor.getColumnIndexOrThrow("work_seconds"));
         String restSecStr = cursor.getString(cursor.getColumnIndexOrThrow("rest_seconds"));
+        long createdAtMs = cursor.getLong(cursor.getColumnIndexOrThrow("created_at_ms"));
 
         List<String> exerciseIds = Arrays.asList(exIdsStr.split(","));
 
@@ -123,15 +128,29 @@ public class WorkoutRepositorySQLite implements IWorkoutRepository {
             steps.add(new WorkoutStep(exerciseIds.get(i), workSeconds.get(i), restSeconds.get(i)));
         }
 
-        return new Workout(id, name, sets, steps);
+        return new Workout(id, name, sets, steps, createdAtMs);
     }
 
     @Override
     public void seedData() {
-        if (getAllWorkouts().isEmpty()) {
+        SupportSQLiteDatabase db = dbHelper.getWritableDatabase();
+        long count = 0;
+        try (Cursor cursor = db.query("SELECT COUNT(*) FROM " + DatabaseHelper.TABLE_WORKOUT)) {
+            if (cursor.moveToFirst()) {
+                count = cursor.getLong(0);
+            }
+        }
+
+        if (count == 0) {
             List<Workout> defaultWorkouts = DefaultWorkoutSeedData.createDefaultWorkouts();
-            for (Workout w : defaultWorkouts) {
-                saveWorkout(w);
+            db.beginTransaction();
+            try {
+                for (Workout w : defaultWorkouts) {
+                    saveWorkoutInternal(db, w);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
         }
     }

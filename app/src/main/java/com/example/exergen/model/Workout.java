@@ -8,10 +8,15 @@ public class Workout {
     private final String id;
     private final String name;
     private final int sets;
+    private final long createdAtMs;
 
     private final List<WorkoutStep> steps;
 
     public Workout(String id, String name, int sets, List<WorkoutStep> steps) {
+        this(id, name, sets, steps, System.currentTimeMillis());
+    }
+
+    public Workout(String id, String name, int sets, List<WorkoutStep> steps, long createdAtMs) {
         this.id = ModelValidation.requireNonBlank(id, "ID required");
         this.name = ModelValidation.requireNonBlank(name, "Workout name required");
         if (sets <= 0)
@@ -19,6 +24,7 @@ public class Workout {
         ModelValidation.requireNonEmptyList(steps, "steps required");
         this.sets = sets;
         this.steps = List.copyOf(steps);
+        this.createdAtMs = createdAtMs;
     }
 
     public Workout(String id,
@@ -27,7 +33,7 @@ public class Workout {
             List<String> exerciseIds,
             List<Integer> workSeconds,
             List<Integer> restSeconds) {
-        this(id, name, sets, buildSteps(exerciseIds, workSeconds, restSeconds));
+        this(id, name, sets, buildSteps(exerciseIds, workSeconds, restSeconds), System.currentTimeMillis());
     }
 
     public String getId() {
@@ -40,6 +46,10 @@ public class Workout {
 
     public int getSets() {
         return sets;
+    }
+
+    public long getCreatedAtMs() {
+        return createdAtMs;
     }
 
     public List<WorkoutStep> getSteps() {

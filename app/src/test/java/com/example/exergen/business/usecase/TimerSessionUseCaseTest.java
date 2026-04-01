@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,14 +26,14 @@ public class TimerSessionUseCaseTest {
         assertEquals(TimerMode.WORK, useCase.getCurrentMode());
         assertEquals(0, useCase.getRemainingSeconds());
 
-        useCase.initialize(30, 10, 3, null);
+        useCase.initialize(List.of(30), List.of(10), 3, null);
         assertTrue(useCase.hasActiveSession());
         assertEquals(30, useCase.getWorkDurationSeconds());
         assertEquals(10, useCase.getRestDurationSeconds());
         assertEquals(3, useCase.getTotalSets());
 
         // Second initialize should not replace active timer.
-        useCase.initialize(99, 99, 99, null);
+        useCase.initialize(List.of(99), List.of(99), 99, null);
         assertEquals(30, useCase.getWorkDurationSeconds());
         assertEquals(10, useCase.getRestDurationSeconds());
         assertEquals(3, useCase.getTotalSets());
@@ -45,12 +46,12 @@ public class TimerSessionUseCaseTest {
     public void startPauseAndStop_TransitionsSafely() {
         TimerSessionUseCase useCase = new TimerSessionUseCase();
 
-        useCase.startOrResume(30, 10, 2, null);
+        useCase.startOrResume(List.of(30), List.of(10), 2, null);
         assertTrue(useCase.hasActiveSession());
         assertTrue(useCase.isRunning());
 
         // Repeated startOrResume while running should be a no-op.
-        useCase.startOrResume(30, 10, 2, null);
+        useCase.startOrResume(List.of(30), List.of(10), 2, null);
         assertTrue(useCase.isRunning());
 
         useCase.pause();
@@ -67,7 +68,7 @@ public class TimerSessionUseCaseTest {
     @Test
     public void restoreState_AppliesRestModeAndOptionalRunning() {
         TimerSessionUseCase useCase = new TimerSessionUseCase();
-        useCase.restoreState(25, 5, 4, 2, TimerMode.REST, 4, false, null);
+        useCase.restoreState(List.of(25), List.of(5), 4, 2, TimerMode.REST, 4, false, null);
 
         assertTrue(useCase.hasActiveSession());
         assertFalse(useCase.isRunning());
@@ -75,7 +76,7 @@ public class TimerSessionUseCaseTest {
         assertEquals(TimerMode.REST, useCase.getCurrentMode());
         assertEquals(4, useCase.getRemainingSeconds());
 
-        useCase.restoreState(25, 5, 4, 2, TimerMode.WORK, 6, true, null);
+        useCase.restoreState(List.of(25), List.of(5), 4, 2, TimerMode.WORK, 6, true, null);
         assertTrue(useCase.isRunning());
         useCase.stop();
     }
@@ -104,7 +105,7 @@ public class TimerSessionUseCaseTest {
             }
         };
 
-        useCase.startOrResume(1, 0, 1, observer);
+        useCase.startOrResume(List.of(1), List.of(0), 1, observer);
 
         assertTrue("Expected timer to finish", finishedLatch.await(3, TimeUnit.SECONDS));
         assertTrue(tickCount.get() > 0);

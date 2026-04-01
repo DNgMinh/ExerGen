@@ -15,6 +15,7 @@ import com.example.exergen.model.SessionRecord;
 import com.example.exergen.model.Workout;
 import com.example.exergen.model.WorkoutStep;
 
+import java.util.List;
 import java.util.UUID;
 
 public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObserver {
@@ -29,8 +30,6 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
 
     private final TimerSessionUseCase timerSessionUseCase = new TimerSessionUseCase();
     private Workout workout;
-    private int workDuration;
-    private int restDuration;
     private int configuredSets;
     
     private ExerciseUseCase exerciseUseCase;
@@ -59,17 +58,16 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
         if (this.workout != null) return; // Already initialized
 
         this.workout = workout;
-        this.workDuration = workSeconds;
-        this.restDuration = restSeconds;
         this.configuredSets = selectedSets;
         this.exerciseUseCase = exerciseUseCase;
         this.sessionHistoryUseCase = sessionHistoryUseCase;
         this.caloriesEstimationUseCase = caloriesEstimationUseCase;
 
         int totalSets = selectedSets * workout.getSteps().size();
-        timerSessionUseCase.initialize(workSeconds, restSeconds, totalSets, this);
+        timerSessionUseCase.initialize(workout.getWorkSeconds(), workout.getRestSeconds(), totalSets, this);
         
-        timeLeft.setValue(workSeconds);
+        // Show initial state immediately
+        timeLeft.setValue(workout.getWorkSeconds().get(0));
         phase.setValue(TimerMode.WORK);
         updateExercises();
     }
@@ -81,6 +79,13 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
     public LiveData<Boolean> getIsRunning() { return isRunning; }
     public LiveData<Boolean> getIsFinished() { return isFinished; }
     public LiveData<LiveWorkoutUiState> getUiState() { return uiState; }
+
+    public int getCurrentRound() {
+        if (workout == null || !timerSessionUseCase.hasActiveSession()) return 1;
+        int currentSetIndex = timerSessionUseCase.getCurrentSet() - 1;
+        int exerciseCount = workout.getSteps().size();
+        return (currentSetIndex / exerciseCount) + 1;
+    }
 
     public void startWorkout(
             Workout workout,
@@ -104,8 +109,8 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
     public void start() {
         if (timerSessionUseCase.hasActiveSession() && !timerSessionUseCase.isRunning()) {
             timerSessionUseCase.startOrResume(
-                    timerSessionUseCase.getWorkDurationSeconds(),
-                    timerSessionUseCase.getRestDurationSeconds(),
+                    timerSessionUseCase.getWorkDurations(),
+                    timerSessionUseCase.getRestDurations(),
                     timerSessionUseCase.getTotalSets(),
                     this);
             isRunning.setValue(true);
@@ -175,7 +180,11 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
     private void saveSession() {
         if (workout == null || sessionHistoryUseCase == null || !timerSessionUseCase.hasActiveSession()) return;
 
-        int totalDuration = timerSessionUseCase.getTotalSets() * (workDuration + restDuration);
+        int totalDuration = 0;
+        for (WorkoutStep step : workout.getSteps()) {
+            totalDuration += configuredSets * (step.getWorkSeconds() + step.getRestSeconds());
+        }
+
         int estimatedCalories = SessionRecord.UNKNOWN_ESTIMATED_CALORIES;
         if (caloriesEstimationUseCase != null) {
             estimatedCalories = calculateWorkoutCaloriesByExerciseStep();
@@ -197,8 +206,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
 
     private int calculateWorkoutCaloriesByExerciseStep() {
         if (workout == null || workout.getSteps() == null || workout.getSteps().isEmpty() || exerciseUseCase == null) {
-            return caloriesEstimationUseCase.estimateCaloriesWithDefaultIntensity(
-                    timerSessionUseCase.getTotalSets() * (workDuration + restDuration));
+            return caloriesEstimationUseCase != null ? caloriesEstimationUseCase.estimateCaloriesWithDefaultIntensity(0) : 0;
         }
 
         int totalEstimatedCalories = 0;

@@ -176,7 +176,7 @@ public class TimerFragment extends Fragment {
 
     private void resetToDefaultState() {
         tvTimer.setText(getString(R.string.timer_default));
-        tvPhase.setText(getString(R.string.timer_ready));
+        tvPhase.setText("");
         btnStart.setText(getString(R.string.btn_start));
         setSetupModeVisible(true);
         updateButtonStates();

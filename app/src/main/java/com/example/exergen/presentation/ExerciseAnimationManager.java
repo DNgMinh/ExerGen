@@ -19,18 +19,7 @@ public class ExerciseAnimationManager {
     private final String logTag;
     private int currentFrame = 0;
     private boolean isAnimating = false;
-
-    private final Runnable animationRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (frames.isEmpty() || !isAnimating) {
-                return;
-            }
-            currentFrame = (currentFrame + 1) % frames.size();
-            imageView.setImageDrawable(frames.get(currentFrame));
-            animationHandler.postDelayed(this, 1000);
-        }
-    };
+    private List<String> currentPaths;
 
     public ExerciseAnimationManager(ImageView imageView, String logTag) {
         if (imageView == null) {
@@ -40,12 +29,26 @@ public class ExerciseAnimationManager {
         this.logTag = logTag == null ? "ExerciseAnimationManager" : logTag;
     }
 
-    public void loadAndStart(Context context, List<String> paths) {
-        stop();
-        frames.clear();
-        if (context == null || paths == null) {
+    private final Runnable animationRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (frames.size() <= 1 || !isAnimating) {
+                return;
+            }
+            currentFrame = (currentFrame + 1) % frames.size();
+            imageView.setImageDrawable(frames.get(currentFrame));
+            animationHandler.postDelayed(this, 1000);
+        }
+    };
+
+    public void load(Context context, List<String> paths) {
+        if (paths == null || (currentPaths != null && currentPaths.equals(paths))) {
             return;
         }
+        
+        stop();
+        frames.clear();
+        currentPaths = new ArrayList<>(paths);
 
         for (String path : paths) {
             try (InputStream is = context.getAssets().open(path)) {
@@ -59,11 +62,14 @@ public class ExerciseAnimationManager {
         }
 
         if (!frames.isEmpty()) {
-            isAnimating = true;
             currentFrame = 0;
             imageView.setImageDrawable(frames.get(0));
-            animationHandler.post(animationRunnable);
         }
+    }
+
+    public void loadAndStart(Context context, List<String> paths) {
+        load(context, paths);
+        resume();
     }
 
     public void pause() {
@@ -72,15 +78,15 @@ public class ExerciseAnimationManager {
     }
 
     public void resume() {
-        if (!isAnimating && !frames.isEmpty()) {
+        if (!isAnimating && frames.size() > 1) {
             isAnimating = true;
             animationHandler.post(animationRunnable);
         }
     }
 
     public void stop() {
-        isAnimating = false;
-        animationHandler.removeCallbacks(animationRunnable);
+        pause();
         frames.clear();
+        currentPaths = null;
     }
 }

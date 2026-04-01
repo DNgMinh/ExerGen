@@ -45,7 +45,7 @@ public class LiveWorkoutUiState {
 
     public static LiveWorkoutUiState setup() {
         return new LiveWorkoutUiState(
-                true, false, true, false, true, true,
+                true, true, true, false, true, true,
                 false, false, false, false,
                 R.string.btn_start, android.R.string.cancel);
     }

@@ -11,6 +11,7 @@ import com.example.exergen.business.usecase.TimerSessionObserver;
 import com.example.exergen.business.usecase.TimerSessionUseCase;
 import com.example.exergen.model.SessionRecord;
 
+import java.util.List;
 import java.util.UUID;
 
 public class TimerViewModel extends ViewModel implements TimerSessionObserver {
@@ -53,10 +54,10 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
     public void startOrResume(int workSeconds, int restSeconds, int totalSets) {
         if (!timerSessionUseCase.hasActiveSession()) {
             hasTimer.setValue(true);
-            phase.setValue(timerSessionUseCase.getCurrentMode());
-            secondsRemaining.setValue(timerSessionUseCase.getRemainingSeconds());
+            phase.setValue(TimerMode.WORK); // Initial state
+            secondsRemaining.setValue(workSeconds);
         }
-        timerSessionUseCase.startOrResume(workSeconds, restSeconds, totalSets, this);
+        timerSessionUseCase.startOrResume(List.of(workSeconds), List.of(restSeconds), totalSets, this);
         isRunning.setValue(true);
     }
 
@@ -82,11 +83,13 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
     }
 
     public int getWorkDurationSeconds() {
-        return timerSessionUseCase.getWorkDurationSeconds();
+        List<Integer> durs = timerSessionUseCase.getWorkDurations();
+        return (durs != null && !durs.isEmpty()) ? durs.get(0) : 0;
     }
 
     public int getRestDurationSeconds() {
-        return timerSessionUseCase.getRestDurationSeconds();
+        List<Integer> durs = timerSessionUseCase.getRestDurations();
+        return (durs != null && !durs.isEmpty()) ? durs.get(0) : 0;
     }
 
     public int getTotalSets() {
@@ -114,8 +117,8 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
             int remainingSeconds,
             boolean shouldBeRunning) {
         timerSessionUseCase.restoreState(
-                workSeconds,
-                restSeconds,
+                List.of(workSeconds),
+                List.of(restSeconds),
                 totalSets,
                 currentSet,
                 phase,
@@ -150,9 +153,13 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
         if (sessionHistoryUseCase == null || !timerSessionUseCase.hasActiveSession()) {
             return;
         }
+        
+        int work = getWorkDurationSeconds();
+        int rest = getRestDurationSeconds();
+        
         SessionRecord sessionRecord = buildSessionRecordForCompletedTimer(
-                timerSessionUseCase.getWorkDurationSeconds(),
-                timerSessionUseCase.getRestDurationSeconds(),
+                work,
+                rest,
                 timerSessionUseCase.getTotalSets(),
                 caloriesEstimationUseCase,
                 System.currentTimeMillis(),
