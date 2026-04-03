@@ -18,9 +18,13 @@ public final class StatisticsAggregationService {
         int totalEstimatedCalories = 0;
 
         for (SessionRecord session : sessions) {
-            int durationSeconds = session.getTotalDurationSeconds();
-            cumulativeDurationSeconds += durationSeconds;
-            totalEstimatedCalories += estimateCalories(durationSeconds);
+            cumulativeDurationSeconds += session.getTotalDurationSeconds();
+            
+            // Fix: Use the already calculated calories from the session record
+            // instead of re-estimating with a generic constant.
+            if (session.hasEstimatedCalories()) {
+                totalEstimatedCalories += session.getEstimatedCalories();
+            }
         }
 
         int averageSessionLengthSeconds = cumulativeDurationSeconds / totalSessions;
@@ -61,10 +65,5 @@ public final class StatisticsAggregationService {
             points.add(new WeeklyTrendPoint(weekOffset, count, averageDurationSeconds));
         }
         return points;
-    }
-
-    private int estimateCalories(int durationSeconds) {
-        double durationMinutes = (double) durationSeconds / StatisticsConstants.SECONDS_PER_MINUTE;
-        return (int) Math.round(durationMinutes * StatisticsConstants.ESTIMATED_CALORIES_PER_MINUTE);
     }
 }
