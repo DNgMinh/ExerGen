@@ -16,7 +16,7 @@ import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
-import com.example.exergen.application.helper.ExerciseRepositorySQLite;
+import com.example.exergen.persistence.ExerciseRepositorySQLite;
 
 import org.junit.After;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package com.example.exergen.application.helper;
+package com.example.exergen.persistence.helper;
 
 import android.content.Context;
 import android.util.Log;

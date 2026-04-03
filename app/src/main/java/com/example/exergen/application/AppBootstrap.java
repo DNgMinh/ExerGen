@@ -15,11 +15,11 @@ import com.example.exergen.business.usecase.WorkoutUseCase;
 import com.example.exergen.persistence.repository.IExerciseRepository;
 import com.example.exergen.persistence.repository.ISessionHistoryRepository;
 import com.example.exergen.persistence.repository.IWorkoutRepository;
-import com.example.exergen.application.helper.ExerciseRepositorySQLite;
+import com.example.exergen.persistence.ExerciseRepositorySQLite;
 import com.example.exergen.persistence.ExerciseRepositoryStub;
-import com.example.exergen.application.helper.SessionHistoryRepositorySQLite;
+import com.example.exergen.persistence.SessionHistoryRepositorySQLite;
 import com.example.exergen.persistence.SessionHistoryRepositoryStub;
-import com.example.exergen.application.helper.WorkoutRepositorySQLite;
+import com.example.exergen.persistence.WorkoutRepositorySQLite;
 import com.example.exergen.persistence.WorkoutRepositoryStub;
 
 public final class AppBootstrap {
