@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
@@ -86,16 +87,56 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/iv_exercise_animation"
+        <!-- Animation/Success View -->
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginVertical="8dp"
-            android:scaleType="fitCenter"
             app:layout_constraintBottom_toTopOf="@id/tv_next_exercise"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_current_exercise" />
+            app:layout_constraintTop_toBottomOf="@id/tv_current_exercise">
+
+            <ImageView
+                android:id="@+id/iv_exercise_animation"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter" />
+
+            <!-- Detailed Finish Stats -->
+            <LinearLayout
+                android:id="@+id/finish_stats_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/ic_check_circle"
+                    android:layout_marginBottom="24dp"
+                    app:tint="@android:color/holo_green_dark" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Estimated Burn"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textAllCaps="true" />
+
+                <TextView
+                    android:id="@+id/tv_finish_calories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 kcal"
+                    android:textSize="48sp"
+                    android:textStyle="bold"
+                    android:textColor="#E91E63" />
+            </LinearLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tv_next_exercise"

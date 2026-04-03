@@ -35,7 +35,7 @@ public class TimerFragment extends Fragment {
     private static final String KEY_TIMER_PHASE = "key_timer_phase";
     private static final String KEY_TIMER_REMAINING = "key_timer_remaining";
 
-    private TextView tvTimer, tvPhase;
+    private TextView tvTimer, tvPhase, tvSetIndicator;
     private Button btnStart, btnPause, btnStop;
     private LinearLayout pickerContainer;
     private NumberPicker npWork, npRest, npSets;
@@ -79,6 +79,7 @@ public class TimerFragment extends Fragment {
     private void initializeViews(View view) {
         tvTimer = view.findViewById(R.id.tv_timer);
         tvPhase = view.findViewById(R.id.tv_phase);
+        tvSetIndicator = view.findViewById(R.id.tv_set_indicator);
         btnStart = view.findViewById(R.id.btn_start);
         btnPause = view.findViewById(R.id.btn_pause);
         btnStop = view.findViewById(R.id.btn_stop);
@@ -116,6 +117,7 @@ public class TimerFragment extends Fragment {
             if (viewModel.isTimerRunning() && seconds > 0 && seconds <= 3) {
                 soundFeedbackHelper.playCountdownBeep();
             }
+            updateSetIndicator();
         });
 
         viewModel.getPhase().observe(getViewLifecycleOwner(), phase -> {
@@ -123,6 +125,7 @@ public class TimerFragment extends Fragment {
             if (viewModel.isTimerRunning()) {
                 soundFeedbackHelper.playTransitionBeep();
             }
+            updateSetIndicator();
         });
 
         viewModel.getHasTimer().observe(getViewLifecycleOwner(), hasTimer -> {
@@ -144,6 +147,7 @@ public class TimerFragment extends Fragment {
 
     private void setSetupModeVisible(boolean isVisible) {
         pickerContainer.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+        tvSetIndicator.setVisibility(isVisible ? View.GONE : View.VISIBLE);
         btnStop.setVisibility(isVisible ? View.GONE : View.VISIBLE);
         if (isVisible) {
             btnStart.setText(getString(R.string.btn_start));
@@ -174,9 +178,19 @@ public class TimerFragment extends Fragment {
         }
     }
 
+    private void updateSetIndicator() {
+        if (viewModel != null && viewModel.hasActiveTimer()) {
+            int current = viewModel.getCurrentSet();
+            int total = viewModel.getTotalSets();
+            tvSetIndicator.setText(String.format(java.util.Locale.getDefault(), "Set %d / %d", current, total));
+        }
+    }
+
     private void resetToDefaultState() {
         tvTimer.setText(getString(R.string.timer_default));
         tvPhase.setText("");
+        tvSetIndicator.setText("");
+        tvSetIndicator.setVisibility(View.GONE);
         btnStart.setText(getString(R.string.btn_start));
         setSetupModeVisible(true);
         updateButtonStates();
@@ -257,6 +271,7 @@ public class TimerFragment extends Fragment {
         setSetupModeVisible(false);
         updateTimerText(viewModel.getRemainingSeconds());
         updatePhaseText(phase);
+        updateSetIndicator();
         btnStart.setText(getString(R.string.btn_resume));
         updateButtonStates();
     }
