@@ -36,13 +36,14 @@ public class WorkoutBuilderUiTest {
         
         // Select muscle groups
         onView(withId(R.id.btn_muscle_toggle)).perform(click());
-        onView(withId(R.id.cb_muscle_chest)).perform(click());
+        onView(withText("Chest")).perform(click());
 
         // Generate
         onView(withId(R.id.btn_generate_workout)).perform(click());
 
-        // Verify results dialog appeared with the correct title and content
+        // Verify results dialog appeared with the correct title
         onView(withText("Your Generated Routine")).check(matches(isDisplayed()));
         onView(withText(containsString("Chest"))).check(matches(isDisplayed()));
     }
+
 }
