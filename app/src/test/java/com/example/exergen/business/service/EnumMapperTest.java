@@ -45,9 +45,11 @@ public class EnumMapperTest {
         assertEquals(EquipmentType.BARBELL, result.get(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void toEquipmentEnums_InvalidInput_BubblesUpException() {
-        enumMapper.toEquipmentEnums(Arrays.asList("Dumbbells", "Magic Wand"));
+    @Test
+    public void toEquipmentEnums_InvalidInput_SkipsInvalidAndContinues() {
+        List<EquipmentType> result = enumMapper.toEquipmentEnums(Arrays.asList("Dumbbells", "Magic Wand"));
+        assertEquals(1, result.size());
+        assertEquals(EquipmentType.DUMBBELLS, result.get(0));
     }
 
     @Test
@@ -80,9 +82,11 @@ public class EnumMapperTest {
         assertEquals(MuscleGroup.BACK, result.get(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void toMuscleEnums_InvalidInput_BubblesUpException() {
-        enumMapper.toMuscleEnums(Arrays.asList("Chest", "Brain"));
+    @Test
+    public void toMuscleEnums_InvalidInput_SkipsInvalidAndContinues() {
+        List<MuscleGroup> result = enumMapper.toMuscleEnums(Arrays.asList("Chest", "Brain"));
+        assertEquals(1, result.size());
+        assertEquals(MuscleGroup.CHEST, result.get(0));
     }
 
     @Test

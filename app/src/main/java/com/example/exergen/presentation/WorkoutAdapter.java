@@ -65,6 +65,8 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
                 clickListener.onWorkoutClick(item.getWorkout());
             }
         });
+        
+        // Use longClickListener if provided (currently null in fragment to disable direct delete)
         holder.itemView.setOnLongClickListener(v -> {
             if (longClickListener != null) {
                 longClickListener.onWorkoutLongClick(item.getWorkout());
@@ -72,16 +74,22 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
             }
             return false;
         });
-        holder.btnPlay.setOnClickListener(v -> {
-            if (playClickListener != null) {
-                playClickListener.onWorkoutPlayClick(item.getWorkout());
-            }
-        });
-        holder.btnEdit.setOnClickListener(v -> {
-            if (editClickListener != null) {
-                editClickListener.onWorkoutEditClick(item.getWorkout());
-            }
-        });
+
+        if (holder.btnPlay != null) {
+            holder.btnPlay.setOnClickListener(v -> {
+                if (playClickListener != null) {
+                    playClickListener.onWorkoutPlayClick(item.getWorkout());
+                }
+            });
+        }
+
+        if (holder.btnEdit != null) {
+            holder.btnEdit.setOnClickListener(v -> {
+                if (editClickListener != null) {
+                    editClickListener.onWorkoutEditClick(item.getWorkout());
+                }
+            });
+        }
     }
 
     @Override
