@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,13 +15,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/workout_builder_mode_label"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
 
         <RadioGroup
             android:id="@+id/rg_build_mode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
 
             <RadioButton
                 android:id="@+id/rb_mode_count"
@@ -84,7 +87,7 @@
         <!-- 3. Global Intensity Settings -->
         <Button
             android:id="@+id/btn_intensity_toggle"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -155,120 +158,46 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 4. Muscle Groups -->
+        <!-- 4. Muscle Groups (DYNAMICALY FILLED) -->
         <Button
             android:id="@+id/btn_muscle_toggle"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="▼ Muscle Groups"
             android:textStyle="bold" />
 
-        <GridLayout
+        <androidx.gridlayout.widget.GridLayout
             android:id="@+id/container_muscle_dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:visibility="gone">
+            app:columnCount="3"
+            android:visibility="gone" />
 
-            <CheckBox
-                android:id="@+id/cb_muscle_chest"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/muscle_chest" />
-
-            <CheckBox
-                android:id="@+id/cb_muscle_legs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/muscle_legs" />
-
-            <CheckBox
-                android:id="@+id/cb_muscle_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/muscle_back" />
-
-            <CheckBox
-                android:id="@+id/cb_muscle_shoulders"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/muscle_shoulders" />
-
-            <CheckBox
-                android:id="@+id/cb_muscle_biceps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/muscle_biceps" />
-
-            <CheckBox
-                android:id="@+id/cb_muscle_triceps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/muscle_triceps" />
-        </GridLayout>
-
-        <!-- 5. Equipment -->
+        <!-- 5. Equipment (DYNAMICALY FILLED) -->
         <Button
             android:id="@+id/btn_equipment_toggle"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="▼ Equipment"
             android:textStyle="bold" />
 
-        <GridLayout
+        <androidx.gridlayout.widget.GridLayout
             android:id="@+id/container_equipment_dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="3"
-            android:visibility="gone">
+            app:columnCount="3"
+            android:visibility="gone" />
 
-            <CheckBox
-                android:id="@+id/cb_equipment_bodyweight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/equipment_bodyweight" />
-
-            <CheckBox
-                android:id="@+id/cb_equipment_dumbbells"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/equipment_dumbbells" />
-
-            <CheckBox
-                android:id="@+id/cb_equipment_barbell"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/equipment_barbell" />
-
-            <CheckBox
-                android:id="@+id/cb_equipment_ez_curl_bar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/equipment_ez_curl_bar" />
-
-            <CheckBox
-                android:id="@+id/cb_equipment_machine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/equipment_machine" />
-
-            <CheckBox
-                android:id="@+id/cb_equipment_cable"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/equipment_cable" />
-        </GridLayout>
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_generate_workout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="32dp"
             android:text="@string/workout_builder_generate_button" />
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

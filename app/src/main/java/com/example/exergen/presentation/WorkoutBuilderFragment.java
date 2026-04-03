@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.GridLayout;
+import androidx.gridlayout.widget.GridLayout;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -32,7 +32,9 @@ import com.example.exergen.model.Workout;
 import com.example.exergen.model.WorkoutStep;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class WorkoutBuilderFragment extends Fragment implements WorkoutGeneratorResultFragment.ResultListener {
@@ -58,22 +60,12 @@ public class WorkoutBuilderFragment extends Fragment implements WorkoutGenerator
     private EditText etCustomRest;
 
     private Button btnMuscleToggle;
-    private View containerMuscleDropdown;
-    private CheckBox cbMuscleChest;
-    private CheckBox cbMuscleLegs;
-    private CheckBox cbMuscleBack;
-    private CheckBox cbMuscleShoulders;
-    private CheckBox cbMuscleBiceps;
-    private CheckBox cbMuscleTriceps;
+    private GridLayout containerMuscleDropdown;
+    private Map<MuscleGroup, CheckBox> muscleCheckBoxes = new HashMap<>();
 
     private Button btnEquipmentToggle;
-    private View containerEquipmentDropdown;
-    private CheckBox cbEquipmentBodyweight;
-    private CheckBox cbEquipmentDumbbells;
-    private CheckBox cbEquipmentBarbell;
-    private CheckBox cbEquipmentEzCurlBar;
-    private CheckBox cbEquipmentMachine;
-    private CheckBox cbEquipmentCable;
+    private GridLayout containerEquipmentDropdown;
+    private Map<EquipmentType, CheckBox> equipmentCheckBoxes = new HashMap<>();
 
     private Button btnGenerateWorkout;
 
@@ -116,7 +108,28 @@ public class WorkoutBuilderFragment extends Fragment implements WorkoutGenerator
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bindViews(view);
+        setupDynamicOptions();
         setupListeners();
+    }
+
+    private void setupDynamicOptions() {
+        containerMuscleDropdown.removeAllViews();
+        muscleCheckBoxes.clear();
+        for (MuscleGroup group : MuscleGroup.values()) {
+            CheckBox cb = new CheckBox(requireContext());
+            cb.setText(group.getLabel());
+            muscleCheckBoxes.put(group, cb);
+            containerMuscleDropdown.addView(cb);
+        }
+
+        containerEquipmentDropdown.removeAllViews();
+        equipmentCheckBoxes.clear();
+        for (EquipmentType type : EquipmentType.values()) {
+            CheckBox cb = new CheckBox(requireContext());
+            cb.setText(type.getLabel());
+            equipmentCheckBoxes.put(type, cb);
+            containerEquipmentDropdown.addView(cb);
+        }
     }
 
     private void setupListeners() {
@@ -162,22 +175,10 @@ public class WorkoutBuilderFragment extends Fragment implements WorkoutGenerator
         etCustomRest = view.findViewById(R.id.et_custom_rest);
 
         btnMuscleToggle = view.findViewById(R.id.btn_muscle_toggle);
-        containerMuscleDropdown = view.findViewById(R.id.container_muscle_dropdown);
-        cbMuscleChest = view.findViewById(R.id.cb_muscle_chest);
-        cbMuscleLegs = view.findViewById(R.id.cb_muscle_legs);
-        cbMuscleBack = view.findViewById(R.id.cb_muscle_back);
-        cbMuscleShoulders = view.findViewById(R.id.cb_muscle_shoulders);
-        cbMuscleBiceps = view.findViewById(R.id.cb_muscle_biceps);
-        cbMuscleTriceps = view.findViewById(R.id.cb_muscle_triceps);
+        containerMuscleDropdown = (GridLayout) view.findViewById(R.id.container_muscle_dropdown);
 
         btnEquipmentToggle = view.findViewById(R.id.btn_equipment_toggle);
-        containerEquipmentDropdown = view.findViewById(R.id.container_equipment_dropdown);
-        cbEquipmentBodyweight = view.findViewById(R.id.cb_equipment_bodyweight);
-        cbEquipmentDumbbells = view.findViewById(R.id.cb_equipment_dumbbells);
-        cbEquipmentBarbell = view.findViewById(R.id.cb_equipment_barbell);
-        cbEquipmentEzCurlBar = view.findViewById(R.id.cb_equipment_ez_curl_bar);
-        cbEquipmentMachine = view.findViewById(R.id.cb_equipment_machine);
-        cbEquipmentCable = view.findViewById(R.id.cb_equipment_cable);
+        containerEquipmentDropdown = (GridLayout) view.findViewById(R.id.container_equipment_dropdown);
 
         btnGenerateWorkout = view.findViewById(R.id.btn_generate_workout);
     }
@@ -203,8 +204,21 @@ public class WorkoutBuilderFragment extends Fragment implements WorkoutGenerator
                 showToast("Please enter custom intervals.");
                 return;
             }
-            workSecs = Integer.parseInt(workText);
-            restSecs = Integer.parseInt(restText);
+            try {
+                workSecs = Integer.parseInt(workText);
+                restSecs = Integer.parseInt(restText);
+                if (workSecs <= 0) {
+                    showToast("Work time must be at least 1 second.");
+                    return;
+                }
+                if (restSecs < 0) {
+                    showToast("Rest time cannot be negative.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showToast("Invalid interval values.");
+                return;
+            }
         } else {
             workSecs = 45; restSecs = 15;
         }
@@ -216,17 +230,35 @@ public class WorkoutBuilderFragment extends Fragment implements WorkoutGenerator
                 showToast(getString(R.string.workout_builder_error_time_required));
                 return;
             }
-            int totalMinutes = Integer.parseInt(timeText);
-            constraints = WorkoutGenerationConstraints.createTimeBased(enumMapper, selectedEquipment, targetMuscles,
-                    totalMinutes * 60, workSecs, restSecs);
+            try {
+                int totalMinutes = Integer.parseInt(timeText);
+                if (totalMinutes <= 0) {
+                    showToast("Time must be at least 1 minute.");
+                    return;
+                }
+                constraints = WorkoutGenerationConstraints.createTimeBased(enumMapper, selectedEquipment, targetMuscles,
+                        totalMinutes * 60, workSecs, restSecs);
+            } catch (NumberFormatException e) {
+                showToast("Invalid time value.");
+                return;
+            }
         } else {
             String countText = etExerciseCount.getText().toString().trim();
             if (TextUtils.isEmpty(countText)) {
                 showToast(getString(R.string.workout_builder_error_exercise_count_required));
                 return;
             }
-            int exerciseCount = Integer.parseInt(countText);
-            constraints = WorkoutGenerationConstraints.createCountBased(enumMapper, selectedEquipment, targetMuscles, exerciseCount, workSecs, restSecs);
+            try {
+                int exerciseCount = Integer.parseInt(countText);
+                if (exerciseCount <= 0) {
+                    showToast("Exercise count must be at least 1.");
+                    return;
+                }
+                constraints = WorkoutGenerationConstraints.createCountBased(enumMapper, selectedEquipment, targetMuscles, exerciseCount, workSecs, restSecs);
+            } catch (NumberFormatException e) {
+                showToast("Invalid exercise count.");
+                return;
+            }
         }
 
         try {
@@ -323,23 +355,21 @@ public class WorkoutBuilderFragment extends Fragment implements WorkoutGenerator
 
     private List<String> getSelectedMuscles() {
         List<String> muscles = new ArrayList<>();
-        if (cbMuscleChest.isChecked()) muscles.add(MuscleGroup.CHEST.getLabel());
-        if (cbMuscleLegs.isChecked()) muscles.add(MuscleGroup.LEGS.getLabel());
-        if (cbMuscleBack.isChecked()) muscles.add(MuscleGroup.BACK.getLabel());
-        if (cbMuscleShoulders.isChecked()) muscles.add(MuscleGroup.SHOULDERS.getLabel());
-        if (cbMuscleBiceps.isChecked()) muscles.add(MuscleGroup.BICEPS.getLabel());
-        if (cbMuscleTriceps.isChecked()) muscles.add(MuscleGroup.TRICEPS.getLabel());
+        for (Map.Entry<MuscleGroup, CheckBox> entry : muscleCheckBoxes.entrySet()) {
+            if (entry.getValue().isChecked()) {
+                muscles.add(entry.getKey().getLabel());
+            }
+        }
         return muscles;
     }
 
     private List<String> getSelectedEquipment() {
         List<String> equipment = new ArrayList<>();
-        if (cbEquipmentBodyweight.isChecked()) equipment.add(EquipmentType.BODYWEIGHT.getLabel());
-        if (cbEquipmentDumbbells.isChecked()) equipment.add(EquipmentType.DUMBBELLS.getLabel());
-        if (cbEquipmentBarbell.isChecked()) equipment.add(EquipmentType.BARBELL.getLabel());
-        if (cbEquipmentEzCurlBar.isChecked()) equipment.add(EquipmentType.EZ_CURL_BAR.getLabel());
-        if (cbEquipmentMachine.isChecked()) equipment.add(EquipmentType.MACHINE.getLabel());
-        if (cbEquipmentCable.isChecked()) equipment.add(EquipmentType.CABLE.getLabel());
+        for (Map.Entry<EquipmentType, CheckBox> entry : equipmentCheckBoxes.entrySet()) {
+            if (entry.getValue().isChecked()) {
+                equipment.add(entry.getKey().getLabel());
+            }
+        }
         return equipment;
     }
 

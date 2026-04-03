@@ -4,13 +4,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.text.InputType;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,12 +60,10 @@ public class WorkoutStepAdapter extends RecyclerView.Adapter<WorkoutStepAdapter.
 
         holder.btnRemove.setOnClickListener(v -> listener.onRemove(holder.getAdapterPosition()));
 
-        // Enable dragging by touching anywhere on the item
-        holder.itemView.setOnTouchListener((v, event) -> {
-            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                listener.onStartDrag(holder);
-            }
-            return false;
+        // Enable long-press to drag on the entire item
+        holder.itemView.setOnLongClickListener(v -> {
+            listener.onStartDrag(holder);
+            return true;
         });
     }
 
@@ -98,6 +96,16 @@ public class WorkoutStepAdapter extends RecyclerView.Adapter<WorkoutStepAdapter.
                         String text = input.getText().toString();
                         if (!text.isEmpty()) {
                             int newValue = Integer.parseInt(text);
+                            
+                            if (isWork && newValue < 1) {
+                                Toast.makeText(context, "Work time must be at least 1s", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (!isWork && newValue < 0) {
+                                Toast.makeText(context, "Rest time cannot be negative", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
                             WorkoutStep updated;
                             if (isWork) {
                                 updated = new WorkoutStep(currentStep.getExerciseId(), newValue, currentStep.getRestSeconds());
@@ -120,7 +128,7 @@ public class WorkoutStepAdapter extends RecyclerView.Adapter<WorkoutStepAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvWork, tvRest;
-        Button btnRemove;
+        ImageButton btnRemove;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

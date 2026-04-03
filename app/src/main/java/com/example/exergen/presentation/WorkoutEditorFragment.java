@@ -182,6 +182,10 @@ public class WorkoutEditorFragment extends Fragment {
         int setsCount;
         try {
             setsCount = Integer.parseInt(setsText);
+            if (setsCount < 1) {
+                Toast.makeText(getContext(), "Total sets must be at least 1", Toast.LENGTH_SHORT).show();
+                return;
+            }
         } catch (NumberFormatException e) {
             Toast.makeText(getContext(), "Invalid sets", Toast.LENGTH_SHORT).show();
             return;

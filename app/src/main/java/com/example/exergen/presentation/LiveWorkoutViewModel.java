@@ -15,7 +15,6 @@ import com.example.exergen.model.SessionRecord;
 import com.example.exergen.model.Workout;
 import com.example.exergen.model.WorkoutStep;
 
-import java.util.List;
 import java.util.UUID;
 
 public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObserver {
@@ -37,20 +36,6 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
     private CaloriesEstimationUseCase caloriesEstimationUseCase;
 
     public void init(Workout workout, int workSeconds, int restSeconds, 
-                     ExerciseUseCase exerciseUseCase,
-                     SessionHistoryUseCase sessionHistoryUseCase,
-                     CaloriesEstimationUseCase caloriesEstimationUseCase) {
-        init(
-                workout,
-                workSeconds,
-                restSeconds,
-                workout.getSets(),
-                exerciseUseCase,
-                sessionHistoryUseCase,
-                caloriesEstimationUseCase);
-    }
-
-    public void init(Workout workout, int workSeconds, int restSeconds,
                      int selectedSets,
                      ExerciseUseCase exerciseUseCase,
                      SessionHistoryUseCase sessionHistoryUseCase,
@@ -87,25 +72,6 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
         return (currentSetIndex / exerciseCount) + 1;
     }
 
-    public void startWorkout(
-            Workout workout,
-            int workSeconds,
-            int restSeconds,
-            int selectedSets,
-            ExerciseUseCase exerciseUseCase,
-            SessionHistoryUseCase sessionHistoryUseCase,
-            CaloriesEstimationUseCase caloriesEstimationUseCase) {
-        init(
-                workout,
-                workSeconds,
-                restSeconds,
-                selectedSets,
-                exerciseUseCase,
-                sessionHistoryUseCase,
-                caloriesEstimationUseCase);
-        start();
-    }
-
     public void start() {
         if (timerSessionUseCase.hasActiveSession() && !timerSessionUseCase.isRunning()) {
             timerSessionUseCase.startOrResume(
@@ -130,8 +96,14 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
         if (timerSessionUseCase.hasActiveSession()) {
             timerSessionUseCase.stop();
             isRunning.setValue(false);
-            uiState.setValue(LiveWorkoutUiState.setup());
+            // Removed uiState reset to "setup" to prevent screen flickering upon exit
         }
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        stop(); // Ensure timer is stopped when fragment is destroyed
     }
 
     @Override

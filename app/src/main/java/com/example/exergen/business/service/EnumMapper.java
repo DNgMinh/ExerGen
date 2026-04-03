@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class EnumMapper implements IEnumMapper {
+
     public EnumMapper() {}
 
     @Override
@@ -15,10 +16,16 @@ public class EnumMapper implements IEnumMapper {
             return new ArrayList<>();
         }
 
-        return labels.stream()
-                .filter(label -> label != null && !label.trim().isEmpty())
-                .map(EquipmentType::fromString)
-                .collect(Collectors.toList());
+        List<EquipmentType> results = new ArrayList<>();
+        for (String label : labels) {
+            if (label == null || label.trim().isEmpty()) continue;
+            try {
+                results.add(EquipmentType.fromString(label));
+            } catch (IllegalArgumentException e) {
+                // Skipping unknown equipment. Logging is omitted to keep business logic independent of Android.
+            }
+        }
+        return results;
     }
 
     @Override
@@ -27,10 +34,16 @@ public class EnumMapper implements IEnumMapper {
             return new ArrayList<>();
         }
 
-        return labels.stream()
-                .filter(label -> label != null && !label.trim().isEmpty())
-                .map(MuscleGroup::fromString)
-                .collect(Collectors.toList());
+        List<MuscleGroup> results = new ArrayList<>();
+        for (String label : labels) {
+            if (label == null || label.trim().isEmpty()) continue;
+            try {
+                results.add(MuscleGroup.fromString(label));
+            } catch (IllegalArgumentException e) {
+                // Skipping unknown muscle group. Logging is omitted to keep business logic independent of Android.
+            }
+        }
+        return results;
     }
 
     @Override

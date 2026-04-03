@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class LiveWorkoutViewModelTest {
@@ -61,7 +60,7 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1", "e2"), Arrays.asList(30, 30), Arrays.asList(10, 10));
         
-        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
+        viewModel.init(workout, 30, 10, workout.getSets(), exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
         
         assertEquals(Integer.valueOf(30), viewModel.getTimeLeft().getValue());
         assertEquals(TimerMode.WORK, viewModel.getPhase().getValue());
@@ -74,7 +73,7 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1"), Arrays.asList(30), Arrays.asList(10));
         
-        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
+        viewModel.init(workout, 30, 10, workout.getSets(), exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
         viewModel.start();
         assertTrue(viewModel.getIsRunning().getValue());
         
@@ -87,7 +86,7 @@ public class LiveWorkoutViewModelTest {
         Workout workout = new Workout("w1", "Test Workout", 1, 
                 Arrays.asList("e1"), Arrays.asList(30), Arrays.asList(10));
         
-        viewModel.init(workout, 30, 10, exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
+        viewModel.init(workout, 30, 10, workout.getSets(), exerciseUseCase, sessionHistoryUseCase, caloriesEstimationUseCase);
         viewModel.onFinish();
         
         assertFalse(viewModel.getIsRunning().getValue());
