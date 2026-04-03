@@ -69,29 +69,40 @@ public class ExerciseUseCaseTest {
     }
 
     @Test
-    public void testGetExercisesByEquipment_FilterOutBodyweight() {
+    public void testGetFilteredExercises_EquipmentFiltering() {
         // User only has dumbbells
-        List<EquipmentType> selected = Collections.singletonList(EquipmentType.DUMBBELLS);
-        List<Exercise> results = exerciseUseCase.getExercisesByEquipment(selected);
+        exerciseUseCase.setEquipmentFilters(Collections.singletonList(EquipmentType.DUMBBELLS));
+        List<Exercise> results = exerciseUseCase.getFilteredExercises();
 
         assertEquals(1, results.size());
         assertEquals("Dumbbell Curl", results.get(0).getName());
     }
 
     @Test
-    public void testGetExercisesByEquipment_EmptySelection_ReturnsEmptyList() {
-        List<Exercise> results = exerciseUseCase.getExercisesByEquipment(new ArrayList<>());
+    public void testGetFilteredExercises_EmptyEquipmentSelection_ReturnsEmptyList() {
+        exerciseUseCase.setEquipmentFilters(new ArrayList<>());
+        List<Exercise> results = exerciseUseCase.getFilteredExercises();
         assertTrue("Should return no exercises if no equipment is selected", results.isEmpty());
     }
 
     @Test
-    public void testGetFilteredExercises_PersistsFilterState() {
-        exerciseUseCase.setEquipmentFilters(Collections.singletonList(EquipmentType.BODYWEIGHT));
-
+    public void testGetFilteredExercises_MuscleFiltering() {
+        // Filter by Chest
+        exerciseUseCase.setMuscleFilters(Collections.singletonList(MuscleGroup.CHEST));
         List<Exercise> results = exerciseUseCase.getFilteredExercises();
 
         assertEquals(1, results.size());
         assertEquals("Pushup", results.get(0).getName());
+    }
+
+    @Test
+    public void testGetFilteredExercises_CombinedFiltering() {
+        // Filter by Biceps AND Bodyweight (should return none)
+        exerciseUseCase.setMuscleFilters(Collections.singletonList(MuscleGroup.BICEPS));
+        exerciseUseCase.setEquipmentFilters(Collections.singletonList(EquipmentType.BODYWEIGHT));
+        
+        List<Exercise> results = exerciseUseCase.getFilteredExercises();
+        assertTrue("Should return no exercises for mismatching filters", results.isEmpty());
     }
 
     @Test

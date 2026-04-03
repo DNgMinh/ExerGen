@@ -36,7 +36,9 @@ public class WorkoutBuilderUiTest {
         
         // Select muscle groups
         onView(withId(R.id.btn_muscle_toggle)).perform(click());
-        onView(withId(R.id.cb_muscle_chest)).perform(click());
+        
+        // Since checkboxes are now generated dynamically, we find them by their text label
+        onView(withText("Chest")).perform(click());
 
         // Generate
         onView(withId(R.id.btn_generate_workout)).perform(click());
