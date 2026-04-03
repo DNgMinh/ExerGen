@@ -126,6 +126,7 @@ app/src/main/java/com/example/exergen/
 
 ### Tools
 * Android Studio
+* Android Emulator (Pixel 9 device, Android 15 API level 35)
 * Git / GitLab (hosted at code.cs.umanitoba.ca)
 
 ---
