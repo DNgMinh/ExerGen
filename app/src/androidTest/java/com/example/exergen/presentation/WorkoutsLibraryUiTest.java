@@ -62,7 +62,7 @@ public class WorkoutsLibraryUiTest {
     public void testEditWorkout_DeleteAndAddExercise() {
         openEditorForBeginnerFullBody();
 
-        // Delete "Pushups"
+        // Delete "Pushups" - targeted specifically within its row item
         onView(allOf(withId(R.id.btn_remove_step), 
                 isDescendantOfA(allOf(
                         withParent(withId(R.id.rv_edit_steps)),
@@ -84,7 +84,7 @@ public class WorkoutsLibraryUiTest {
     public void testEditWorkout_UpdateTiming() {
         openEditorForBeginnerFullBody();
 
-        // Change working time for Pushups
+        // Change working time for Pushups - Targeted precisely to avoid AmbiguousViewMatcherException
         onView(allOf(withId(R.id.tv_step_work), 
                 isDescendantOfA(allOf(
                         withParent(withId(R.id.rv_edit_steps)),
