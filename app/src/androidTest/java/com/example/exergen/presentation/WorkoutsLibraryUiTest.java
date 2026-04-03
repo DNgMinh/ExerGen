@@ -7,6 +7,7 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -33,7 +34,7 @@ public class WorkoutsLibraryUiTest {
             new ActivityScenarioRule<>(MainActivity.class);
 
     private void openEditorForBeginnerFullBody() {
-        // Navigate to Workouts tab
+        // Navigate to Workouts tab - Ensure it's clicked even if it's the default
         onView(withId(R.id.nav_workouts)).perform(click());
 
         // Select "Beginner Full Body" to edit
@@ -84,8 +85,9 @@ public class WorkoutsLibraryUiTest {
     public void testEditWorkout_UpdateTiming() {
         openEditorForBeginnerFullBody();
 
-        // Change working time for Pushups - Targeted precisely to avoid AmbiguousViewMatcherException
+        // Change working time for Pushups
         onView(allOf(withId(R.id.tv_step_work), 
+                isCompletelyDisplayed(),
                 isDescendantOfA(allOf(
                         withParent(withId(R.id.rv_edit_steps)),
                         hasDescendant(withText("Pushups"))))))
@@ -96,6 +98,7 @@ public class WorkoutsLibraryUiTest {
 
         // Change rest time for Pushups
         onView(allOf(withId(R.id.tv_step_rest), 
+                isCompletelyDisplayed(),
                 isDescendantOfA(allOf(
                         withParent(withId(R.id.rv_edit_steps)),
                         hasDescendant(withText("Pushups"))))))
