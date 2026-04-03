@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (savedInstanceState == null) {
-            bottomNav.setSelectedItemId(R.id.nav_timer);
+            bottomNav.setSelectedItemId(R.id.nav_workouts);
         }
     }
 
