@@ -38,10 +38,10 @@ public class StatisticsUseCaseTest {
     @Test
     public void getOverallSummaryComputesAggregateValues() {
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
-        // 600 sec => 10 min => 144 kcal (using new 12 kcal/min * 1.2 logic)
-        repository.saveSession(createRecord("s-1", 1700000000000L, 600, 144));
-        // 900 sec => 15 min => 216 kcal
-        repository.saveSession(createRecord("s-2", 1700000001000L, 900, 216));
+        // Use current time to ensure OverallSummary (which uses System.currentTimeMillis) sees them
+        long now = System.currentTimeMillis();
+        repository.saveSession(createRecord("s-1", now - 1000, 600, 144));
+        repository.saveSession(createRecord("s-2", now - 2000, 900, 216));
 
         StatisticsUseCase useCase = new StatisticsUseCase(repository);
         StatisticsSummary summary = useCase.getOverallSummary();
@@ -98,10 +98,11 @@ public class StatisticsUseCaseTest {
 
     @Test
     public void getSummaryForTimeRangeAllTimeMatchesOverallSummary() {
-        long now = 2_000_000_000_000L;
+        // Use current time so that OverallSummary (which is hardcoded to System.currentTimeMillis) sees them
+        long now = System.currentTimeMillis();
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
-        repository.saveSession(createRecord("s-1", now - toMs(40), 600, 144));
-        repository.saveSession(createRecord("s-2", now - toMs(1), 300, 72));
+        repository.saveSession(createRecord("s-1", now - 10000, 600, 144));
+        repository.saveSession(createRecord("s-2", now - 5000, 300, 72));
 
         StatisticsUseCase useCase = new StatisticsUseCase(repository);
         StatisticsSummary allTimeSummary = useCase.getSummaryForTimeRange(StatisticsTimeRange.ALL_TIME, now);
@@ -198,6 +199,20 @@ public class StatisticsUseCaseTest {
     public void getWeeklyTrendSeriesRejectsInvalidNowValue() {
         StatisticsUseCase useCase = new StatisticsUseCase(new InMemorySessionHistoryRepository());
         useCase.getWeeklyTrendSeries(StatisticsTimeRange.ALL_TIME, 0L);
+    }
+
+    @Test
+    public void getSummaryForTimeRangeWithFutureSessions_ExcludesThem() {
+        long now = System.currentTimeMillis();
+        InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
+        repository.saveSession(createRecord("future", now + toMs(1), 600, 144));
+        repository.saveSession(createRecord("present", now, 300, 72));
+
+        StatisticsUseCase useCase = new StatisticsUseCase(repository);
+        StatisticsSummary summary = useCase.getSummaryForTimeRange(StatisticsTimeRange.ALL_TIME, now);
+
+        assertEquals(1, summary.getTotalSessions());
+        assertEquals(300, summary.getCumulativeDurationSeconds());
     }
 
     private static long toMs(int days) {

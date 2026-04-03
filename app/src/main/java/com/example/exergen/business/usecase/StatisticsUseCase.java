@@ -25,8 +25,7 @@ public class StatisticsUseCase {
     }
 
     public StatisticsSummary getOverallSummary() {
-        List<SessionRecord> sessions = sessionHistoryRepository.getAllSessions();
-        return aggregationService.buildSummary(sessions);
+        return getSummaryForTimeRange(StatisticsTimeRange.ALL_TIME, System.currentTimeMillis());
     }
 
     public StatisticsSummary getSummaryForTimeRange(StatisticsTimeRange timeRange) {
@@ -40,14 +39,15 @@ public class StatisticsUseCase {
         StatisticsValidation.requirePositive(nowEpochMs, StatisticsConstants.MESSAGE_NOW_EPOCH_MS_POSITIVE);
 
         List<SessionRecord> sessions = sessionHistoryRepository.getAllSessions();
-        if (sessions == null || sessions.isEmpty() || timeRange == StatisticsTimeRange.ALL_TIME) {
-            return aggregationService.buildSummary(sessions);
+        if (sessions == null || sessions.isEmpty()) {
+            return aggregationService.buildSummary(new ArrayList<>());
         }
 
-        long lowerBound = nowEpochMs - (timeRange.getDays() * StatisticsConstants.MS_PER_DAY);
+        long lowerBound = (timeRange == StatisticsTimeRange.ALL_TIME) ? 0 : nowEpochMs - (timeRange.getDays() * StatisticsConstants.MS_PER_DAY);
         List<SessionRecord> filteredSessions = new ArrayList<>();
         for (SessionRecord session : sessions) {
             long completedAt = session.getCompletedAtEpochMs();
+            // Filter by time range and ensure we never include "future" sessions relative to now
             if (completedAt >= lowerBound && completedAt <= nowEpochMs) {
                 filteredSessions.add(session);
             }
@@ -80,6 +80,7 @@ public class StatisticsUseCase {
         int maxWeekOffset = -1;
         for (SessionRecord session : sessions) {
             long completedAt = session.getCompletedAtEpochMs();
+            // Always exclude future sessions
             if (completedAt > nowEpochMs) {
                 continue;
             }
