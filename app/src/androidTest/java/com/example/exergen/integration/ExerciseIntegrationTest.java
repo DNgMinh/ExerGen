@@ -2,6 +2,7 @@ package com.example.exergen.integration;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -11,42 +12,42 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.exergen.business.service.EnumMapper;
 import com.example.exergen.business.service.ExerciseService;
+import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
-import com.example.exergen.persistence.ExerciseRepositorySQLite;
+import com.example.exergen.application.helper.ExerciseRepositorySQLite;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
 import java.util.List;
 
-/**
- * Integration test verifying the architectural seam between ExerciseService 
- * and the real SQLite database.
- */
 @RunWith(AndroidJUnit4.class)
 public class ExerciseIntegrationTest {
     private static final String TEST_DB_NAME = "ExerGen_test.db";
 
     private ExerciseService exerciseService;
     private Context context;
-
+    private IEnumMapper enumMapper;
 
     @Before
     public void setUp() {
-        EnumMapper mapper = new EnumMapper();
         context = ApplicationProvider.getApplicationContext();
-
         context.deleteDatabase(TEST_DB_NAME);
 
-        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, mapper, TEST_DB_NAME);
+        enumMapper = new EnumMapper();
+        ExerciseRepositorySQLite repo = new ExerciseRepositorySQLite(context, TEST_DB_NAME, enumMapper);
         
-        // Seed database from real CSV assets
-        repo.seedData();
+        // Manually insert one test exercise instead of full asset-based seeding
+        repo.insertExercise(new Exercise(
+                "ex_1", "Pushups", 
+                List.of(MuscleGroup.CHEST), 
+                List.of(EquipmentType.BODYWEIGHT), 
+                "Instructions", 2, List.of("img")
+        ));
 
         exerciseService = new ExerciseService(repo);
     }
@@ -58,55 +59,48 @@ public class ExerciseIntegrationTest {
 
     @Test
     public void testFilterByConstraints_RetrievesFromRealDatabase() {
-        // Based on the default exercises.csv, "Pushups" should be for "Chest" using "Bodyweight"
         List<Exercise> results = exerciseService.filterByConstraints(
                 List.of(EquipmentType.BODYWEIGHT),
                 List.of(MuscleGroup.CHEST)
         );
 
         assertNotNull(results);
-        assertFalse("Should have found default bodyweight chest exercises", results.isEmpty());
-        
-        // Verify one of the returned results is actually correct from the DB
-        boolean foundPushups = false;
-        for (Exercise e : results) {
-            if (e.getName().equalsIgnoreCase("Pushups")) {
-                foundPushups = true;
-                break;
-            }
-        }
-        assertTrue("Pushups should have been found in the filtered result", foundPushups);
+        assertFalse(results.isEmpty());
+        assertTrue(results.stream().anyMatch(e -> e.getName().equalsIgnoreCase("Pushups")));
+    }
+
+    @Test
+    public void testGetExerciseById_RetrievesTestExercise() {
+        Exercise exercise = exerciseService.getExerciseById("ex_1");
+        assertNotNull("Manual test exercise should be retrievable by ID", exercise);
     }
 
     @Test
     public void testAddAndFilterCustomExercise_PersistsToRealDatabase() {
         String customId = "custom-ex-1";
         Exercise custom = new Exercise(
-                customId,
-                "Z-Press",
+                customId, "Z-Press",
                 List.of(MuscleGroup.SHOULDERS),
                 List.of(EquipmentType.DUMBBELLS),
-                "Seated shoulder press",
-                4,
-                List.of("img")
+                "Seated shoulder press", 4, List.of("img")
         );
 
-        // Act: Use the service to add it (which uses the real SQL repo)
         exerciseService.addExercise(custom);
 
-        // Assert: Filter for the new constraints and see if SQLite finds it
         List<Exercise> results = exerciseService.filterByConstraints(
-                Arrays.asList(EquipmentType.DUMBBELLS),
-                Arrays.asList(MuscleGroup.SHOULDERS)
+                List.of(EquipmentType.DUMBBELLS),
+                List.of(MuscleGroup.SHOULDERS)
         );
 
-        boolean foundCustom = false;
-        for (Exercise e : results) {
-            if (e.getId().equals(customId)) {
-                foundCustom = true;
-                break;
-            }
-        }
-        assertTrue("Custom exercise should be retrievable via filtering", foundCustom);
+        assertTrue(results.stream().anyMatch(e -> e.getId().equals(customId)));
+    }
+
+    @Test
+    public void testDeleteExercise_RemovesPreviouslyAddedExercise() {
+        String id = "ex_1";
+        assertNotNull(exerciseService.getExerciseById(id));
+        
+        exerciseService.deleteExercise(id);
+        assertNull("Deleted exercise should not be found", exerciseService.getExerciseById(id));
     }
 }

@@ -4,66 +4,65 @@ import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.MuscleGroup;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class EnumMapper {
+public class EnumMapper implements IEnumMapper {
+
     public EnumMapper() {}
 
-    public List<MuscleGroup> toMuscleEnums(List<String> labels) {
-        List<MuscleGroup> results = new ArrayList<>();
-        if (labels == null) return results;
+    @Override
+    public List<EquipmentType> toEquipmentEnums(List<String> labels) {
+        if (labels == null || labels.isEmpty()) {
+            return new ArrayList<>();
+        }
 
+        List<EquipmentType> results = new ArrayList<>();
         for (String label : labels) {
-            if (label != null && !label.trim().isEmpty()) {
-                String trimmed = label.trim();
-                MuscleGroup match = null;
-
-                for (MuscleGroup group : MuscleGroup.values()) {
-                    if (group.getLabel().equalsIgnoreCase(trimmed)) {
-                        match = group;
-                        break;
-                    }
-                }
-
-                if (match == null) {
-                    throw new IllegalArgumentException("Unknown muscle group: " + label);
-                }
-                results.add(match);
+            if (label == null || label.trim().isEmpty()) continue;
+            try {
+                results.add(EquipmentType.fromString(label));
+            } catch (IllegalArgumentException e) {
+                // Skipping unknown equipment. Logging is omitted to keep business logic independent of Android.
             }
         }
         return results;
     }
 
-    public List<EquipmentType> toEquipmentEnums(List<String> labels) {
-        List<EquipmentType> results = new ArrayList<>();
+    @Override
+    public List<MuscleGroup> toMuscleEnums(List<String> labels) {
+        if (labels == null || labels.isEmpty()) {
+            return new ArrayList<>();
+        }
 
-        if (labels != null) {
-            for (String label : labels) {
-                if (label != null && !label.trim().isEmpty()) {
-                    String trimmed = label.trim();
-                    EquipmentType match = null;
-
-                    for (EquipmentType equipment : EquipmentType.values()) {
-                        if (equipment.getLabel().equalsIgnoreCase(trimmed) ||
-                                equipment.name().equalsIgnoreCase(trimmed) ||
-                                (equipment == EquipmentType.DUMBBELLS && (trimmed.equalsIgnoreCase("Dumbbell") || trimmed.equalsIgnoreCase("Dumbbells"))) ||
-                                (equipment == EquipmentType.EZ_CURL_BAR && trimmed.equalsIgnoreCase("EZ Curl Bar"))) {
-                            match = equipment;
-                            break;
-                        }
-                    }
-
-                    if (match == null) {
-                        throw new IllegalArgumentException("Unknown equipment: " + label);
-                    }
-                    results.add(match);
-                }
+        List<MuscleGroup> results = new ArrayList<>();
+        for (String label : labels) {
+            if (label == null || label.trim().isEmpty()) continue;
+            try {
+                results.add(MuscleGroup.fromString(label));
+            } catch (IllegalArgumentException e) {
+                // Skipping unknown muscle group. Logging is omitted to keep business logic independent of Android.
             }
         }
-
-        if (results.isEmpty()) {
-            results.add(EquipmentType.BODYWEIGHT);
-        }
-
         return results;
+    }
+
+    @Override
+    public List<String> toEquipmentLabels(List<EquipmentType> types) {
+        if (types == null || types.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return types.stream()
+                .map(EquipmentType::getLabel)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> toMuscleLabels(List<MuscleGroup> groups) {
+        if (groups == null || groups.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return groups.stream()
+                .map(MuscleGroup::getLabel)
+                .collect(Collectors.toList());
     }
 }

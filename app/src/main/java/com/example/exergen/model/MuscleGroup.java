@@ -1,6 +1,9 @@
 package com.example.exergen.model;
 
-public enum MuscleGroup implements LabeledEnum{
+import java.util.Arrays;
+import java.util.List;
+
+public enum MuscleGroup{
     CHEST("Chest"),
     TRICEPS("Triceps"),
     BICEPS("Biceps"),
@@ -8,37 +11,63 @@ public enum MuscleGroup implements LabeledEnum{
     GLUTES("Glutes"),
     CORE("Core"),
     BACK("Back"),
-    ARMS("Arms"),
     SHOULDERS("Shoulders"),
     FULL_BODY("Full Body");
 
     private final String label;
-
+    private final List<String> aliases;
     MuscleGroup(String label) {
-        this.label = label;
+        this(label, new String[0]);
     }
 
-    @Override
+    MuscleGroup(String label, String... aliases) {
+        this.label = label;
+        this.aliases = Arrays.asList(aliases);
+    }
+
     public String getLabel() {
         return label;
     }
 
-    public boolean isValidLabel(String value) {
-        for (MuscleGroup group : values()) {
-            if (group.label.equalsIgnoreCase(value)) {
-                return true;
-            }
+    public static boolean isValidLabel(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return false;
         }
-        return false;
+        return findMatch(value) != null;
     }
 
-    public static MuscleGroup fromLabel(String value) {
-        String normalizedLabel = value.trim();
-        for (MuscleGroup group : MuscleGroup.values()) {
-            if (group.label.equalsIgnoreCase(normalizedLabel)) {
+    public static MuscleGroup fromString(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("Muscle group value cannot be null or empty");
+        }
+
+        MuscleGroup match = findMatch(value);
+
+        if (match == null) {
+            throw new IllegalArgumentException("Cannot map invalid muscle group: '" + value + "'");
+        }
+        return match;
+    }
+
+    private static String normalize(String input) {
+        if (input == null) return "";
+        return input.trim().replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+    }
+
+    private static MuscleGroup findMatch(String value) {
+        String normalizedInput = normalize(value);
+
+        for (MuscleGroup group : values()) {
+            if (normalize(group.label).equals(normalizedInput) ||
+                    normalize(group.name()).equals(normalizedInput)) {
                 return group;
             }
+            for (String alias : group.aliases) {
+                if (normalize(alias).equals(normalizedInput)) {
+                    return group;
+                }
+            }
         }
-        throw new IllegalArgumentException("Invalid muscle group label: " + value);
+        return null;
     }
 }

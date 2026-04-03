@@ -15,29 +15,86 @@ public final class WorkoutGenerationConstraints {
     private final List<EquipmentType> selectedEquipment;
     private final List<MuscleGroup> targetMuscleGroups;
     private final int targetExerciseCount;
+    private final int targetDurationSeconds;
+    private final int workSeconds;
+    private final int restSeconds;
+    private final boolean isTimeBased;
 
-    public WorkoutGenerationConstraints(List<String> equipmentLabels,
-                                        List<String> muscleLabels,
-                                        int targetExerciseCount) {
-        this(new EnumMapper(), equipmentLabels, muscleLabels, targetExerciseCount);
-    }
-
-    public WorkoutGenerationConstraints(
-            EnumMapper mapper,
+    /**
+     * Shorthand constructor for Exercise Count based generation with default intervals.
+     */
+    public WorkoutGenerationConstraints(IEnumMapper enumMapper,
             List<String> equipmentLabels,
             List<String> muscleLabels,
             int targetExerciseCount) {
+        this(enumMapper, equipmentLabels, muscleLabels, targetExerciseCount, 0, 45, 15, false);
+    }
 
+    /**
+     * Static factory for Exercise Count based generation with custom intervals.
+     */
+    public static WorkoutGenerationConstraints createCountBased(IEnumMapper enumMapper,
+            List<String> equipmentLabels,
+            List<String> muscleLabels,
+            int targetExerciseCount,
+            int workSeconds,
+            int restSeconds) {
+        return new WorkoutGenerationConstraints(enumMapper, equipmentLabels, muscleLabels,
+                targetExerciseCount, 0, workSeconds, restSeconds, false);
+    }
+
+    /**
+     * Static factory for Time based generation.
+     */
+    public static WorkoutGenerationConstraints createTimeBased(IEnumMapper enumMapper,
+            List<String> equipmentLabels,
+            List<String> muscleLabels,
+            int targetDurationSeconds,
+            int workSeconds,
+            int restSeconds) {
+        return new WorkoutGenerationConstraints(enumMapper, equipmentLabels, muscleLabels,
+                0, targetDurationSeconds, workSeconds, restSeconds, true);
+    }
+
+    private WorkoutGenerationConstraints(IEnumMapper enumMapper,
+            List<String> equipmentLabels,
+            List<String> muscleLabels,
+            int targetExerciseCount,
+            int targetDurationSeconds,
+            int workSeconds,
+            int restSeconds,
+            boolean isTimeBased) {
+
+        ValidationHelper.requireNonNull(enumMapper, "enumMapper required");
         ValidationHelper.validateEquipment(equipmentLabels);
         ValidationHelper.validateMuscles(muscleLabels);
 
-        this.selectedEquipment = Collections.unmodifiableList(mapper.toEquipmentEnums(equipmentLabels));
-        this.targetMuscleGroups = Collections.unmodifiableList(mapper.toMuscleEnums(muscleLabels));
+        this.selectedEquipment = Collections.unmodifiableList(enumMapper.toEquipmentEnums(equipmentLabels));
+        this.targetMuscleGroups = Collections.unmodifiableList(enumMapper.toMuscleEnums(muscleLabels));
+        this.isTimeBased = isTimeBased;
+        this.workSeconds = workSeconds;
+        this.restSeconds = restSeconds;
 
-        if (targetExerciseCount <= 0) {
-            throw new IllegalArgumentException("targetExerciseCount must be > 0");
+        if (isTimeBased) {
+            if (targetDurationSeconds <= 0) {
+                throw new IllegalArgumentException("targetDurationSeconds must be > 0");
+            }
+            this.targetDurationSeconds = targetDurationSeconds;
+            this.targetExerciseCount = 0;
+        } else {
+            if (targetExerciseCount <= 0) {
+                throw new IllegalArgumentException("targetExerciseCount must be > 0");
+            }
+            this.targetExerciseCount = targetExerciseCount;
+            this.targetDurationSeconds = 0;
         }
-        this.targetExerciseCount = targetExerciseCount;
+
+        if (workSeconds <= 0) {
+            throw new IllegalArgumentException("workSeconds must be > 0");
+        }
+        if (restSeconds < 0) {
+            throw new IllegalArgumentException("restSeconds must be >= 0");
+        }
     }
 
     public List<EquipmentType> getSelectedEquipment() {
@@ -52,32 +109,23 @@ public final class WorkoutGenerationConstraints {
         return targetExerciseCount;
     }
 
+    public int getTargetDurationSeconds() {
+        return targetDurationSeconds;
+    }
+
+    public int getWorkSeconds() {
+        return workSeconds;
+    }
+
+    public int getRestSeconds() {
+        return restSeconds;
+    }
+
+    public boolean isTimeBased() {
+        return isTimeBased;
+    }
+
     public boolean matchesExercise(Exercise exercise) {
-        if (exercise == null) {
-            return false;
-        }
-        return matchesMuscleGroup(exercise) && matchesEquipment(exercise);
-    }
-
-    private boolean matchesMuscleGroup(Exercise exercise) {
-        for (MuscleGroup exerciseMuscle : exercise.getMuscleGroups()) {
-            if (targetMuscleGroups.contains(exerciseMuscle)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean matchesEquipment(Exercise exercise) {
-        if (selectedEquipment.isEmpty()) {
-            return true;
-        }
-
-        for (EquipmentType exerciseEquipment : exercise.getEquipment()) {
-            if (selectedEquipment.contains(exerciseEquipment)) {
-                return true;
-            }
-        }
-        return false;
+        return ExerciseConstraintMatcher.matches(exercise, selectedEquipment, targetMuscleGroups);
     }
 }

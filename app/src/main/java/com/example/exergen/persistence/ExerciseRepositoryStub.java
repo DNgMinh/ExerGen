@@ -1,6 +1,6 @@
 package com.example.exergen.persistence;
 
-import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.persistence.repository.IExerciseRepository;
 import com.example.exergen.business.exception.DuplicateExerciseException;
 import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.model.EquipmentType;
@@ -8,7 +8,6 @@ import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ExerciseRepositoryStub implements IExerciseRepository {

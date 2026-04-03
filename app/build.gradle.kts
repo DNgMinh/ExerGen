@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "com.example.exergen"
-    compileSdk = 36
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.exergen"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 2
         versionName = "2.0"
 
@@ -36,8 +36,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.sqlite)
     implementation(libs.androidx.sqlite.framework)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.gridlayout)
     
     // Pure JVM Unit Testing
     testImplementation(libs.junit)

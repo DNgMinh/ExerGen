@@ -3,8 +3,9 @@
     <string name="workouts_empty">No workouts found</string>
     <string name="workout_list_title">Your Workouts</string>
     <string name="workout_details_format">%1$d exercises | %2$d min</string>
+    <string name="workout_details_exercises_only_format">%1$d exercises</string>
     <string name="workout_detail_title">Workout Details</string>
-    <string name="workout_detail_body_format">Name: %1$s\nRounds: %2$d\nExercises: %3$d\nTotal Duration: %4$d sec\nExercise Names: %5$s</string>
+    <string name="workout_detail_body_format">Name: %1$s\nSets: %2$d\nExercises: %3$d\nTotal Duration: %4$d sec\nExercise Names: %5$s</string>
     <string name="workout_detail_none">No exercise details available</string>
     <string name="workout_detail_title_prefix">Workout: </string>
     <string name="workout_delete_title">Delete Workout</string>
@@ -16,23 +17,40 @@
     <string name="add_exercise_title">Select Exercise</string>
     <string name="exercise_attributes_format">Muscles: %1$s | Equipment: %2$s</string>
     <string name="workout_builder_title">Workout Builder</string>
-    <string name="workout_builder_exercise_count_label">Total Exercises</string>
+
+    <string name="workout_builder_mode_label">Build Method</string>
+    <string name="workout_builder_mode_count">Fixed Exercise Count</string>
+    <string name="workout_builder_mode_time">Fixed Total Duration</string>
+
+    <string name="workout_builder_exercise_count_label">Number of Exercises</string>
     <string name="workout_builder_exercise_count_hint">e.g. 6</string>
+
+    <string name="workout_builder_time_label">Target Duration (min)</string>
+    <string name="workout_builder_time_hint">e.g. 15</string>
+
+    <string name="workout_builder_intensity_label">Intensity (Work:Rest)</string>
+    <string name="workout_builder_intensity_low">Low (30s:30s)</string>
+    <string name="workout_builder_intensity_mod">Mod (45s:15s)</string>
+    <string name="workout_builder_intensity_hiit">HIIT (20s:10s)</string>
+    <string name="workout_builder_intensity_custom">Manual Timing</string>
+
     <string name="workout_builder_muscle_label">Target Muscle Groups</string>
     <string name="workout_builder_equipment_label">Available Equipment (optional)</string>
-    <string name="workout_builder_generate_button">Generate Workout</string>
-    <string name="workout_builder_start_button">Start</string>
-    <string name="workout_builder_regenerate_button">Regenerate</string>
-    <string name="workout_builder_edit_button">Edit</string>
+    <string name="workout_builder_generate_button">Build My Routine</string>
+    <string name="workout_builder_start_button">Begin This Session</string>
+    <string name="workout_builder_regenerate_button">Re-Build</string>
+    <string name="workout_builder_edit_button">Change Settings</string>
+    <string name="workout_builder_manual_edit">Fine-Tune Sequence</string>
     <string name="workout_builder_summary_format">Exercises: %1$d\nMuscles: %2$s\nEquipment: %3$s</string>
     <string name="workout_builder_equipment_any">Any</string>
-    <string name="workout_builder_preview_header">Generated Workout Preview</string>
+    <string name="workout_builder_preview_header">Routine Overview</string>
     <string name="workout_builder_preview_count_format">Exercises: %1$d</string>
-    <string name="workout_builder_error_exercise_count_required">Please enter total exercises.</string>
-    <string name="workout_builder_error_exercise_count_invalid">Total exercises must be a valid positive number.</string>
+    <string name="workout_builder_error_exercise_count_required">Please enter the number of exercises.</string>
+    <string name="workout_builder_error_exercise_count_invalid">Exercise count must be a positive number.</string>
+    <string name="workout_builder_error_time_required">Please enter target duration.</string>
     <string name="workout_builder_error_muscle_required">Select at least one target muscle group.</string>
-    <string name="workout_builder_error_generate_first">Generate a workout before starting.</string>
-    <string name="workout_builder_saved_message">Workout saved to Workouts.</string>
+    <string name="workout_builder_error_generate_first">Build a routine before starting.</string>
+    <string name="workout_builder_saved_message">Routine saved successfully.</string>
 
     <string name="muscle_chest">Chest</string>
     <string name="muscle_legs">Legs</string>
@@ -48,9 +66,9 @@
     <string name="equipment_machine">Machine</string>
     <string name="equipment_cable">Cable</string>
     <string name="nav_workouts">Workouts</string>
-    <string name="nav_add">Add</string>
+    <string name="nav_add">Builder</string>
     <string name="nav_exercises">Exercises</string>
-    <string name="nav_stats">Stats</string>
+    <string name="nav_stats">Progress</string>
     <string name="nav_timer">Timer</string>
 
     <!-- Exercise Detail strings -->
@@ -76,8 +94,8 @@
 
     <!-- Live Workout strings -->
     <string name="live_workout_next_label">Next: %s</string>
-    <string name="live_workout_finished">Workout Finished!</string>
-    <string name="live_workout_exit_confirm">Quit workout?</string>
+    <string name="live_workout_finished">Session Complete!</string>
+    <string name="live_workout_exit_confirm">Quit session?</string>
     <string name="btn_exit">X</string>
 
     <string name="stats_title">Session History</string>
@@ -93,6 +111,12 @@
     <string name="stats_average_duration_value_format">Average Session: %1$d min %2$d sec</string>
     <string name="stats_total_calories_value_format">Estimated Calories: %1$d kcal</string>
     <string name="stats_average_calories_value_format">Avg Calories/Session: %1$d kcal</string>
+
+    <!-- New Stats Card formats -->
+    <string name="stats_value_sessions_format">%1$d</string>
+    <string name="stats_value_calories_format">%1$d kcal</string>
+    <string name="stats_value_duration_format">%1$dm %2$ds</string>
+
     <string name="stats_trend_title">Weekly Trends</string>
     <string name="stats_trend_empty">No trend data available for this range.</string>
     <string name="stats_trend_week_current">Current week</string>
@@ -105,9 +129,13 @@
     </string-array>
     <string name="session_history_title">Session History</string>
     <string name="session_history_empty">No completed sessions yet.</string>
-    <string name="session_history_item_summary_format">%1$s\nDuration: %2$d sec | Rounds: %3$d/%4$d</string>
+    <string name="session_history_item_summary_with_calories_format">%1$s\nDuration: %2$d sec | Sets: %3$d/%4$d | Calories: %5$d kcal</string>
+    <string name="session_history_item_summary_without_calories_format">%1$s\nDuration: %2$d sec | Sets: %3$d/%4$d | Calories: %5$s</string>
     <string name="session_history_detail_title">Session Details</string>
-    <string name="session_history_detail_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nRounds: %5$d/%6$d</string>
+    <string name="session_history_detail_with_calories_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nSets: %5$d/%6$d\nEstimated Calories: %7$d kcal\n%8$s</string>
+    <string name="session_history_detail_without_calories_format">Workout: %1$s\nCompleted: %2$s\nDuration: %3$d sec\nExercises: %4$d\nSets: %5$d/%6$d\nEstimated Calories: %7$s</string>
+    <string name="session_history_calories_unavailable">Calories unavailable</string>
+    <string name="session_history_calories_explanation">Estimate based on workout duration and intensity. This is approximate and not a medical measurement.</string>
     <!-- Generic presentation strings -->
     <string name="loading">Loading...</string>
     <string name="error_loading_data">Error loading data. Please try again.</string>

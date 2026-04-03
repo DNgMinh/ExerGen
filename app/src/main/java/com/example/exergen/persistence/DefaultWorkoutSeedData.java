@@ -1,6 +1,7 @@
 package com.example.exergen.persistence;
 
 import com.example.exergen.model.Workout;
+import com.example.exergen.model.WorkoutStep;
 
 import java.util.List;
 
@@ -14,15 +15,13 @@ public final class DefaultWorkoutSeedData {
                         "w1",
                         "Beginner Full Body",
                         3,
-                        List.of("ex_1", "ex_2"),
-                        List.of(30, 45),
-                        List.of(15, 15)),
+                        List.of(
+                                new WorkoutStep("ex_1", 30, 15),
+                                new WorkoutStep("ex_2", 45, 15))),
                 new Workout(
                         "w2",
                         "Upper Body Blast",
                         4,
-                        List.of("ex_1"),
-                        List.of(45),
-                        List.of(20)));
+                        List.of(new WorkoutStep("ex_1", 45, 20))));
     }
 }

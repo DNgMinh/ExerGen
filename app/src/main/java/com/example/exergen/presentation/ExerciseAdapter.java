@@ -16,16 +16,21 @@ import java.util.List;
 // exercise domain models to the UI views
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
 
-    private List<Exercise> exercises;
+    private List<ExerciseListItem> exerciseItems;
     private OnExerciseClickListener clickListener;
 
     public interface OnExerciseClickListener {
         void onExerciseClick(Exercise exercise);
     }
 
-    public ExerciseAdapter(List<Exercise> exercises, OnExerciseClickListener clickListener) {
-        this.exercises = exercises;
+    public ExerciseAdapter(List<ExerciseListItem> exerciseItems, OnExerciseClickListener clickListener) {
+        this.exerciseItems = exerciseItems;
         this.clickListener = clickListener;
+    }
+
+    public void setItems(List<ExerciseListItem> items) {
+        this.exerciseItems = items;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -37,26 +42,20 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
-        Exercise exercise = exercises.get(position);
-        holder.name.setText(exercise.getName());
-
-        Context context = holder.itemView.getContext();
-        String muscles = TextUtils.join(", ", exercise.getMuscleGroups());
-        String equipment = TextUtils.join(", ", exercise.getEquipment());
-
-        String attributes = context.getString(R.string.exercise_attributes_format, muscles, equipment);
-        holder.attributes.setText(attributes);
+        ExerciseListItem item = exerciseItems.get(position);
+        holder.name.setText(item.getName());
+        holder.attributes.setText(item.getAttributes());
 
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) {
-                clickListener.onExerciseClick(exercise);
+                clickListener.onExerciseClick(item.getExercise());
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return exercises.size();
+        return exerciseItems.size();
     }
 
     static class ExerciseViewHolder extends RecyclerView.ViewHolder {

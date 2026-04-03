@@ -4,7 +4,7 @@ import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.service.ExerciseService;
-import com.example.exergen.business.repository.IExerciseRepository;
+import com.example.exergen.persistence.repository.IExerciseRepository;
 import com.example.exergen.model.MuscleGroup;
 
 import org.junit.Test;

@@ -2,6 +2,7 @@ package com.example.exergen.business.service;
 
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.Workout;
+import com.example.exergen.model.WorkoutStep;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +17,17 @@ public class WorkoutPreviewMapper {
         }
 
         List<WorkoutPreviewItem> items = new ArrayList<>();
-        List<String> exerciseIds = workout.getExerciseIds();
-        for (int i = 0; i < exerciseIds.size(); i++) {
-            String id = exerciseIds.get(i);
+        List<WorkoutStep> steps = workout.getSteps();
+        for (int i = 0; i < steps.size(); i++) {
+            WorkoutStep step = steps.get(i);
+            String id = step.getExerciseId();
             Exercise exercise = exerciseService.getExerciseById(id);
             String exerciseName = exercise != null ? exercise.getName() : id;
             items.add(new WorkoutPreviewItem(
                     i + 1,
                     exerciseName,
-                    workout.getWorkSeconds().get(i),
-                    workout.getRestSeconds().get(i)));
+                    step.getWorkSeconds(),
+                    step.getRestSeconds()));
         }
 
         return new WorkoutPreviewData(items);

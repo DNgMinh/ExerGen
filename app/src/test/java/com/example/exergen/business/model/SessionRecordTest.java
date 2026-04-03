@@ -24,8 +24,9 @@ public class SessionRecordTest {
         assertEquals(1700000000000L, sessionRecord.getCompletedAtEpochMs());
         assertEquals(1200, sessionRecord.getTotalDurationSeconds());
         assertEquals(6, sessionRecord.getExerciseCount());
-        assertEquals(3, sessionRecord.getRoundsPlanned());
-        assertEquals(3, sessionRecord.getRoundsCompleted());
+        assertEquals(3, sessionRecord.getSetsPlanned());
+        assertEquals(3, sessionRecord.getSetsCompleted());
+        assertEquals(SessionRecord.UNKNOWN_ESTIMATED_CALORIES, sessionRecord.getEstimatedCalories());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -59,17 +60,37 @@ public class SessionRecordTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void constructorRejectsZeroRoundsPlanned() {
+    public void constructorRejectsZeroSetsPlanned() {
         new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 6, 0, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void constructorRejectsNegativeRoundsCompleted() {
+    public void constructorRejectsNegativeSetsCompleted() {
         new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 6, 3, -1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void constructorRejectsRoundsCompletedGreaterThanPlanned() {
+    public void constructorRejectsSetsCompletedGreaterThanPlanned() {
         new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 6, 3, 4);
+    }
+
+    @Test
+    public void constructorAcceptsEstimatedCaloriesWhenProvided() {
+        SessionRecord sessionRecord = new SessionRecord(
+                "s1",
+                "w1",
+                "Leg Day",
+                1700000000000L,
+                1200,
+                6,
+                3,
+                3,
+                245);
+        assertEquals(245, sessionRecord.getEstimatedCalories());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorRejectsEstimatedCaloriesLessThanUnknownSentinel() {
+        new SessionRecord("s1", "w1", "Leg Day", 1700000000000L, 1200, 6, 3, 3, -2);
     }
 }

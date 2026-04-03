@@ -1,16 +1,17 @@
 package com.example.exergen.model;
 
-import com.example.exergen.business.validation.ValidationHelper;
-
 public class SessionRecord {
+    public static final int UNKNOWN_ESTIMATED_CALORIES = -1;
+
     private final String id;
     private final String workoutId;
     private final String workoutName;
     private final long completedAtEpochMs;
     private final int totalDurationSeconds;
     private final int exerciseCount;
-    private final int roundsPlanned;
-    private final int roundsCompleted;
+    private final int setsPlanned;
+    private final int setsCompleted;
+    private final int estimatedCalories;
 
     public SessionRecord(
             String id,
@@ -19,11 +20,33 @@ public class SessionRecord {
             long completedAtEpochMs,
             int totalDurationSeconds,
             int exerciseCount,
-            int roundsPlanned,
-            int roundsCompleted) {
-        this.id = ValidationHelper.requireNonBlank(id, "Session id required");
-        this.workoutId = ValidationHelper.requireNonBlank(workoutId, "Workout id required");
-        this.workoutName = ValidationHelper.requireNonBlank(workoutName, "Workout name required");
+            int setsPlanned,
+            int setsCompleted) {
+        this(
+                id,
+                workoutId,
+                workoutName,
+                completedAtEpochMs,
+                totalDurationSeconds,
+                exerciseCount,
+                setsPlanned,
+                setsCompleted,
+                UNKNOWN_ESTIMATED_CALORIES);
+    }
+
+    public SessionRecord(
+            String id,
+            String workoutId,
+            String workoutName,
+            long completedAtEpochMs,
+            int totalDurationSeconds,
+            int exerciseCount,
+            int setsPlanned,
+            int setsCompleted,
+            int estimatedCalories) {
+        this.id = ModelValidation.requireNonBlank(id, "Session id required");
+        this.workoutId = ModelValidation.requireNonBlank(workoutId, "Workout id required");
+        this.workoutName = ModelValidation.requireNonBlank(workoutName, "Workout name required");
         if (completedAtEpochMs <= 0L) {
             throw new IllegalArgumentException("Completion timestamp must be > 0");
         }
@@ -33,21 +56,25 @@ public class SessionRecord {
         if (exerciseCount <= 0) {
             throw new IllegalArgumentException("Exercise count must be > 0");
         }
-        if (roundsPlanned <= 0) {
-            throw new IllegalArgumentException("Rounds planned must be > 0");
+        if (setsPlanned <= 0) {
+            throw new IllegalArgumentException("Sets planned must be > 0");
         }
-        if (roundsCompleted < 0) {
-            throw new IllegalArgumentException("Rounds completed must be >= 0");
+        if (setsCompleted < 0) {
+            throw new IllegalArgumentException("Sets completed must be >= 0");
         }
-        if (roundsCompleted > roundsPlanned) {
-            throw new IllegalArgumentException("Rounds completed cannot exceed rounds planned");
+        if (setsCompleted > setsPlanned) {
+            throw new IllegalArgumentException("Sets completed cannot exceed sets planned");
+        }
+        if (estimatedCalories < UNKNOWN_ESTIMATED_CALORIES) {
+            throw new IllegalArgumentException("Estimated calories must be >= -1");
         }
 
         this.completedAtEpochMs = completedAtEpochMs;
         this.totalDurationSeconds = totalDurationSeconds;
         this.exerciseCount = exerciseCount;
-        this.roundsPlanned = roundsPlanned;
-        this.roundsCompleted = roundsCompleted;
+        this.setsPlanned = setsPlanned;
+        this.setsCompleted = setsCompleted;
+        this.estimatedCalories = estimatedCalories;
     }
 
     public String getId() {
@@ -74,11 +101,20 @@ public class SessionRecord {
         return exerciseCount;
     }
 
-    public int getRoundsPlanned() {
-        return roundsPlanned;
+    public int getSetsPlanned() {
+        return setsPlanned;
     }
 
-    public int getRoundsCompleted() {
-        return roundsCompleted;
+    public int getSetsCompleted() {
+        return setsCompleted;
     }
+
+    public int getEstimatedCalories() {
+        return estimatedCalories;
+    }
+
+    public boolean hasEstimatedCalories() {
+        return estimatedCalories >= 0;
+    }
+
 }

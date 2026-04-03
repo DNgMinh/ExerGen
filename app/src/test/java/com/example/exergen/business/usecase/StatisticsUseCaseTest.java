@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.example.exergen.business.exception.InvalidFilterException;
 import com.example.exergen.business.exception.StatisticsValidationException;
-import com.example.exergen.business.repository.ISessionHistoryRepository;
+import com.example.exergen.persistence.repository.ISessionHistoryRepository;
 import com.example.exergen.model.SessionRecord;
 import com.example.exergen.model.StatisticsSummary;
 import com.example.exergen.model.WeeklyTrendPoint;
@@ -38,10 +38,10 @@ public class StatisticsUseCaseTest {
     @Test
     public void getOverallSummaryComputesAggregateValues() {
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
-        // 600 sec => 10 min => 80 kcal (using 8 kcal/min)
-        repository.saveSession(createRecord("s-1", 1700000000000L, 600));
-        // 900 sec => 15 min => 120 kcal
-        repository.saveSession(createRecord("s-2", 1700000001000L, 900));
+        // Use current time to ensure OverallSummary (which uses System.currentTimeMillis) sees them
+        long now = System.currentTimeMillis();
+        repository.saveSession(createRecord("s-1", now - 1000, 600, 144));
+        repository.saveSession(createRecord("s-2", now - 2000, 900, 216));
 
         StatisticsUseCase useCase = new StatisticsUseCase(repository);
         StatisticsSummary summary = useCase.getOverallSummary();
@@ -49,8 +49,8 @@ public class StatisticsUseCaseTest {
         assertEquals(2, summary.getTotalSessions());
         assertEquals(1500, summary.getCumulativeDurationSeconds());
         assertEquals(750, summary.getAverageSessionLengthSeconds());
-        assertEquals(200, summary.getTotalEstimatedCalories());
-        assertEquals(100, summary.getAverageEstimatedCalories());
+        assertEquals(360, summary.getTotalEstimatedCalories());
+        assertEquals(180, summary.getAverageEstimatedCalories());
     }
 
     @Test
@@ -70,38 +70,39 @@ public class StatisticsUseCaseTest {
     public void getSummaryForTimeRangeIncludesOnlyLastSevenDays() {
         long now = 2_000_000_000_000L;
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
-        repository.saveSession(createRecord("in-7d", now - toMs(3), 600));
-        repository.saveSession(createRecord("out-7d", now - toMs(8), 300));
+        repository.saveSession(createRecord("in-7d", now - toMs(3), 600, 144));
+        repository.saveSession(createRecord("out-7d", now - toMs(8), 300, 72));
 
         StatisticsUseCase useCase = new StatisticsUseCase(repository);
         StatisticsSummary summary = useCase.getSummaryForTimeRange(StatisticsTimeRange.LAST_7_DAYS, now);
 
         assertEquals(1, summary.getTotalSessions());
         assertEquals(600, summary.getCumulativeDurationSeconds());
-        assertEquals(80, summary.getTotalEstimatedCalories());
+        assertEquals(144, summary.getTotalEstimatedCalories());
     }
 
     @Test
     public void getSummaryForTimeRangeIncludesOnlyLastThirtyDays() {
         long now = 2_000_000_000_000L;
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
-        repository.saveSession(createRecord("in-30d", now - toMs(15), 900));
-        repository.saveSession(createRecord("out-30d", now - toMs(31), 600));
+        repository.saveSession(createRecord("in-30d", now - toMs(15), 900, 216));
+        repository.saveSession(createRecord("out-30d", now - toMs(31), 600, 144));
 
         StatisticsUseCase useCase = new StatisticsUseCase(repository);
         StatisticsSummary summary = useCase.getSummaryForTimeRange(StatisticsTimeRange.LAST_30_DAYS, now);
 
         assertEquals(1, summary.getTotalSessions());
         assertEquals(900, summary.getCumulativeDurationSeconds());
-        assertEquals(120, summary.getTotalEstimatedCalories());
+        assertEquals(216, summary.getTotalEstimatedCalories());
     }
 
     @Test
     public void getSummaryForTimeRangeAllTimeMatchesOverallSummary() {
-        long now = 2_000_000_000_000L;
+        // Use current time so that OverallSummary (which is hardcoded to System.currentTimeMillis) sees them
+        long now = System.currentTimeMillis();
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
-        repository.saveSession(createRecord("s-1", now - toMs(40), 600));
-        repository.saveSession(createRecord("s-2", now - toMs(1), 300));
+        repository.saveSession(createRecord("s-1", now - 10000, 600, 144));
+        repository.saveSession(createRecord("s-2", now - 5000, 300, 72));
 
         StatisticsUseCase useCase = new StatisticsUseCase(repository);
         StatisticsSummary allTimeSummary = useCase.getSummaryForTimeRange(StatisticsTimeRange.ALL_TIME, now);
@@ -130,11 +131,11 @@ public class StatisticsUseCaseTest {
     public void getWeeklyTrendSeriesForLastThirtyDaysBuildsExpectedBuckets() {
         long now = 2_000_000_000_000L;
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
-        repository.saveSession(createRecord("w0-a", now - toMs(2), 600));
-        repository.saveSession(createRecord("w0-b", now - toMs(5), 300));
-        repository.saveSession(createRecord("w1", now - toMs(10), 900));
-        repository.saveSession(createRecord("w2", now - toMs(20), 120));
-        repository.saveSession(createRecord("out", now - toMs(35), 700));
+        repository.saveSession(createRecord("w0-a", now - toMs(2), 600, 144));
+        repository.saveSession(createRecord("w0-b", now - toMs(5), 300, 72));
+        repository.saveSession(createRecord("w1", now - toMs(10), 900, 216));
+        repository.saveSession(createRecord("w2", now - toMs(20), 120, 30));
+        repository.saveSession(createRecord("out", now - toMs(35), 700, 168));
 
         StatisticsUseCase useCase = new StatisticsUseCase(repository);
         List<WeeklyTrendPoint> points = useCase.getWeeklyTrendSeries(StatisticsTimeRange.LAST_30_DAYS, now);
@@ -166,8 +167,8 @@ public class StatisticsUseCaseTest {
     public void getWeeklyTrendSeriesForAllTimeIncludesOlderWeeks() {
         long now = 2_000_000_000_000L;
         InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
-        repository.saveSession(createRecord("recent", now - toMs(1), 600));
-        repository.saveSession(createRecord("older", now - toMs(40), 300));
+        repository.saveSession(createRecord("recent", now - toMs(1), 600, 144));
+        repository.saveSession(createRecord("older", now - toMs(40), 300, 72));
 
         StatisticsUseCase useCase = new StatisticsUseCase(repository);
         List<WeeklyTrendPoint> points = useCase.getWeeklyTrendSeries(StatisticsTimeRange.ALL_TIME, now);
@@ -200,11 +201,25 @@ public class StatisticsUseCaseTest {
         useCase.getWeeklyTrendSeries(StatisticsTimeRange.ALL_TIME, 0L);
     }
 
+    @Test
+    public void getSummaryForTimeRangeWithFutureSessions_ExcludesThem() {
+        long now = System.currentTimeMillis();
+        InMemorySessionHistoryRepository repository = new InMemorySessionHistoryRepository();
+        repository.saveSession(createRecord("future", now + toMs(1), 600, 144));
+        repository.saveSession(createRecord("present", now, 300, 72));
+
+        StatisticsUseCase useCase = new StatisticsUseCase(repository);
+        StatisticsSummary summary = useCase.getSummaryForTimeRange(StatisticsTimeRange.ALL_TIME, now);
+
+        assertEquals(1, summary.getTotalSessions());
+        assertEquals(300, summary.getCumulativeDurationSeconds());
+    }
+
     private static long toMs(int days) {
         return days * 24L * 60L * 60L * 1000L;
     }
 
-    private static SessionRecord createRecord(String id, long completedAtEpochMs, int durationSeconds) {
+    private static SessionRecord createRecord(String id, long completedAtEpochMs, int durationSeconds, int calories) {
         return new SessionRecord(
                 id,
                 "workout-1",
@@ -213,7 +228,8 @@ public class StatisticsUseCaseTest {
                 durationSeconds,
                 5,
                 3,
-                3);
+                3,
+                calories);
     }
 
     private static class InMemorySessionHistoryRepository implements ISessionHistoryRepository {

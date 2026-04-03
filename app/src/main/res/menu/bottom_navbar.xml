@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/nav_workouts"
         android:icon="@drawable/ic_workouts"
-        android:title="@string/nav_workouts" />
+        android:title="@string/nav_workouts"
+        app:tooltipText="@string/nav_workouts" />
     <item
         android:id="@+id/nav_add"
         android:icon="@drawable/ic_add"
-        android:title="@string/nav_add" />
+        android:title="@string/nav_add"
+        app:tooltipText="@string/nav_add" />
     <item
         android:id="@+id/nav_exercises"
         android:icon="@drawable/ic_exercises"
-        android:title="@string/nav_exercises" />
+        android:title="@string/nav_exercises"
+        app:tooltipText="@string/nav_exercises" />
     <item
         android:id="@+id/nav_stats"
         android:icon="@drawable/ic_stats"
-        android:title="@string/nav_stats" />
+        android:title="@string/nav_stats"
+        app:tooltipText="@string/nav_stats" />
     <item
         android:id="@+id/nav_timer"
         android:icon="@drawable/ic_timer"
-        android:title="@string/nav_timer" />
+        android:title="@string/nav_timer"
+        app:tooltipText="@string/nav_timer" />
 </menu>

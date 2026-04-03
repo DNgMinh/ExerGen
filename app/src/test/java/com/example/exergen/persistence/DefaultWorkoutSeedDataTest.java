@@ -19,7 +19,7 @@ public class DefaultWorkoutSeedDataTest {
         Workout w1 = defaults.get(0);
         assertEquals("w1", w1.getId());
         assertEquals("Beginner Full Body", w1.getName());
-        assertEquals(3, w1.getRounds());
+        assertEquals(3, w1.getSets());
         assertEquals(List.of("ex_1", "ex_2"), w1.getExerciseIds());
         assertEquals(List.of(30, 45), w1.getWorkSeconds());
         assertEquals(List.of(15, 15), w1.getRestSeconds());
@@ -27,7 +27,7 @@ public class DefaultWorkoutSeedDataTest {
         Workout w2 = defaults.get(1);
         assertEquals("w2", w2.getId());
         assertEquals("Upper Body Blast", w2.getName());
-        assertEquals(4, w2.getRounds());
+        assertEquals(4, w2.getSets());
         assertEquals(List.of("ex_1"), w2.getExerciseIds());
         assertEquals(List.of(45), w2.getWorkSeconds());
         assertEquals(List.of(20), w2.getRestSeconds());
