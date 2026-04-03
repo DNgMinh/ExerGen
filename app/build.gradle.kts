@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "com.example.exergen"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.exergen"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 2
         versionName = "2.0"
 

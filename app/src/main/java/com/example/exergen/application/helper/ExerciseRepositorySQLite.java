@@ -1,4 +1,4 @@
-package com.example.exergen.persistence;
+package com.example.exergen.application.helper;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,7 +9,6 @@ import android.util.Log;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
-import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;
@@ -150,7 +149,7 @@ public class ExerciseRepositorySQLite implements IExerciseRepository {
         if (count == 0) {
             Log.d(TAG, "Database empty. Seeding exercises from assets...");
             List<Exercise> defaultExercises = loadExercisesFromAssets();
-            
+
             db.beginTransaction();
             try {
                 for (Exercise ex : defaultExercises) {

@@ -17,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.exergen.R;
-import com.example.exergen.application.AppBootstrap;
 import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.business.service.WorkoutGenerationConstraints;
 import com.example.exergen.business.usecase.CaloriesEstimationUseCase;
@@ -69,19 +68,6 @@ public class WorkoutBuilderFragment extends Fragment implements WorkoutGenerator
 
     private Button btnGenerateWorkout;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (workoutBuilderUseCase == null) {
-            workoutBuilderUseCase = AppBootstrap.get().workoutBuilderUseCase;
-            workoutUseCase = AppBootstrap.get().workoutUseCase;
-            exerciseUseCase = AppBootstrap.get().exerciseUseCase;
-            sessionHistoryUseCase = AppBootstrap.get().sessionHistoryUseCase;
-            caloriesEstimationUseCase = AppBootstrap.get().caloriesEstimationUseCase;
-            enumMapper = AppBootstrap.get().enumMapper;
-        }
-    }
-
     public void setDependencies(WorkoutBuilderUseCase workoutBuilderUseCase,
             WorkoutUseCase workoutUseCase,
             ExerciseUseCase exerciseUseCase,
@@ -107,6 +93,14 @@ public class WorkoutBuilderFragment extends Fragment implements WorkoutGenerator
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (workoutBuilderUseCase == null
+                || workoutUseCase == null
+                || exerciseUseCase == null
+                || sessionHistoryUseCase == null
+                || caloriesEstimationUseCase == null
+                || enumMapper == null) {
+            throw new IllegalStateException("WorkoutBuilderFragment dependencies not provided");
+        }
         bindViews(view);
         setupDynamicOptions();
         setupListeners();
