@@ -29,7 +29,8 @@ public class ExercisesFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextView emptyStateText;
 
-    private ChipGroup filterChipGroup;
+    private ChipGroup equipmentChipGroup;
+    private ChipGroup muscleChipGroup;
 
     public void setDependencies(ExerciseUseCase exerciseUseCase) {
         this.exerciseUseCase = exerciseUseCase;
@@ -44,14 +45,25 @@ public class ExercisesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button toggleBtn = view.findViewById(R.id.btn_filter_toggle);
-        filterChipGroup = view.findViewById(R.id.filter_chip_group);
+        Button equipmentToggle = view.findViewById(R.id.btn_filter_equipment_toggle);
+        Button muscleToggle = view.findViewById(R.id.btn_filter_muscle_toggle);
+        
+        equipmentChipGroup = view.findViewById(R.id.filter_equipment_chip_group);
+        muscleChipGroup = view.findViewById(R.id.filter_muscle_chip_group);
+        
         recyclerView = view.findViewById(R.id.exercise_recycler_view);
         emptyStateText = view.findViewById(R.id.empty_state_text);
 
-        toggleBtn.setOnClickListener(v -> {
-            int visibility = (filterChipGroup.getVisibility() == View.VISIBLE) ? View.GONE : View.VISIBLE;
-            filterChipGroup.setVisibility(visibility);
+        equipmentToggle.setOnClickListener(v -> {
+            int visibility = (equipmentChipGroup.getVisibility() == View.VISIBLE) ? View.GONE : View.VISIBLE;
+            equipmentChipGroup.setVisibility(visibility);
+            muscleChipGroup.setVisibility(View.GONE);
+        });
+
+        muscleToggle.setOnClickListener(v -> {
+            int visibility = (muscleChipGroup.getVisibility() == View.VISIBLE) ? View.GONE : View.VISIBLE;
+            muscleChipGroup.setVisibility(visibility);
+            equipmentChipGroup.setVisibility(View.GONE);
         });
 
         setupFilterChips();
@@ -90,33 +102,46 @@ public class ExercisesFragment extends Fragment {
     }
 
     private void setupFilterChips() {
-        filterChipGroup.removeAllViews();
-
-        // Get the filters from the usecase
-        List<EquipmentType> savedFilters = exerciseUseCase.getEquipmentFilters();
-
+        // Equipment Chips
+        equipmentChipGroup.removeAllViews();
+        List<EquipmentType> savedEquip = exerciseUseCase.getEquipmentFilters();
         for (EquipmentType type : EquipmentType.values()) {
             Chip chip = new Chip(getContext());
             chip.setText(type.getLabel());
             chip.setCheckable(true);
-
-            // Set the state based on what the usecase has
-            chip.setChecked(savedFilters.contains(type));
-
+            chip.setChecked(savedEquip.contains(type));
             chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // Get the current list, update it, and save it back to the usecase
-                List<EquipmentType> updatedFilters = exerciseUseCase.getEquipmentFilters();
+                List<EquipmentType> updated = exerciseUseCase.getEquipmentFilters();
                 if (isChecked) {
-                    if (!updatedFilters.contains(type)) updatedFilters.add(type);
+                    if (!updated.contains(type)) updated.add(type);
+                } else {
+                    updated.remove(type);
                 }
-                else {
-                    updatedFilters.remove(type);
-                }
-
-                exerciseUseCase.setEquipmentFilters(updatedFilters);
+                exerciseUseCase.setEquipmentFilters(updated);
                 refreshList();
             });
-            filterChipGroup.addView(chip);
+            equipmentChipGroup.addView(chip);
+        }
+
+        // Muscle Chips
+        muscleChipGroup.removeAllViews();
+        List<MuscleGroup> savedMuscles = exerciseUseCase.getMuscleFilters();
+        for (MuscleGroup group : MuscleGroup.values()) {
+            Chip chip = new Chip(getContext());
+            chip.setText(group.getLabel());
+            chip.setCheckable(true);
+            chip.setChecked(savedMuscles.contains(group));
+            chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                List<MuscleGroup> updated = exerciseUseCase.getMuscleFilters();
+                if (isChecked) {
+                    if (!updated.contains(group)) updated.add(group);
+                } else {
+                    updated.remove(group);
+                }
+                exerciseUseCase.setMuscleFilters(updated);
+                refreshList();
+            });
+            muscleChipGroup.addView(chip);
         }
     }
 
@@ -126,7 +151,7 @@ public class ExercisesFragment extends Fragment {
         if (exercises == null || exercises.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyStateText.setVisibility(View.VISIBLE);
-            emptyStateText.setText("No exercises found for your selected equipment.");
+            emptyStateText.setText("No exercises found for your selected filters.");
         }
         else {
             recyclerView.setVisibility(View.VISIBLE);

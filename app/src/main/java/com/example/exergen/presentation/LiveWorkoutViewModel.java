@@ -96,14 +96,13 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
         if (timerSessionUseCase.hasActiveSession()) {
             timerSessionUseCase.stop();
             isRunning.setValue(false);
-            // Removed uiState reset to "setup" to prevent screen flickering upon exit
         }
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        stop(); // Ensure timer is stopped when fragment is destroyed
+        stop();
     }
 
     @Override
@@ -123,6 +122,25 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
         isFinished.postValue(true);
         uiState.postValue(LiveWorkoutUiState.finished());
         saveSession();
+    }
+
+    public int calculateTotalWorkoutCalories() {
+        if (workout == null || workout.getSteps() == null || workout.getSteps().isEmpty() || exerciseUseCase == null) {
+            return 0;
+        }
+
+        int totalEstimatedCalories = 0;
+        for (WorkoutStep step : workout.getSteps()) {
+            Exercise exercise = exerciseUseCase.getExerciseById(step.getExerciseId());
+            int intensity = resolveIntensity(exercise);
+            
+            // Fix: Separate work and rest durations for each exercise step across all sets
+            int totalWorkSeconds = configuredSets * step.getWorkSeconds();
+            int totalRestSeconds = configuredSets * step.getRestSeconds();
+            
+            totalEstimatedCalories += caloriesEstimationUseCase.estimateCalories(totalWorkSeconds, totalRestSeconds, intensity);
+        }
+        return totalEstimatedCalories;
     }
 
     private void updateExercises() {
@@ -159,7 +177,7 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
 
         int estimatedCalories = SessionRecord.UNKNOWN_ESTIMATED_CALORIES;
         if (caloriesEstimationUseCase != null) {
-            estimatedCalories = calculateWorkoutCaloriesByExerciseStep();
+            estimatedCalories = calculateTotalWorkoutCalories();
         }
         SessionRecord record = new SessionRecord(
                 UUID.randomUUID().toString(),
@@ -174,21 +192,6 @@ public class LiveWorkoutViewModel extends ViewModel implements TimerSessionObser
         );
         
         sessionHistoryUseCase.saveCompletedSession(record);
-    }
-
-    private int calculateWorkoutCaloriesByExerciseStep() {
-        if (workout == null || workout.getSteps() == null || workout.getSteps().isEmpty() || exerciseUseCase == null) {
-            return caloriesEstimationUseCase != null ? caloriesEstimationUseCase.estimateCaloriesWithDefaultIntensity(0) : 0;
-        }
-
-        int totalEstimatedCalories = 0;
-        for (WorkoutStep step : workout.getSteps()) {
-            Exercise exercise = exerciseUseCase.getExerciseById(step.getExerciseId());
-            int intensity = resolveIntensity(exercise);
-            int stepDurationSecondsAcrossSets = configuredSets * (step.getWorkSeconds() + step.getRestSeconds());
-            totalEstimatedCalories += caloriesEstimationUseCase.estimateCalories(stepDurationSecondsAcrossSets, intensity);
-        }
-        return totalEstimatedCalories;
     }
 
     private int resolveIntensity(Exercise exercise) {

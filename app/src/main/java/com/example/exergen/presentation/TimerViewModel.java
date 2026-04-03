@@ -174,10 +174,14 @@ public class TimerViewModel extends ViewModel implements TimerSessionObserver {
             CaloriesEstimationUseCase caloriesEstimationUseCase,
             long completedAtEpochMs,
             String sessionId) {
-        int totalDurationSeconds = totalSets * (workSeconds + restSeconds);
+        int totalWorkSeconds = totalSets * workSeconds;
+        int totalRestSeconds = totalSets * restSeconds;
+        int totalDurationSeconds = totalWorkSeconds + totalRestSeconds;
+        
         int estimatedCalories = caloriesEstimationUseCase == null
                 ? SessionRecord.UNKNOWN_ESTIMATED_CALORIES
-                : caloriesEstimationUseCase.estimateCaloriesWithDefaultIntensity(totalDurationSeconds);
+                : caloriesEstimationUseCase.estimateCaloriesWithDefaultIntensity(totalWorkSeconds, totalRestSeconds);
+
         return new SessionRecord(
                 sessionId,
                 "manual-timer",

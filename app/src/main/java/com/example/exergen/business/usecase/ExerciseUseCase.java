@@ -3,6 +3,7 @@ package com.example.exergen.business.usecase;
 import com.example.exergen.business.service.ExerciseService;
 import com.example.exergen.model.Exercise;
 import com.example.exergen.model.EquipmentType;
+import com.example.exergen.model.MuscleGroup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,8 +11,9 @@ import java.util.List;
 public class ExerciseUseCase {
     private final ExerciseService exerciseService;
 
-    // List of filters for exercise equipment
-    private List<EquipmentType> currentFilters = new ArrayList<>(Arrays.asList(EquipmentType.values()));
+    // List of filters for exercise equipment and muscle groups
+    private List<EquipmentType> equipmentFilters = new ArrayList<>(Arrays.asList(EquipmentType.values()));
+    private List<MuscleGroup> muscleFilters = new ArrayList<>(Arrays.asList(MuscleGroup.values()));
 
     public ExerciseUseCase(ExerciseService exerciseService) {
         if (exerciseService == null) {
@@ -29,32 +31,44 @@ public class ExerciseUseCase {
     }
 
     public void setEquipmentFilters(List<EquipmentType> filters) {
-        this.currentFilters = new ArrayList<>(filters);
+        this.equipmentFilters = new ArrayList<>(filters);
     }
 
     public List<EquipmentType> getEquipmentFilters() {
-        return new ArrayList<>(currentFilters);
+        return new ArrayList<>(equipmentFilters);
+    }
+
+    public void setMuscleFilters(List<MuscleGroup> filters) {
+        this.muscleFilters = new ArrayList<>(filters);
+    }
+
+    public List<MuscleGroup> getMuscleFilters() {
+        return new ArrayList<>(muscleFilters);
     }
 
     public List<Exercise> getFilteredExercises() {
-        return getExercisesByEquipment(currentFilters);
-    }
-
-    public List<Exercise> getExercisesByEquipment(List<EquipmentType> selectedEquipment) {
         List<Exercise> allExercises = exerciseService.getAllExercises();
-
-        if (selectedEquipment == null || selectedEquipment.isEmpty()) {
-            return new ArrayList<>();
-        }
-
         List<Exercise> filtered = new ArrayList<>();
+
         for (Exercise exercise : allExercises) {
-            // Check if ANY piece of equipment required for the exercise is in our selected list
+            boolean matchesEquipment = false;
             for (EquipmentType e : exercise.getEquipment()) {
-                if (selectedEquipment.contains(e)) {
-                    filtered.add(exercise);
+                if (equipmentFilters.contains(e)) {
+                    matchesEquipment = true;
                     break;
                 }
+            }
+
+            boolean matchesMuscle = false;
+            for (MuscleGroup m : exercise.getMuscleGroups()) {
+                if (muscleFilters.contains(m)) {
+                    matchesMuscle = true;
+                    break;
+                }
+            }
+
+            if (matchesEquipment && matchesMuscle) {
+                filtered.add(exercise);
             }
         }
         return filtered;

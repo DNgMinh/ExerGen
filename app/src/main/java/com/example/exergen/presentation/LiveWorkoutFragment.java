@@ -37,6 +37,8 @@ public class LiveWorkoutFragment extends Fragment {
     private ExerciseAnimationManager animationManager;
 
     private TextView tvTimer, tvPhase, tvWorkoutName, tvCurrentExercise, tvNextExercise, tvRoundIndicator;
+    private TextView tvFinishCalories;
+    private View finishStatsContainer;
     private ImageView ivAnimation;
     private Button btnStart, btnPause, btnCancel;
     private ImageButton btnExit;
@@ -115,6 +117,9 @@ public class LiveWorkoutFragment extends Fragment {
         tvCurrentExercise = view.findViewById(R.id.tv_current_exercise);
         tvNextExercise = view.findViewById(R.id.tv_next_exercise);
         ivAnimation = view.findViewById(R.id.iv_exercise_animation);
+        tvFinishCalories = view.findViewById(R.id.tv_finish_calories);
+        finishStatsContainer = view.findViewById(R.id.finish_stats_container);
+        
         btnStart = view.findViewById(R.id.btn_live_start);
         btnPause = view.findViewById(R.id.btn_live_pause);
         btnCancel = view.findViewById(R.id.btn_live_cancel);
@@ -218,10 +223,22 @@ public class LiveWorkoutFragment extends Fragment {
                 tvCurrentExercise.setText("");
                 tvNextExercise.setText("");
                 tvRoundIndicator.setText("");
+                
+                // Show appealing finish stats
+                ivAnimation.setVisibility(View.GONE);
+                finishStatsContainer.setVisibility(View.VISIBLE);
+                
+                int cals = viewModel.calculateTotalWorkoutCalories();
+                tvFinishCalories.setText(cals + " kcal");
+                
                 animationManager.stop();
-                ivAnimation.setImageResource(R.drawable.ic_check_circle);
+            } else {
+                ivAnimation.setVisibility(View.VISIBLE);
+                finishStatsContainer.setVisibility(View.GONE);
             }
-            setBottomNavVisibility(state.isShowBottomNav() ? View.VISIBLE : View.GONE);
+            
+            // Ensure bottom nav is always hidden in this fragment, regardless of finished state
+            setBottomNavVisibility(View.GONE);
         });
     }
 
@@ -246,7 +263,6 @@ public class LiveWorkoutFragment extends Fragment {
     }
 
     private void exitWorkout() {
-        // Only call stop if it's not finished, to avoid resetting UI state and causing a flash
         if (!Boolean.TRUE.equals(viewModel.getIsFinished().getValue())) {
             viewModel.stop();
         }

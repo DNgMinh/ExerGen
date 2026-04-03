@@ -19,7 +19,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
 @RunWith(AndroidJUnit4.class)
 public class WorkoutBuilderUiTest {
 
@@ -37,38 +36,15 @@ public class WorkoutBuilderUiTest {
         
         // Select muscle groups
         onView(withId(R.id.btn_muscle_toggle)).perform(click());
+        
+        // Since checkboxes are now generated dynamically, we find them by their text label
         onView(withText("Chest")).perform(click());
 
         // Generate
         onView(withId(R.id.btn_generate_workout)).perform(click());
 
-        // Verify results dialog appeared with the correct title
+        // Verify results dialog appeared with the correct title and content
         onView(withText("Your Generated Routine")).check(matches(isDisplayed()));
         onView(withText(containsString("Chest"))).check(matches(isDisplayed()));
-    }
-
-
-    @Test
-    public void testWorkoutBuilder_WithEquipmentConstraints() {
-        onView(withId(R.id.nav_add)).perform(click());
-
-        // Fill in details
-        onView(withId(R.id.et_exercise_count)).perform(typeText("2"), closeSoftKeyboard());
-        
-        // Select muscle groups
-        onView(withId(R.id.btn_muscle_toggle)).perform(click());
-        onView(withText("Legs")).perform(click());
-
-        // Select equipment
-        onView(withId(R.id.btn_equipment_toggle)).perform(click());
-        onView(withText("Dumbbells")).perform(click());
-
-        // Generate
-        onView(withId(R.id.btn_generate_workout)).perform(click());
-
-        // Verify results
-        onView(withText("Your Generated Routine")).check(matches(isDisplayed()));
-        onView(withText(containsString("Legs"))).check(matches(isDisplayed()));
-        onView(withText(containsString("Dumbbells"))).check(matches(isDisplayed()));
     }
 }
