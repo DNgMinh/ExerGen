@@ -34,11 +34,14 @@ public class WorkoutsLibraryUiTest {
 
     private void openEditorForBeginnerFullBody() {
         // Navigate to Workouts tab
-        onView(withId(R.id.nav_workouts)).perform(click());
+        onView(allOf(withId(R.id.nav_workouts), isDisplayed())).perform(click());
 
         // Select "Beginner Full Body" to edit
-        onView(allOf(withId(R.id.btn_edit_workout), 
+        // We use isDisplayed() to ensure we only interact with the visible fragment
+        onView(allOf(withId(R.id.btn_edit_workout),
+                isDisplayed(),
                 isDescendantOfA(allOf(
+                        isDisplayed(),
                         withParent(withId(R.id.exercise_recycler_view)),
                         hasDescendant(withText("Beginner Full Body"))))))
                 .perform(click());
@@ -49,13 +52,13 @@ public class WorkoutsLibraryUiTest {
         openEditorForBeginnerFullBody();
 
         // Change number of sets
-        onView(withId(R.id.et_edit_sets)).perform(replaceText("5"), closeSoftKeyboard());
+        onView(allOf(withId(R.id.et_edit_sets), isDisplayed())).perform(replaceText("5"), closeSoftKeyboard());
 
         // Save
-        onView(withId(R.id.btn_editor_save)).perform(click());
+        onView(allOf(withId(R.id.btn_editor_save), isDisplayed())).perform(click());
 
         // Verify return to library
-        onView(withText("Beginner Full Body")).check(matches(isDisplayed()));
+        onView(allOf(withText("Beginner Full Body"), isDisplayed())).check(matches(isDisplayed()));
     }
 
     @Test
@@ -63,21 +66,23 @@ public class WorkoutsLibraryUiTest {
         openEditorForBeginnerFullBody();
 
         // Delete "Pushups"
-        onView(allOf(withId(R.id.btn_remove_step), 
+        onView(allOf(withId(R.id.btn_remove_step),
+                isDisplayed(),
                 isDescendantOfA(allOf(
+                        isDisplayed(),
                         withParent(withId(R.id.rv_edit_steps)),
                         hasDescendant(withText("Pushups"))))))
                 .perform(click());
 
         // Add "Pushups" back via picker
-        onView(withId(R.id.btn_editor_add_exercise)).perform(click());
+        onView(allOf(withId(R.id.btn_editor_add_exercise), isDisplayed())).perform(click());
         onView(withText("Pushups")).perform(click());
 
         // Save
-        onView(withId(R.id.btn_editor_save)).perform(click());
+        onView(allOf(withId(R.id.btn_editor_save), isDisplayed())).perform(click());
 
         // Verify return to library
-        onView(withText("Beginner Full Body")).check(matches(isDisplayed()));
+        onView(allOf(withText("Beginner Full Body"), isDisplayed())).check(matches(isDisplayed()));
     }
 
     @Test
@@ -85,29 +90,33 @@ public class WorkoutsLibraryUiTest {
         openEditorForBeginnerFullBody();
 
         // Change working time for Pushups
-        onView(allOf(withId(R.id.tv_step_work), 
+        onView(allOf(withId(R.id.tv_step_work),
+                isDisplayed(),
                 isDescendantOfA(allOf(
+                        isDisplayed(),
                         withParent(withId(R.id.rv_edit_steps)),
                         hasDescendant(withText("Pushups"))))))
                 .perform(click());
 
-        onView(isAssignableFrom(EditText.class)).perform(replaceText("20"), closeSoftKeyboard());
+        onView(allOf(isAssignableFrom(EditText.class), isDisplayed())).perform(replaceText("20"), closeSoftKeyboard());
         onView(withText("OK")).perform(click());
 
         // Change rest time for Pushups
-        onView(allOf(withId(R.id.tv_step_rest), 
+        onView(allOf(withId(R.id.tv_step_rest),
+                isDisplayed(),
                 isDescendantOfA(allOf(
+                        isDisplayed(),
                         withParent(withId(R.id.rv_edit_steps)),
                         hasDescendant(withText("Pushups"))))))
                 .perform(click());
-        
-        onView(isAssignableFrom(EditText.class)).perform(replaceText("10"), closeSoftKeyboard());
+
+        onView(allOf(isAssignableFrom(EditText.class), isDisplayed())).perform(replaceText("10"), closeSoftKeyboard());
         onView(withText("OK")).perform(click());
 
         // Save
-        onView(withId(R.id.btn_editor_save)).perform(click());
+        onView(allOf(withId(R.id.btn_editor_save), isDisplayed())).perform(click());
 
         // Verify return to library
-        onView(withText("Beginner Full Body")).check(matches(isDisplayed()));
+        onView(allOf(withText("Beginner Full Body"), isDisplayed())).check(matches(isDisplayed()));
     }
 }
