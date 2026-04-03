@@ -1,6 +1,9 @@
 package com.example.exergen.persistence;
 
 import static org.junit.Assert.assertEquals;
+
+import com.example.exergen.application.helper.CSVParser;
+
 import org.junit.Test;
 import java.lang.reflect.Method;
 

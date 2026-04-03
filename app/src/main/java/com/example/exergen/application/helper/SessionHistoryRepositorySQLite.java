@@ -1,4 +1,4 @@
-package com.example.exergen.persistence;
+package com.example.exergen.application.helper;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,7 +6,6 @@ import android.database.Cursor;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
-import com.example.exergen.application.helper.DatabaseHelper;
 import com.example.exergen.model.SessionRecord;
 import com.example.exergen.persistence.repository.ISessionHistoryRepository;
 
@@ -51,7 +50,7 @@ public class SessionHistoryRepositorySQLite implements ISessionHistoryRepository
         List<SessionRecord> sessions = new ArrayList<>();
         SupportSQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        try (Cursor cursor = db.query("SELECT * FROM " + DatabaseHelper.TABLE_SESSION_HISTORY + 
+        try (Cursor cursor = db.query("SELECT * FROM " + DatabaseHelper.TABLE_SESSION_HISTORY +
                                       " ORDER BY completed_at_epoch_ms DESC")) {
             if (cursor.moveToFirst()) {
                 do {
