@@ -12,7 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.exergen.business.usecase.SessionHistoryUseCase;
 import com.example.exergen.model.SessionRecord;
-import com.example.exergen.application.helper.SessionHistoryRepositorySQLite;
+import com.example.exergen.persistence.SessionHistoryRepositorySQLite;
 
 import org.junit.After;
 import org.junit.Before;

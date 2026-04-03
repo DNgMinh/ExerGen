@@ -1,4 +1,4 @@
-package com.example.exergen.application.helper;
+package com.example.exergen.persistence;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +9,8 @@ import android.util.Log;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQueryBuilder;
 
+import com.example.exergen.persistence.helper.CSVParser;
+import com.example.exergen.persistence.helper.DatabaseHelper;
 import com.example.exergen.business.service.IEnumMapper;
 import com.example.exergen.model.EquipmentType;
 import com.example.exergen.model.Exercise;

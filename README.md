@@ -116,10 +116,9 @@ app/src/main/java/com/example/exergen/
 ## SDK & Tooling Requirements
 
 ### Android SDK
-* `compileSdk = 35`
-* `minSdk = 26`
-* `targetSdk = 35`
-
+* `compileSdk = 34`
+* `targetSdk = 34`
+* '`minSdk = 26`'
 ### Java
 * **Java 17**
 * Kotlin is **not used** in the logic/persistence layers of this project.

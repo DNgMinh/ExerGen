@@ -18,8 +18,8 @@ import com.example.exergen.model.Exercise;
 import com.example.exergen.model.MuscleGroup;
 import com.example.exergen.model.Workout;
 import com.example.exergen.model.WorkoutStep;
-import com.example.exergen.application.helper.ExerciseRepositorySQLite;
-import com.example.exergen.application.helper.WorkoutRepositorySQLite;
+import com.example.exergen.persistence.ExerciseRepositorySQLite;
+import com.example.exergen.persistence.WorkoutRepositorySQLite;
 
 import org.junit.After;
 import org.junit.Before;
