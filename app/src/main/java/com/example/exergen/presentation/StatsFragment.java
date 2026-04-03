@@ -93,6 +93,16 @@ public class StatsFragment extends Fragment {
     }
 
     @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        // Refresh when navigating back to this tab
+        if (!hidden && isResumed()) {
+            refreshStatisticsSection();
+            refreshSessionHistory();
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         refreshStatisticsSection();
@@ -100,6 +110,7 @@ public class StatsFragment extends Fragment {
     }
 
     private void refreshStatisticsSection() {
+        if (statisticsUseCase == null) return;
         refreshOverallSummary();
         refreshTrendSection();
     }
@@ -151,6 +162,7 @@ public class StatsFragment extends Fragment {
     }
 
     private void refreshSessionHistory() {
+        if (sessionHistoryUseCase == null) return;
         List<SessionRecord> sessions = sessionHistoryUseCase.getSessionHistory();
         if (sessions == null || sessions.isEmpty()) {
             sessionHistoryRecyclerView.setVisibility(View.GONE);
