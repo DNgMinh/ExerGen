@@ -13,13 +13,13 @@ ExerGen is an offline Android application that generates structured interval wor
 ---
 
 ## Vision Statement
-[**Vision Statement**](Docs/vision-statement.md) - Our goals and target audience.
+[**Vision Statement**](docs/vision-statement.md) - Our goals and target audience.
 
 
 ---
 
 ## Project Retrospective
-[**Project Retrospective**](Docs/RETROSPECTIVE.md) - Lessons learned and architectural shifts during development.
+[**Project Retrospective**](docs/RETROSPECTIVE.md) - Lessons learned and architectural shifts during development.
 
 ---
 
