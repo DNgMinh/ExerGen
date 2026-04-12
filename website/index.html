@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExerGen</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- ─── HEADER ─── -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="#" class="brand-mark">EXER<span>GEN</span></a>
+        <button
+          class="menu-btn"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >
+          &#9776;
+        </button>
+        <nav class="main-nav" id="main-nav">
+          <a href="#overview">Overview</a>
+          <a href="#features">Features</a>
+          <a href="#demo">Demo</a>
+          <a href="#screenshots">Screenshots</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#postmortem">Postmortem</a>
+          <a href="#team">Team</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ─── HERO ─── -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="hero-tag">COMP 3350 &middot; Winter 2026</p>
+          <h1>Train Smarter.<br />Skip the Planning.</h1>
+          <p class="hero-sub">
+            ExerGen generates structured interval workouts tailored to
+            available equipment, muscles, and time&mdash;then guides the user
+            through every set.
+          </p>
+          <div class="hero-actions">
+            <a href="#demo" class="btn btn-primary">Watch Demo</a>
+            <a href="#features" class="btn btn-outline">Explore Features</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-label">Ready in seconds</div>
+          <div class="hero-card-stat">30+</div>
+          <div class="hero-card-desc">
+            exercises across chest, back, legs, shoulders, arms &amp; core
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PROJECT OVERVIEW ─── -->
+    <section class="section" id="overview">
+      <h2>Project Overview</h2>
+      <div class="overview-grid">
+        <article class="card">
+          <h3>Vision</h3>
+          <p>
+            ExerGen is an offline Android application that generates structured
+            interval workouts based on available equipment, target muscle
+            groups, and time constraints, then guides and records the workout
+            from start to finish.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Intended Users</h3>
+          <p>
+            Students, intermediate gym-goers, and home fitness users who want
+            structure without rigid pre-written programs&mdash;especially those
+            who train in varying environments with different equipment.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Delivery Constraints</h3>
+          <ul>
+            <li>Java-only &middot; SQLite (no Room)</li>
+            <li>3-layer architecture + DI container</li>
+            <li>&gt;80% business-layer test coverage</li>
+            <li>Pixel 9 / API 35 baseline</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ─── FEATURES ─── -->
+    <section class="section section-dark" id="features">
+      <h2>Major Features</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">&#9881;</div>
+          <h3>Workout Builder</h3>
+          <p>
+            Choose muscle groups, equipment, and intensity. ExerGen generates a
+            balanced routine with customizable work/rest intervals.
+          </p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">&#9203;</div>
+          <h3>Live Workout Mode</h3>
+          <p>
+            Interactive timer with exercise animations, phase transitions, audio
+            cues, and real-time progress tracking through every set.
+          </p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">&#128200;</div>
+          <h3>Statistics Dashboard</h3>
+          <p>
+            Visualize weekly trends, total calories burned, average duration,
+            and session frequency over time.
+          </p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">&#128293;</div>
+          <h3>Calories Estimation</h3>
+          <p>
+            Per-exercise intensity-based calorie calculation with transparent
+            explanation text so users know estimates are approximate.
+          </p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">&#128221;</div>
+          <h3>Session History</h3>
+          <p>
+            Every completed workout is persisted locally with full
+            details&mdash;duration, exercises, sets, and estimated calories.
+          </p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">&#127939;</div>
+          <h3>Exercise Library</h3>
+          <p>
+            Browse, search, and filter 30+ exercises by muscle group and
+            equipment. Each includes animated demos and instructions.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── DEMO ─── -->
+    <section class="section" id="demo">
+      <h2>Product Demonstration</h2>
+      <div class="demo-container">
+        <video controls width="100%" poster="assets/App-Screenshots/Live-Workout-1.png" style="border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.5);">
+          <source src="../ExerGen Demo.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </section>
+
+    <!-- ─── SCREENSHOTS ─── -->
+    <section class="section section-dark" id="screenshots">
+      <h2>Product Screenshots</h2>
+      <div class="screenshot-grid">
+        <!-- Exercise Library -->
+        <div class="screenshot-card">
+          <h3>Exercise Details</h3>
+          <img src="assets/App-Screenshots/Exercise-Fragment.png" alt="Exercise Fragment" />
+        </div>
+        <div class="screenshot-card">
+          <h3>Exercise Library</h3>
+          <img src="assets/App-Screenshots/Exercise-Library-1.png" alt="Exercise Library" />
+        </div>
+
+        <!-- Saved Workouts -->
+        <div class="screenshot-card">
+          <h3>Saved Workouts</h3>
+          <img src="assets/App-Screenshots/Saved-Workouts-Page.png" alt="Saved Workouts Page" />
+        </div>
+
+        <!-- Live Workout -->
+        <div class="screenshot-card">
+          <h3>Live Workout</h3>
+          <img src="assets/App-Screenshots/Live-Workout-1.png" alt="Live Workout 1" />
+        </div>
+        <div class="screenshot-card">
+          <h3>Workout Summary</h3>
+          <img src="assets/App-Screenshots/Live-Workout-2.png" alt="Live Workout 2" />
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="screenshot-card">
+          <h3>Stats Dashboard</h3>
+          <img src="assets/App-Screenshots/Stats-Dashboard.png" alt="Stats Dashboard" />
+        </div>
+
+        <!-- Workout Builder -->
+        <div class="screenshot-card">
+          <h3>Workout Builder</h3>
+          <img src="assets/App-Screenshots/Workout-Builder-1.png" alt="Workout Builder 1" />
+        </div>
+        <div class="screenshot-card">
+          <h3>Generated Routine</h3>
+          <img src="assets/App-Screenshots/Workout-Builder-2.png" alt="Workout Builder 2" />
+        </div>
+
+        <!-- Session Details -->
+        <div class="screenshot-card">
+          <h3>Session Details</h3>
+          <img src="assets/App-Screenshots/Session-Details.png" alt="Session Details" />
+        </div>
+
+        <!-- Timer -->
+        <div class="screenshot-card">
+          <h3>Interval Timer</h3>
+          <img src="assets/App-Screenshots/Timer.png" alt="Timer" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── ARCHITECTURE ─── -->
+    <section class="section" id="architecture">
+      <h2>Architecture Summary</h2>
+      <div class="arch-layout">
+        <div class="arch-layers">
+          <div class="layer layer-presentation">
+            <h4>Presentation</h4>
+            <p>Fragments, ViewModels, Adapters, Animations</p>
+          </div>
+          <div class="layer-arrow">&darr;</div>
+          <div class="layer layer-business">
+            <h4>Business</h4>
+            <p>Use Cases, Services, Validation, Domain Exceptions</p>
+          </div>
+          <div class="layer-arrow">&darr;</div>
+          <div class="layer layer-persistence">
+            <h4>Persistence</h4>
+            <p>Repository Interfaces, Stubs, Seed Data, SQL Constants</p>
+          </div>
+          <div class="layer-arrow">&darr;</div>
+          <div class="layer layer-application">
+            <h4>Application / Helper</h4>
+            <p>AppBootstrap (DI), DatabaseHelper, SQLite Adapters, CSVParser</p>
+          </div>
+        </div>
+        <div class="arch-evidence">
+          <h3>Architecture Evidence</h3>
+          <ul>
+            <li>
+              <strong>Strict layering:</strong> No
+              <code>android.*</code> imports in <code>business/</code> or
+              <code>model/</code>
+            </li>
+            <li>
+              <strong>DI via composition root:</strong>
+              <code>MainActivity</code> injects all fragment dependencies from
+              <code>AppBootstrap</code>
+            </li>
+            <li>
+              <strong>Interface-driven persistence:</strong> Business layer
+              depends only on <code>IExerciseRepository</code>,
+              <code>IWorkoutRepository</code>,
+              <code>ISessionHistoryRepository</code>
+            </li>
+            <li>
+              <strong>SQLite via AndroidX:</strong>
+              <code>SupportSQLiteOpenHelper</code> in
+              <code>application/helper</code> only
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── POSTMORTEM ─── -->
+    <section class="section section-dark" id="postmortem">
+      <h2>Development Postmortem</h2>
+      <div class="postmortem-grid">
+        <article class="card">
+          <h3>What Went Well</h3>
+          <ul>
+            <li>
+              Clean layered architecture from Iteration 1 made SQLite
+              integration straightforward
+            </li>
+            <li>
+              Use-case pattern kept business logic testable and
+              presentation-independent
+            </li>
+            <li>
+              Consistent feature-branch workflow prevented merge conflicts
+            </li>
+            <li>
+              Unit test coverage exceeded 80% for business layer by Iteration 3
+            </li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>What Went Wrong</h3>
+          <ul>
+            <li>
+              Iteration 1 had tight coupling between models and business
+              validation
+            </li>
+            <li>
+              Early parallel-list design in Workout model caused fragile
+              index-based logic
+            </li>
+            <li>
+              Toolchain drift from course baseline caused out-of-box build
+              failures
+            </li>
+            <li>
+              Some UI fragments accumulated too many responsibilities before
+              refactoring
+            </li>
+          </ul>
+        </article>
+        <article class="card improvement-card">
+          <h3>Iteration 2 Improvement Area</h3>
+          <div class="improvement-content">
+            <p>
+              <strong>Identified weakness:</strong> Tight coupling between domain
+              models and business infrastructure (ValidationHelper dependency,
+              parallel lists, inconsistent enum mapping).
+            </p>
+            <p>
+              <strong>What changed:</strong> Introduced
+              <code>WorkoutStep</code> to replace parallel lists, moved enum
+              parsing into domain enums, centralized validation helpers, and
+              enforced use-case boundaries.
+            </p>
+            <p>
+              <strong>Evidence:</strong> Unit test coverage jumped from below 30%
+              to above 80%. Model layer became pure with zero business
+              dependencies. EnumMapper reduced to a lightweight translator.
+            </p>
+          </div>
+        </article>
+        <article class="card metrics-card">
+          <h3>Measurable Outcomes</h3>
+          <table class="metrics-table">
+            <tr>
+              <td>Unit test files</td>
+              <td><strong>36</strong></td>
+            </tr>
+            <tr>
+              <td>Integration tests</td>
+              <td><strong>14+</strong></td>
+            </tr>
+            <tr>
+              <td>UI/Espresso tests</td>
+              <td><strong>4 suites</strong></td>
+            </tr>
+            <tr>
+              <td>Business coverage</td>
+              <td><strong>&gt;80%</strong></td>
+            </tr>
+            <tr>
+              <td>Connected test pass</td>
+              <td><strong>23/23</strong></td>
+            </tr>
+          </table>
+        </article>
+      </div>
+
+      <div class="postmortem-extra">
+        <h3>Additional Reflections</h3>
+        <div class="overview-grid">
+          <article class="card">
+            <h3>If Starting Over</h3>
+            <p>
+              We would enforce stricter package boundaries from day one, adopt
+              <code>WorkoutStep</code> as the core data unit immediately, and
+              invest in CI/CD pipelines to catch toolchain drift early.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Lessons Learned</h3>
+            <p>
+              Architecture quality depends as much on team communication as on
+              code quality. Clear issue ownership and pre-implementation
+              discussion prevented most merge conflicts and design
+              inconsistencies.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Outstanding Debt</h3>
+            <p>
+              Some Android imports remain in <code>persistence/</code> for
+              SQLite adapters. Given another iteration, we would complete the
+              move to <code>application/helper</code> with full regression
+              verification.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TEAM ─── -->
+    <section class="section" id="team">
+      <h2>Team &amp; Contributions</h2>
+      <table class="contrib-table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Primary Contributions</th>
+            <th>Technical Skills Gained</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Brayden Burak</td>
+            <td>
+              Persistence layer, SQLite schema, filtering/search, exercise data
+              pipeline, timer logic
+            </td>
+            <td>SQLite/AndroidX persistence, database schema design</td>
+          </tr>
+          <tr>
+            <td>Heetkumar Patel</td>
+            <td>
+              Architecture refactoring, DI cleanup, calories feature, toolchain
+              alignment, Statistics dashboard, session history
+            </td>
+            <td>
+              Layered architecture enforcement, dependency injection patterns,
+              integration testing
+            </td>
+          </tr>
+          <tr>
+            <td>Kalp Joshi</td>
+            <td>Workout builder, Exercise library, exercise animations</td>
+            <td>
+              Android fragment lifecycle, RecyclerView adapters, interval timer
+              implementation
+            </td>
+          </tr>
+          <tr>
+            <td>Grover Rocha</td>
+            <td>
+              UI design, documentation, Espresso UI testing
+            </td>
+            <td>
+              Data aggregation services, Android UI/UX design, technical
+              documentation
+            </td>
+          </tr>
+          <tr>
+            <td>Minh Do</td>
+            <td>live workout mode, unit tests, code quality</td>
+            <td>
+              JUnit/Mockito testing, enum-driven design, code review practices
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ─── PROJECT LINKS ─── -->
+    <section class="section section-dark" id="links">
+      <h2>Project Links</h2>
+      <div class="overview-grid">
+        <a href="https://code.cs.umanitoba.ca/comp3350-winter2026/a02-g15-gpa_equals_gpt/-/blob/3776f2c6f948a162c5707724993e5a01182e6892/README.md" class="card link-card" target="_blank" rel="noopener">
+          <h3>README</h3>
+          <p>Build instructions, SDK requirements, and test commands</p>
+        </a>
+        <a href="https://code.cs.umanitoba.ca/comp3350-winter2026/a02-g15-gpa_equals_gpt/-/blob/main/ARCHITECTURE.md?ref_type=heads" class="card link-card" target="_blank" rel="noopener">
+          <h3>ARCHITECTURE</h3>
+          <p>Detailed layer breakdown and package structure</p>
+        </a>
+        <a href="https://code.cs.umanitoba.ca/comp3350-winter2026/a02-g15-gpa_equals_gpt/-/blob/3776f2c6f948a162c5707724993e5a01182e6892/Docs/vision-statement.md" class="card link-card" target="_blank" rel="noopener">
+          <h3>VISION</h3>
+          <p>Product vision, target audience, and success criteria</p>
+        </a>
+        <a href="https://code.cs.umanitoba.ca/comp3350-winter2026/a02-g15-gpa_equals_gpt/-/blob/3776f2c6f948a162c5707724993e5a01182e6892/Docs/RETROSPECTIVE.md" class="card link-card" target="_blank" rel="noopener">
+          <h3>RETROSPECTIVE</h3>
+          <p>Iteration reflections, velocity chart, and improvement evidence</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- ─── FOOTER ─── -->
+    <footer class="site-footer">
+      <p>
+        ExerGen &middot; Group 15 &middot; COMP 3350 Winter 2026 &middot;
+        University of Manitoba
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
