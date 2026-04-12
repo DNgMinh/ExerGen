@@ -6,13 +6,13 @@ ExerGen is an offline Android application that generates structured interval wor
 
 ---
 
-## 🌐 Demo Website
+## Demo Website
 
 [**Try the ExerGen Web Demo**](https://dngminh.github.io/ExerGen/)
 
 You can also download the latest APK directly from the [Demo Website](https://dngminh.github.io/ExerGen/) or [here (ExerGen_v3.0.apk)](docs/ExerGen_v3.0.apk).
 
-### Core Features
+## Core Features
 - **Workout Builder**: Generates tailored routines using intelligent filtering across equipment and muscle groups.
 - **Live Workout Mode**: An interactive session experience featuring a synchronized timer, exercise animations, and automatic phase transitions (Work/Rest).
 - **Session History**: Persistent storage of completed workouts for long-term tracking.
